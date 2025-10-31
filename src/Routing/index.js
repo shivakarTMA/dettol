@@ -17,6 +17,12 @@ import CategoryListScreen from "../Pages/Admin/CategoryListScreen";
 import RewardsListScreen from "../Pages/Admin/RewardsListScreen";
 import AdminDashboard from "../Pages/Admin/Home";
 import CoordinatorDashboard from "../Pages/Coordinator/Home";
+import SpinAwardsScreen from "../Pages/Admin/SpinAwardsScreen";
+import LearnModuleListScreen from "../Pages/Admin/LearnModuleListScreen";
+import TelemedicineListScreen from "../Pages/Admin/TelemedicineListScreen";
+import EmployeeFeedbackListScreen from "../Pages/Admin/EmployeeFeedbackListScreen";
+import UserFeedbackListScreen from "../Pages/Admin/UserFeedbackListScreen";
+import SchoolWiseMilestonesListScreen from "../Pages/Coordinator/SchoolWiseMilestonesListScreen";
 
 export default function Routing() {
   const { accessToken, userType } = useSelector((state) => state.auth);
@@ -98,18 +104,68 @@ export default function Routing() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/spin-awards"
+              element={
+                <PrivateRoute>
+                  <SpinAwardsScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/learn-module"
+              element={
+                <PrivateRoute>
+                  <LearnModuleListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/telemedicine"
+              element={
+                <PrivateRoute>
+                  <TelemedicineListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/employee-feedback"
+              element={
+                <PrivateRoute>
+                  <EmployeeFeedbackListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/user-feedback"
+              element={
+                <PrivateRoute>
+                  <UserFeedbackListScreen />
+                </PrivateRoute>
+              }
+            />
           </>
         )}
 
         {userType === "coordinator" && (
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <CoordinatorDashboard />
-              </PrivateRoute>
-            }
-          />
+          <>
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <CoordinatorDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/school-wise-milestones"
+              element={
+                <PrivateRoute>
+                  <SchoolWiseMilestonesListScreen />
+                </PrivateRoute>
+              }
+            />
+          </>
         )}
 
         {/* CoordinatorDashboard */}

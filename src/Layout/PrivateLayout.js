@@ -16,6 +16,12 @@ export default function PrivateLayout({ children }) {
     "/student-list": "Students",
     "/category-list": "Categories",
     "/rewards-list": "Rewards",
+    "/spin-awards": "Spin Awards",
+    "/learn-module": "Learn Module",
+    "/telemedicine": "Telemedicine",
+    "/employee-feedback": "Employee Feedback",
+    "/user-feedback": "User Feedback",
+    "/school-wise-milestones": "School Wise Milestones",
   };
 
   const pageTitle = pageTitles[location.pathname] || "Page";

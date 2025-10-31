@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import editIcon from "../../Assests/Images/icons/edit.svg";
-import EditCategoryModal from "../../Components/EditCategoryModal";
 import EditRewardModal from "../../Components/EditRewardModal";
 
 const RewardsListScreen = () => {

@@ -147,6 +147,60 @@ const Sidebar = ({ toggleMenuBar, setToggleMenuBar }) => {
           <img src={dashboardIcon} alt="dashboardIcon" className="menu--icon" />
           <span className="nav-text">Rewards</span>
         </Link>
+        <Link
+          to="/spin-awards"
+          className={`nav-link mb-2 ${
+            location.pathname === "/spin-awards" ? "active" : ""
+          }`}
+        >
+          <img src={dashboardIcon} alt="dashboardIcon" className="menu--icon" />
+          <span className="nav-text">Spin Awards</span>
+        </Link>
+        <Link
+          to="/learn-module"
+          className={`nav-link mb-2 ${
+            location.pathname === "/learn-module" ? "active" : ""
+          }`}
+        >
+          <img src={dashboardIcon} alt="dashboardIcon" className="menu--icon" />
+          <span className="nav-text">Learn Module</span>
+        </Link>
+        <Link
+          to="/telemedicine"
+          className={`nav-link mb-2 ${
+            location.pathname === "/telemedicine" ? "active" : ""
+          }`}
+        >
+          <img src={dashboardIcon} alt="dashboardIcon" className="menu--icon" />
+          <span className="nav-text">Telemedicine</span>
+        </Link>
+        <Link
+          to="/employee-feedback"
+          className={`nav-link mb-2 ${
+            location.pathname === "/employee-feedback" ? "active" : ""
+          }`}
+        >
+          <img src={dashboardIcon} alt="dashboardIcon" className="menu--icon" />
+          <span className="nav-text">Employee Feedback</span>
+        </Link>
+        <Link
+          to="/user-feedback"
+          className={`nav-link mb-2 ${
+            location.pathname === "/user-feedback" ? "active" : ""
+          }`}
+        >
+          <img src={dashboardIcon} alt="dashboardIcon" className="menu--icon" />
+          <span className="nav-text">User Feedback</span>
+        </Link>
+        <Link
+          to="/school-wise-milestones"
+          className={`nav-link mb-2 ${
+            location.pathname === "/school-wise-milestones" ? "active" : ""
+          }`}
+        >
+          <img src={dashboardIcon} alt="dashboardIcon" className="menu--icon" />
+          <span className="nav-text">School Wise Milestones</span>
+        </Link>
 
         {/* <div
           className="nav-link d-flex justify-between align-items-center mb-2"

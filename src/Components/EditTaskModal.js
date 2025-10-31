@@ -129,6 +129,25 @@ const EditTaskModal = ({ school, onClose, onSave }) => {
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
+                    Loyalty Points<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="loyalty_points"
+                    value={formik.values.loyalty_points || ""}
+                    onChange={formik.handleChange}
+                    placeholder="Loyalty Points"
+                    className="custom--input w-full"
+                  />
+                  {formik.touched.loyalty_points &&
+                    formik.errors.loyalty_points && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors.loyalty_points}
+                      </div>
+                    )}
+                </div>
+                <div>
+                  <label className="mb-2 block font-[500]">
                     Title (English)<span className="text-red-500">*</span>
                   </label>
                   <input
@@ -142,6 +161,25 @@ const EditTaskModal = ({ school, onClose, onSave }) => {
                   {formik.touched.title_en && formik.errors.title_en && (
                     <div className="text-red-500 text-sm">
                       {formik.errors.title_en}
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="mb-2 block font-[500]">
+                    Title (Hindi)<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="title_hi"
+                    value={formik.values.title_hi || ""}
+                    onChange={formik.handleChange}
+                    placeholder="Title English"
+                    className="custom--input w-full"
+                  />
+                  {formik.touched.title_hi && formik.errors.title_hi && (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.title_hi}
                     </div>
                   )}
                 </div>
@@ -224,25 +262,7 @@ const EditTaskModal = ({ school, onClose, onSave }) => {
                     + Add Instruction
                   </button>
                 </div>
-                <div>
-                  <label className="mb-2 block font-[500]">
-                    Loyalty Points<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="loyalty_points"
-                    value={formik.values.loyalty_points || ""}
-                    onChange={formik.handleChange}
-                    placeholder="Loyalty Points"
-                    className="custom--input w-full"
-                  />
-                  {formik.touched.loyalty_points &&
-                    formik.errors.loyalty_points && (
-                      <div className="text-red-500 text-sm">
-                        {formik.errors.loyalty_points}
-                      </div>
-                    )}
-                </div>
+                
               </div>
               <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
                 <button
