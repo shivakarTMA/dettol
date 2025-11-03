@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../Components/Common/Sidebar";
 import Topbar from "../Components/Common/Topbar";
 import { useLocation } from "react-router-dom";
@@ -6,6 +6,10 @@ import { useLocation } from "react-router-dom";
 export default function PrivateLayout({ children }) {
   const [toggleMenuBar, setToggleMenuBar] = useState(false);
   const location = useLocation();
+
+    useEffect(() => {
+    setToggleMenuBar(false);
+  }, [location.pathname]);
 
   // Map route paths to titles
   const pageTitles = {
@@ -16,7 +20,7 @@ export default function PrivateLayout({ children }) {
     "/student-management": "Student Management",
     "/task-category": "Task Category",
     "/rewards-list": "Milestone Rewards",
-    "/spin-awards": "Spin Awards",
+    "/spin-rewards": "Spin Rewards",
     "/learn-module": "Learn Module",
     "/telemedicine": "Telemedicine",
     "/employee-feedback": "Employee Feedback",

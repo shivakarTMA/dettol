@@ -34,8 +34,8 @@ const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
           {/* Right Section */}
           <div className="top--bar--menu flex items-center gap-3">
             <div className="flex gap-2 items-center">
-              <div className="flex bg-[var(--primarycolor)] rounded-full items-center justify-center cursor-pointer gap-2 py-2 px-4">
-                <img src={logoutIcon} onClick={handleLogout} className="brightness-0 invert-[1]" />
+              <div className="flex bg-[var(--primarycolor)] rounded-full items-center justify-center cursor-pointer gap-2 py-2 px-4" onClick={handleLogout}>
+                <img src={logoutIcon} className="brightness-0 invert-[1]" />
                 <span className="text-white text-sm">Logout</span>
               </div>
             </div>

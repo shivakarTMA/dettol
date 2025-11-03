@@ -178,7 +178,7 @@ const SchoolsScreen = () => {
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[100px]">School Name</th>
+                    <th className="px-3 py-3 min-w-[170px]">School Name</th>
                     <th className="px-3 py-3 min-w-[120px]">City</th>
                     <th className="px-3 py-3 min-w-[120px] text-center">
                       Students Enrolled

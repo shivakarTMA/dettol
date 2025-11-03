@@ -9,9 +9,6 @@ export default function SubmitRatingPopup({ isOpen, onClose }) {
   const [hover, setHover] = useState(null);
   const [feedback, setFeedback] = useState("");
 
-  // Prevent rendering when popup is closed
-  if (!isOpen) return null;
-
   // Handle form submit
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -21,7 +18,7 @@ export default function SubmitRatingPopup({ isOpen, onClose }) {
     };
     console.log("Submitted Rating:", formData);
     onClose();
-      toast.success("Updated successfully!");
+      toast.success("Rating Submitted Successfully!");
   };
 
   return (

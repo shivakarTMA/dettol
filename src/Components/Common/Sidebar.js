@@ -2,6 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Logo from "../../Assests/Images/logo.png";
 import dashboardIcon from "../../Assests/Images/icons/dashboard.svg";
+import schoolIcon from "../../Assests/Images/sidebar/schoolmanagement.svg";
+import studentIcon from "../../Assests/Images/sidebar/studentmanagement.svg";
+import CategoryIcon from "../../Assests/Images/sidebar/taskcategory.svg";
+import tasksIcon from "../../Assests/Images/sidebar/tasks.svg";
+import milestoneIcon from "../../Assests/Images/sidebar/milestonerewards.svg";
+import spinIcon from "../../Assests/Images/sidebar/spinrewards.svg";
+import learnIcon from "../../Assests/Images/sidebar/learnmodule.svg";
+import telemedicineIcon from "../../Assests/Images/sidebar/telemedicine.svg";
+import feedbackIcon from "../../Assests/Images/sidebar/feedback.svg";
+import reportsIcon from "../../Assests/Images/sidebar/reports.svg";
+import userIcon from "../../Assests/Images/sidebar/usermanagement.svg";
 import { useSelector } from "react-redux";
 import { FaAngleDown, FaCircle } from "react-icons/fa";
 
@@ -67,8 +78,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={schoolIcon}
+                alt="schoolIcon"
                 className="menu--icon"
               />
               <span className="nav-text">School Management</span>
@@ -80,8 +91,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={studentIcon}
+                alt="studentIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Student Management</span>
@@ -93,8 +104,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={CategoryIcon}
+                alt="CategoryIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Task Category</span>
@@ -106,8 +117,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={tasksIcon}
+                alt="tasksIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Tasks</span>
@@ -119,24 +130,24 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={milestoneIcon}
+                alt="milestoneIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Milestone Rewards</span>
             </Link>
             <Link
-              to="/spin-awards"
+              to="/spin-rewards"
               className={`nav-link mb-2 ${
-                location.pathname === "/spin-awards" ? "active" : ""
+                location.pathname === "/spin-rewards" ? "active" : ""
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={spinIcon}
+                alt="spinIcon"
                 className="menu--icon"
               />
-              <span className="nav-text">Spin Awards</span>
+              <span className="nav-text">Spin Rewards</span>
             </Link>
             <Link
               to="/learn-module"
@@ -145,8 +156,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={learnIcon}
+                alt="learnIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Learn Module</span>
@@ -158,8 +169,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={telemedicineIcon}
+                alt="telemedicineIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Telemedicine</span>
@@ -172,8 +183,8 @@ const toggleMenu = (menuKey) => {
             >
               <div className="flex items-center">
                 <img
-                  src={dashboardIcon}
-                  alt="dashboardIcon"
+                  src={feedbackIcon}
+                  alt="feedbackIcon"
                   className="menu--icon"
                 />
                 <span className="nav-text">Feedback</span>
@@ -212,8 +223,8 @@ const toggleMenu = (menuKey) => {
             >
               <div className="flex items-center">
                 <img
-                  src={dashboardIcon}
-                  alt="dashboardIcon"
+                  src={reportsIcon}
+                  alt="reportsIcon"
                   className="menu--icon"
                 />
                 <span className="nav-text">Reports</span>
@@ -265,8 +276,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={userIcon}
+                alt="userIcon"
                 className="menu--icon"
               />
               <span className="nav-text">User Management</span>
@@ -283,8 +294,8 @@ const toggleMenu = (menuKey) => {
             >
               <div className="flex items-center">
                 <img
-                  src={dashboardIcon}
-                  alt="dashboardIcon"
+                  src={feedbackIcon}
+                  alt="feedbackIcon"
                   className="menu--icon"
                 />
                 <span className="nav-text">Feedback</span>
@@ -323,8 +334,8 @@ const toggleMenu = (menuKey) => {
             >
               <div className="flex items-center">
                 <img
-                  src={dashboardIcon}
-                  alt="dashboardIcon"
+                  src={reportsIcon}
+                  alt="reportsIcon"
                   className="menu--icon"
                 />
                 <span className="nav-text">Reports</span>
@@ -381,8 +392,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={milestoneIcon}
+                alt="milestoneIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Milestones Completion</span>
@@ -395,8 +406,8 @@ const toggleMenu = (menuKey) => {
             >
               <div className="flex items-center">
                 <img
-                  src={dashboardIcon}
-                  alt="dashboardIcon"
+                  src={reportsIcon}
+                  alt="reportsIcon"
                   className="menu--icon"
                 />
                 <span className="nav-text">Reports</span>
@@ -439,8 +450,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={schoolIcon}
+                alt="schoolIcon"
                 className="menu--icon"
               />
               <span className="nav-text">School Management</span>
@@ -452,8 +463,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={studentIcon}
+                alt="studentIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Student Management</span>
@@ -465,8 +476,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={CategoryIcon}
+                alt="CategoryIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Task Category</span>
@@ -478,8 +489,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={tasksIcon}
+                alt="tasksIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Tasks</span>
@@ -491,24 +502,24 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={milestoneIcon}
+                alt="milestoneIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Milestone Rewards</span>
             </Link>
             <Link
-              to="/spin-awards"
+              to="/spin-rewards"
               className={`nav-link mb-2 ${
-                location.pathname === "/spin-awards" ? "active" : ""
+                location.pathname === "/spin-rewards" ? "active" : ""
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={spinIcon}
+                alt="spinIcon"
                 className="menu--icon"
               />
-              <span className="nav-text">Spin Awards</span>
+              <span className="nav-text">Spin Rewards</span>
             </Link>
             <Link
               to="/learn-module"
@@ -517,8 +528,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={learnIcon}
+                alt="learnIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Learn Module</span>
@@ -530,8 +541,8 @@ const toggleMenu = (menuKey) => {
               }`}
             >
               <img
-                src={dashboardIcon}
-                alt="dashboardIcon"
+                src={telemedicineIcon}
+                alt="telemedicineIcon"
                 className="menu--icon"
               />
               <span className="nav-text">Telemedicine</span>
@@ -544,8 +555,8 @@ const toggleMenu = (menuKey) => {
             >
               <div className="flex items-center">
                 <img
-                  src={dashboardIcon}
-                  alt="dashboardIcon"
+                  src={feedbackIcon}
+                  alt="feedbackIcon"
                   className="menu--icon"
                 />
                 <span className="nav-text">Feedback</span>
@@ -584,8 +595,8 @@ const toggleMenu = (menuKey) => {
             >
               <div className="flex items-center">
                 <img
-                  src={dashboardIcon}
-                  alt="dashboardIcon"
+                  src={reportsIcon}
+                  alt="reportsIcon"
                   className="menu--icon"
                 />
                 <span className="nav-text">Reports</span>

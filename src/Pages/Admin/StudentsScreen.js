@@ -7,6 +7,7 @@ import FilterStudentPanel from "../../Components/FilterStudentPanel";
 import EditStudentModal from "../../Components/EditStudentModal";
 import { studentData } from "../../Helper/dummyData";
 import { HiOutlineAdjustmentsHorizontal } from "react-icons/hi2";
+import confirmIcon from "../../Assests/Images/icons/confirm.svg";
 
 const StudentsScreen = () => {
   const [students, setStudents] = useState(studentData);
@@ -113,7 +114,7 @@ const StudentsScreen = () => {
               />
             )}
           </div>
-          <div className="flex gap-3 justify-end">
+          <div className="flex gap-3 flex-1 justify-end">
             <div className="relative w-full max-w-[250px]">
               <img
                 src={searchIcon}
@@ -135,7 +136,7 @@ const StudentsScreen = () => {
                   key={key}
                   className="flex items-center bg-[#0072CE] text-white px-3 py-1 rounded-full text-sm"
                 >
-                  {key}: {value.label}
+                  {value.label}
                   <button
                     onClick={() => clearFilter(key)}
                     className="ml-2 text-white"
@@ -154,7 +155,7 @@ const StudentsScreen = () => {
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[100px]">Student Name</th>
+                    <th className="px-3 py-3 min-w-[150px]">Student Name</th>
                     <th className="px-3 py-3 min-w-[120px]">Gender</th>
                     <th className="px-3 py-3 min-w-[120px] ">School Name</th>
                     <th className="px-3 py-3 min-w-[80px]">Age</th>
@@ -251,31 +252,35 @@ const StudentsScreen = () => {
               className="fixed inset-0 bg-black bg-opacity-50 z-40"
               onClick={() => setDeleteModalOpen(false)}
             ></div>
-            <div className="fixed inset-0  pt-10 pb-5 z-50 overflow-auto w-full max-w-[400px] mx-auto custom--overflow">
-              <div className="bg-white rounded-lg p-6 w-[95%] mx-auto text-center">
-                <h3 className="text-lg lg:text-xl font-semibold mb-1">
+
+             <div className="bg-white fixed rounded-[20px] shadow-lg lg:p-6 p-4 w-[95%] max-w-[450px] top-[50%] left-[50%] z-[999] translate-x-[-50%] translate-y-[-50%]">
+                <img
+                  src={confirmIcon}
+                  className={`lg:w-[50px] w-[35px] mx-auto`}
+                  alt="check"
+                />
+                <p className="text-center lg:text-[25px] text-[22px] mb-2 font-[500]">
                   Confirm Delete
-                </h3>
-                <p>
-                  Are you sure you want to delete
-                  <br />"<strong>{studentToDelete.Name}</strong>"?
                 </p>
+                <p className="text-center lg:text-md text-[14px] mb-4 leading-normal">
+                  Are you sure you want to delete
+                  "<strong>{studentToDelete.Name}</strong>"?
+                </p>
+                <div className="flex justify-center gap-2">
+                  <button
+                    onClick={() => setDeleteModalOpen(false)}
+                    className="bg-[#EFEFEF] text-black lg:px-4 px-3 lg:py-2 py-1 rounded-[5px] flex items-center lg:gap-2 gap-1 lg:text-md text-[14px]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmDelete}
+                    className="bg-[#4D57EE] text-white lg:px-4 px-3 lg:py-2 py-1 rounded-[5px] flex items-center lg:gap-2 gap-1 lg:text-md text-[14px]"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-              <div className="flex justify-center gap-3 mt-4">
-                <button
-                  onClick={() => setDeleteModalOpen(false)}
-                  className="bg-[#fff] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  className="bg-[#000000] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
           </>
         )}
       </div>

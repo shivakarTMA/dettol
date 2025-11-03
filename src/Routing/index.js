@@ -109,7 +109,7 @@ export default function Routing() {
               }
             />
             <Route
-              path="/spin-awards"
+              path="/spin-rewards"
               element={
                 <PrivateRoute>
                   <SpinAwardsScreen />
@@ -299,7 +299,7 @@ export default function Routing() {
               }
             />
             <Route
-              path="/spin-awards"
+              path="/spin-rewards"
               element={
                 <PrivateRoute>
                   <SpinAwardsScreen />

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { TbPhoneDone } from "react-icons/tb";
 import ConfirmTelemedicineModal from "../../Components/ConfirmTelemedicineModal";
 import searchIcon from "../../Assests/Images/icons/search.svg";
+import { toast } from "react-toastify";
 
 const TelemedicineListScreen = () => {
   const [telemedicine, setTelemedicine] = useState([
@@ -141,6 +142,8 @@ const TelemedicineListScreen = () => {
     }
     setModalOpen(false);
     setSelectedIndex(null);
+
+    toast.success("Confirm successfully!");
   };
 
   const handleCancel = () => {
@@ -194,39 +197,41 @@ const TelemedicineListScreen = () => {
 
   return (
     <div>
-      <div className="mb-4 flex gap-2 max-w-[500px] w-full">
-        {/* Phone Search */}
-        <div className="relative w-full">
-          <img src={searchIcon} className="absolute top-[13px] left-[15px]" />
-          <input
-            type="text"
-            placeholder="Search by phone number"
-            value={phoneSearch}
-            onChange={handlePhoneChange}
-            maxLength={10}
-            className="pr-2 pl-[35px] py-2 rounded-full w-full"
-          />
-          {phoneError && (
-            <span className="text-red-500 text-sm mt-1">{phoneError}</span>
-          )}
-        </div>
-        {/* Card Search */}
-        <div className="w-full">
+      <div className="mb-4 flex justify-end  w-full">
+        <div className="flex gap-2 max-w-[500px] w-full">
+          {/* Phone Search */}
           <div className="relative w-full">
             <img src={searchIcon} className="absolute top-[13px] left-[15px]" />
             <input
               type="text"
-              placeholder="Search by card number"
-              value={cardSearch}
-              onChange={handleCardSearchChange}
-              maxLength={16}
+              placeholder="Search by phone number"
+              value={phoneSearch}
+              onChange={handlePhoneChange}
+              maxLength={10}
               className="pr-2 pl-[35px] py-2 rounded-full w-full"
             />
+            {phoneError && (
+              <span className="text-red-500 text-sm mt-1">{phoneError}</span>
+            )}
           </div>
+          {/* Card Search */}
+          <div className="w-full">
+            <div className="relative w-full">
+              <img src={searchIcon} className="absolute top-[13px] left-[15px]" />
+              <input
+                type="text"
+                placeholder="Search by card number"
+                value={cardSearch}
+                onChange={handleCardSearchChange}
+                maxLength={16}
+                className="pr-2 pl-[35px] py-2 rounded-full w-full"
+              />
+            </div>
 
-          {cardError && (
-            <span className="text-red-500 text-sm mt-1">{cardError}</span>
-          )}
+            {cardError && (
+              <span className="text-red-500 text-sm mt-1">{cardError}</span>
+            )}
+          </div>
         </div>
       </div>
       <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
@@ -264,7 +269,7 @@ const TelemedicineListScreen = () => {
                         {formatCardNumber(item?.card_no)}
                       </td>
                       <td className="px-3 py-3 text-center">
-                        {item?.total_calls_done}
+                        {item.total_calls_done > 3 ? 'limit exceeded': item?.total_calls_done}
                       </td>
                       <td className="px-3 py-3">
                         <div className="flex gap-2">
@@ -300,7 +305,10 @@ const TelemedicineListScreen = () => {
       {/* Confirm Modal */}
       <ConfirmTelemedicineModal
         isOpen={modalOpen}
-        message="Are you sure you want to mark this call as done?"
+        header="Confirm Action"
+        message="Are you sure you want to mark this call as done? Once confirmed, this action cannot be undone."
+        btnConfirm="Mark as Done"
+        btnCancel="Cancel"
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
