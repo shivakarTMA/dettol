@@ -460,9 +460,9 @@ const CoordinatorDashboard = () => {
           <div className="bg-white custom--shodow rounded-[10px] lg:p-4 p-2">
             <div className="flex justify-between items-center mb-3 flex-wrap">
               <h3 className="lg:text-lg text-[16px] font-semibold text-gray-900">
-                Milestones Achieved Summary
+                Milestones Completion
               </h3>
-              <Link to="#" className="underline text-[#009EB2] text-lg">
+              <Link to="/milestones-completion" className="underline text-[#009EB2] text-lg">
                 <small>View All</small>
               </Link>
             </div>

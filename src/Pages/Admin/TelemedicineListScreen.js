@@ -121,7 +121,6 @@ const TelemedicineListScreen = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const formatCardNumber = (cardNo) => {
-    // Ensure it is a string
     const str = cardNo.toString().padStart(16, "0");
     return `${str.slice(0, 4)}-${str.slice(4, 8)}-${str.slice(
       8,
@@ -164,34 +163,34 @@ const TelemedicineListScreen = () => {
     const value = e.target.value.replace(/[^0-9]/g, ""); // remove non-numeric chars
     setCardSearch(value);
 
-    if (value && value.length < 12) {
-      setCardError("Please enter 12 digits");
+    if (value && value.length < 16) {
+      setCardError("Please enter 16 digits");
     } else {
       setCardError("");
     }
   };
 
-const filteredTelemedicine = telemedicine.filter((item) => {
-  let matchesPhone = true;
-  let matchesCard = true;
+  const filteredTelemedicine = telemedicine.filter((item) => {
+    let matchesPhone = true;
+    let matchesCard = true;
 
-  // Exact match for phone if search is not empty
-  if (phoneSearch) {
-    matchesPhone = item.phone === phoneSearch.trim();
-  }
-
-  // Exact match for 12-digit card number
-  if (cardSearch) {
-    if (cardSearch.length === 12) {
-      const cardDigits = item.card_no.replace(/-/g, "").slice(-12);
-      matchesCard = cardDigits === cardSearch;
-    } else {
-      matchesCard = false;
+    // Exact match for phone if search is not empty
+    if (phoneSearch) {
+      matchesPhone = item.phone === phoneSearch.trim();
     }
-  }
 
-  return matchesPhone && matchesCard;
-});
+    // Exact match for 12-digit card number
+    if (cardSearch) {
+      if (cardSearch.length === 16) {
+        const cardDigits = item.card_no.replace(/-/g, "");
+        matchesCard = cardDigits === cardSearch;
+      } else {
+        matchesCard = false;
+      }
+    }
+
+    return matchesPhone && matchesCard;
+  });
 
   return (
     <div>
@@ -207,7 +206,7 @@ const filteredTelemedicine = telemedicine.filter((item) => {
             maxLength={10}
             className="pr-2 pl-[35px] py-2 rounded-full w-full"
           />
-            {phoneError && (
+          {phoneError && (
             <span className="text-red-500 text-sm mt-1">{phoneError}</span>
           )}
         </div>
@@ -220,7 +219,7 @@ const filteredTelemedicine = telemedicine.filter((item) => {
               placeholder="Search by card number"
               value={cardSearch}
               onChange={handleCardSearchChange}
-              maxLength={12}
+              maxLength={16}
               className="pr-2 pl-[35px] py-2 rounded-full w-full"
             />
           </div>
@@ -271,7 +270,7 @@ const filteredTelemedicine = telemedicine.filter((item) => {
                         <div className="flex gap-2">
                           <div
                             className={`cursor-pointer w-5 ${
-                              item.total_calls_done > 4
+                              item.total_calls_done > 3
                                 ? "opacity-50 pointer-events-none"
                                 : ""
                             }`}
@@ -286,8 +285,8 @@ const filteredTelemedicine = telemedicine.filter((item) => {
                 ) : (
                   <tr>
                     <td colSpan={11} className="text-center py-4">
-                      {cardSearch && cardSearch.length < 12
-                        ? "Please enter 12 digits"
+                      {cardSearch && cardSearch.length < 16
+                        ? "Please enter 16 digits"
                         : "No data found"}
                     </td>
                   </tr>

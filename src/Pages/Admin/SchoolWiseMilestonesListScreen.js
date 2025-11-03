@@ -9,22 +9,9 @@ const milestoneOptions = [
   { value: "milestone3", label: "Milestone 3" },
 ];
 
-const SchoolWiseMilestonesListScreen = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  // Helper to read query params
-  const getMilestoneFromQuery = () => {
-    const params = new URLSearchParams(location.search);
-    const milestone = params.get("milestone");
-    return (
-      milestoneOptions.find((opt) => opt.value === milestone) ||
-      milestoneOptions[0]
-    );
-  };
+const SchoolWiseMilestonesListScreen = () => { 
 
-  const [selectedMilestone, setSelectedMilestone] = useState(
-    getMilestoneFromQuery()
-  );
+  const [selectedMilestone, setSelectedMilestone] = useState({ value: "milestone1", label: "Milestone 1" });
   const [schoolWiseMilestones, setSchoolWiseMilestones] = useState([
     {
       id: 1,
@@ -58,12 +45,40 @@ const SchoolWiseMilestonesListScreen = () => {
       female: 25,
       milestone: "milestone3",
     },
+    {
+      id: 5,
+      name: "LN Public School",
+      total: 52,
+      male: 32,
+      female: 20,
+      milestone: "milestone2",
+    },
+    {
+      id: 6,
+      name: "Dewan Public School",
+      total: 60,
+      male: 38,
+      female: 22,
+      milestone: "milestone1",
+    },
+    {
+      id: 7,
+      name: "Miniland Convent School",
+      total: 48,
+      male: 30,
+      female: 18,
+      milestone: "milestone1",
+    },
+    {
+      id: 8,
+      name: "Little Flower Public School",
+      total: 50,
+      male: 25,
+      female: 25,
+      milestone: "milestone1",
+    },
   ]);
 
-  // ✅ When selectedMilestone changes, update the URL query param
-  useEffect(() => {
-    navigate(`?milestone=${selectedMilestone.value}`, { replace: true });
-  }, [selectedMilestone, navigate]);
 
   // ✅ Filter data
   const filteredData = schoolWiseMilestones.filter(

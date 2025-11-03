@@ -78,6 +78,38 @@ const SchoolDashboardTables = () => {
       female: 25,
       milestone: "milestone3",
     },
+    {
+      id: 5,
+      name: "LN Public School",
+      total: 52,
+      male: 32,
+      female: 20,
+      milestone: "milestone2",
+    },
+    {
+      id: 6,
+      name: "Dewan Public School",
+      total: 60,
+      male: 38,
+      female: 22,
+      milestone: "milestone1",
+    },
+    {
+      id: 7,
+      name: "Miniland Convent School",
+      total: 48,
+      male: 30,
+      female: 18,
+      milestone: "milestone1",
+    },
+    {
+      id: 8,
+      name: "Little Flower Public School",
+      total: 50,
+      male: 25,
+      female: 25,
+      milestone: "milestone1",
+    },
   ]);
 
   const filteredData = schoolWiseMilestones.filter(
@@ -92,7 +124,7 @@ const SchoolDashboardTables = () => {
       enrolled: 20,
       registered: 15,
       active: 10,
-      date: "2025-10-20",
+      date: "2025-10-31",
     },
     {
       id: 2,
@@ -100,7 +132,7 @@ const SchoolDashboardTables = () => {
       enrolled: 25,
       registered: 20,
       active: 18,
-      date: "2025-10-21",
+      date: "2025-10-30",
     },
     {
       id: 3,
@@ -108,7 +140,7 @@ const SchoolDashboardTables = () => {
       enrolled: 15,
       registered: 12,
       active: 10,
-      date: "2025-10-22",
+      date: "2025-10-29",
     },
     {
       id: 4,
@@ -116,7 +148,7 @@ const SchoolDashboardTables = () => {
       enrolled: 18,
       registered: 14,
       active: 12,
-      date: "2025-10-23",
+      date: "2025-10-28",
     },
   ];
 
@@ -168,7 +200,7 @@ const SchoolDashboardTables = () => {
             School Wise Milestones Achieved
           </h2>
           <Link
-            to={`/school-wise-milestones?milestone=${selectedMilestone.value}`}
+            to={`/milestones-achieved`}
             className="underline text-[#009EB2] text-lg"
           >
             <small>View All</small>
@@ -225,7 +257,7 @@ const SchoolDashboardTables = () => {
           <h2 className="lg:text-lg text-[16px] font-semibold text-gray-900">
             School Wise Active Students
           </h2>
-          <Link to="#" className="underline text-[#009EB2] text-lg">
+          <Link to="/active-students" className="underline text-[#009EB2] text-lg">
             <small>View All</small>
           </Link>
         </div>

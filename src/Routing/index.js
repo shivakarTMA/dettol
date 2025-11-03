@@ -9,7 +9,6 @@ import { useSelector } from "react-redux";
 
 import PrivateRoute from "./PrivateRoute";
 import Login from "../Components/Common/Login";
-import ReportsScreen from "../Pages/Admin/ReportsScreen";
 import TaskListScreen from "../Pages/Admin/TaskListScreen";
 import SchoolsScreen from "../Pages/Admin/SchoolsScreen";
 import StudentsScreen from "../Pages/Admin/StudentsScreen";
@@ -22,7 +21,12 @@ import LearnModuleListScreen from "../Pages/Admin/LearnModuleListScreen";
 import TelemedicineListScreen from "../Pages/Admin/TelemedicineListScreen";
 import EmployeeFeedbackListScreen from "../Pages/Admin/EmployeeFeedbackListScreen";
 import UserFeedbackListScreen from "../Pages/Admin/UserFeedbackListScreen";
-import SchoolWiseMilestonesListScreen from "../Pages/Coordinator/SchoolWiseMilestonesListScreen";
+import SchoolWiseMilestonesListScreen from "../Pages/Admin/SchoolWiseMilestonesListScreen";
+import SchoolWiseActiveStudentScreen from "../Pages/Admin/SchoolWiseActiveStudentScreen";
+import SchoolwiseFeedbackListScreen from "../Pages/Admin/SchoolwiseFeedbackListScreen";
+import MilestonesCompletionScreen from "../Pages/Coordinator/MilestonesCompletionScreen";
+import CordinatorPerformanceListScreen from "../Pages/Admin/CordinatorPerformanceListScreen";
+import UserManagementScreen from "../Pages/Admin/UserManagementScreen";
 
 export default function Routing() {
   const { accessToken, userType } = useSelector((state) => state.auth);
@@ -46,7 +50,7 @@ export default function Routing() {
 
         <Route path="*" element={<Navigate to="/" />} />
 
-        {userType === "admin" && (
+        {userType === "ADMIN" && (
           <>
             <Route
               path="/"
@@ -57,15 +61,7 @@ export default function Routing() {
               }
             />
             <Route
-              path="/reports"
-              element={
-                <PrivateRoute>
-                  <ReportsScreen />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/task-list"
+              path="/tasks"
               element={
                 <PrivateRoute>
                   <TaskListScreen />
@@ -73,7 +69,15 @@ export default function Routing() {
               }
             />
             <Route
-              path="/school-list"
+              path="/user-management"
+              element={
+                <PrivateRoute>
+                  <UserManagementScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/school-management"
               element={
                 <PrivateRoute>
                   <SchoolsScreen />
@@ -81,7 +85,7 @@ export default function Routing() {
               }
             />
             <Route
-              path="/student-list"
+              path="/student-management"
               element={
                 <PrivateRoute>
                   <StudentsScreen />
@@ -89,7 +93,7 @@ export default function Routing() {
               }
             />
             <Route
-              path="/category-list"
+              path="/task-category"
               element={
                 <PrivateRoute>
                   <CategoryListScreen />
@@ -121,10 +125,80 @@ export default function Routing() {
               }
             />
             <Route
-              path="/telemedicine"
+              path="/employee-feedback"
               element={
                 <PrivateRoute>
-                  <TelemedicineListScreen />
+                  <EmployeeFeedbackListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/student-feedback"
+              element={
+                <PrivateRoute>
+                  <UserFeedbackListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/schoolwise-feedback"
+              element={
+                <PrivateRoute>
+                  <SchoolwiseFeedbackListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/cordinator-performance"
+              element={
+                <PrivateRoute>
+                  <CordinatorPerformanceListScreen />
+                </PrivateRoute>
+              }
+            />
+          </>
+        )}
+
+        {userType === "COORDINATOR" && (
+          <>
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <CoordinatorDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/milestones-completion"
+              element={
+                <PrivateRoute>
+                  <MilestonesCompletionScreen />
+                </PrivateRoute>
+              }
+            />
+          </>
+        )}
+        {/* CoordinatorDashboard */}
+
+        {(userType === "ADMIN" || userType === "PROJECT_MANAGER") && (
+          <Route
+            path="/telemedicine"
+            element={
+              <PrivateRoute>
+                <TelemedicineListScreen />
+              </PrivateRoute>
+            }
+          />
+        )}
+
+        {userType === "LEADERSHIP" && (
+          <>
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <AdminDashboard />
                 </PrivateRoute>
               }
             />
@@ -137,38 +211,160 @@ export default function Routing() {
               }
             />
             <Route
-              path="/user-feedback"
+              path="/student-feedback"
               element={
                 <PrivateRoute>
                   <UserFeedbackListScreen />
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/schoolwise-feedback"
+              element={
+                <PrivateRoute>
+                  <SchoolwiseFeedbackListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/cordinator-performance"
+              element={
+                <PrivateRoute>
+                  <CordinatorPerformanceListScreen />
+                </PrivateRoute>
+              }
+            />
           </>
         )}
 
-        {userType === "coordinator" && (
+        {userType === "TELEMEDICINE" && (
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <TelemedicineListScreen />
+              </PrivateRoute>
+            }
+          />
+        )}
+
+        {userType === "PROJECT_MANAGER" && (
           <>
             <Route
               path="/"
               element={
                 <PrivateRoute>
-                  <CoordinatorDashboard />
+                  <AdminDashboard />
                 </PrivateRoute>
               }
             />
             <Route
-              path="/school-wise-milestones"
+              path="/tasks"
               element={
                 <PrivateRoute>
-                  <SchoolWiseMilestonesListScreen />
+                  <TaskListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/school-management"
+              element={
+                <PrivateRoute>
+                  <SchoolsScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/student-management"
+              element={
+                <PrivateRoute>
+                  <StudentsScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/task-category"
+              element={
+                <PrivateRoute>
+                  <CategoryListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/rewards-list"
+              element={
+                <PrivateRoute>
+                  <RewardsListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/spin-awards"
+              element={
+                <PrivateRoute>
+                  <SpinAwardsScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/learn-module"
+              element={
+                <PrivateRoute>
+                  <LearnModuleListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/employee-feedback"
+              element={
+                <PrivateRoute>
+                  <EmployeeFeedbackListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/student-feedback"
+              element={
+                <PrivateRoute>
+                  <UserFeedbackListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/schoolwise-feedback"
+              element={
+                <PrivateRoute>
+                  <SchoolwiseFeedbackListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/cordinator-performance"
+              element={
+                <PrivateRoute>
+                  <CordinatorPerformanceListScreen />
                 </PrivateRoute>
               }
             />
           </>
         )}
 
-        {/* CoordinatorDashboard */}
+        <Route
+          path="/milestones-achieved"
+          element={
+            <PrivateRoute>
+              <SchoolWiseMilestonesListScreen />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/active-students"
+          element={
+            <PrivateRoute>
+              <SchoolWiseActiveStudentScreen />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </Router>
   );

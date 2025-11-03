@@ -157,7 +157,6 @@ const SchoolsScreen = () => {
     <div>
       <div className="">
         <div className="flex justify-between items-center mb-5 flex-wrap gap-3">
-          <h3 className="text-lg font-semibold text-black">Schools List</h3>
 
           <div className="flex gap-3 flex-1 justify-end">
             <div className="relative w-full max-w-[250px]">

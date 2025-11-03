@@ -1,15 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
-import notificationBell from "../../Assests/Images/icons/bell.svg";
-import profileIcon from "../../Assests/Images/icons/user.svg";
-import settingIcon from "../../Assests/Images/icons/setting.svg";
+import React from "react";
+import logoutIcon from "../../Assests/Images/icons/logout.svg";
 import ToggleMenu from "../../Assests/Images/icons/togglemenu.svg";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../Redux/Reducers/authSlice";
 
 const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -17,28 +13,11 @@ const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
     setToggleMenuBar(!toggleMenuBar);
   };
 
-  const handleProfileClick = () => {
-    setIsDropdownOpen((prev) => !prev);
-  };
-
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
   };
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   return (
     <>
@@ -55,35 +34,9 @@ const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
           {/* Right Section */}
           <div className="top--bar--menu flex items-center gap-3">
             <div className="flex gap-2 items-center">
-              <div className="bg-[#EAEAEA] rounded-full flex items-center justify-center w-[36px] h-[36px] cursor-pointer">
-                <img src={notificationBell} />
-              </div>
-              <div className="bg-[#EAEAEA] rounded-full flex items-center justify-center w-[36px] h-[36px] cursor-pointer">
-                <img src={settingIcon} />
-              </div>
-              <div className="relative" ref={dropdownRef}>
-                <div
-                  className="bg-[#EAEAEA] rounded-full flex items-center justify-center w-[40px] h-[40px] cursor-pointer"
-                  onClick={handleProfileClick}
-                >
-                  <img src={profileIcon} alt="profile" />
-                </div>
-
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-md z-50">
-                    <ul className="py-2 text-sm text-gray-700">
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        My Profile
-                      </li>
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        Settings
-                      </li>
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleLogout}>
-                        Logout
-                      </li>
-                    </ul>
-                  </div>
-                )}
+              <div className="flex bg-[var(--primarycolor)] rounded-full items-center justify-center cursor-pointer gap-2 py-2 px-4">
+                <img src={logoutIcon} onClick={handleLogout} className="brightness-0 invert-[1]" />
+                <span className="text-white text-sm">Logout</span>
               </div>
             </div>
           </div>

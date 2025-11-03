@@ -10,18 +10,22 @@ export default function PrivateLayout({ children }) {
   // Map route paths to titles
   const pageTitles = {
     "/": "Dashboard",
-    "/reports": "Reports",
-    "/task-list": "Tasks",
-    "/school-list": "Schools",
-    "/student-list": "Students",
-    "/category-list": "Categories",
-    "/rewards-list": "Rewards",
+    "/user-management": "User Management",
+    "/tasks": "Tasks",
+    "/school-management": "School Management",
+    "/student-management": "Student Management",
+    "/task-category": "Task Category",
+    "/rewards-list": "Milestone Rewards",
     "/spin-awards": "Spin Awards",
     "/learn-module": "Learn Module",
     "/telemedicine": "Telemedicine",
     "/employee-feedback": "Employee Feedback",
-    "/user-feedback": "User Feedback",
-    "/school-wise-milestones": "School Wise Milestones",
+    "/student-feedback": "Student Feedback",
+    "/schoolwise-feedback": "Schoolwise Feedback",
+    "/milestones-achieved": "School Wise Milestones Achieved",
+    "/active-students": "School Wise Active Students",
+    "/milestones-completion": "Milestones Completion",
+    "/cordinator-performance": "Co-ordinator Performance",
   };
 
   const pageTitle = pageTitles[location.pathname] || "Page";

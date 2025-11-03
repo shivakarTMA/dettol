@@ -59,7 +59,7 @@ const milestoneDetailsSample = {
   ],
 };
 
-const AdminDashboard = () => {
+const CordinatorPerformanceListScreen = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pipelineFilter, setPipelineFilter] = useState({
     value: "last7days",
@@ -469,266 +469,70 @@ const AdminDashboard = () => {
   return (
     <>
       <div>
-        <div className="custom--shodow bg-white lg:p-4 p-2 rounded-[10px] mb-3">
-          <h2 className="lg:text-xl text-lg font-bold text-black lg:mb-3 mb-2">
-            Quick Reports
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 ">
-            <StatCard title="Schools Assigned" value="09" />
-            <StatCard title="Students Enrolled" value="1250" />
-            <StatCard title="Students Registered" value="850" />
-            <StatCard title="Active Students" value="213" />
-            <StatCard title="Verification Pending" value="234" />
-            <StatCard title="Rewards Delivered" value="125" />
-          </div>
-        </div>
+        <div className="flex gap-2 items-center mb-4">
+          <Select
+            value={selectedPeriod}
+            onChange={handlePeriodChange}
+            options={periodOptions}
+            styles={customStyles}
+            className="lg:min-w-[150px] min-w-[100px]"
+          />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          {/* Rewards Pipeline Card */}
-          <div className="bg-white rounded-lg custom--shodow lg:p-4 p-2">
-            <div className="flex justify-between lg:items-center mb-0 flex-wrap gap-4">
-              <h2 className="lg:text-lg text-[16px] font-semibold text-gray-900">
-                Rewards Pipeline
-              </h2>
-              <div className="lg:w-44">
-                <Select
-                  value={pipelineFilter}
-                  onChange={setPipelineFilter}
-                  options={filterOptions}
-                  styles={customStyles}
+          {/* Custom date picker fields shown conditionally */}
+          {showCustomDate && (
+            <div className="flex items-center gap-2 w-[60%]">
+              <div className="custom--date relative">
+                <span className="absolute top-[50%] translate-y-[-50%] left-[15px] z-[1]">
+                  <LuCalendar />
+                </span>
+                <DatePicker
+                  selected={fromDate}
+                  onChange={setFromDate}
+                  dateFormat="yyyy-MM-dd"
+                  className="input--icon"
+                  placeholderText="From Date"
+                />
+              </div>
+              <div className="custom--date relative">
+                <span className="absolute top-[50%] translate-y-[-50%] left-[15px] z-[1]">
+                  <LuCalendar />
+                </span>
+                <DatePicker
+                  selected={toDate}
+                  onChange={setToDate}
+                  placeholderText="To Date"
+                  dateFormat="yyyy-MM-dd"
+                  className="input--icon"
                 />
               </div>
             </div>
-
-            {pipelineFilter.value === "custom" && (
-              <div className="my-2 mb-0 lg:p-4 p-2 bg-gray-50 rounded-lg grid grid-cols-2 gap-3">
-                <div>
-                  <div className="custom--date relative">
-                    <span className="absolute top-[50%] translate-y-[-50%] left-[15px] z-[1]">
-                      <LuCalendar />
-                    </span>
-                    <DatePicker
-                      selected={pipelineCustomFrom}
-                      onChange={setPipelineCustomFrom}
-                      dateFormat="yyyy-MM-dd"
-                      className="input--icon"
-                      placeholderText="From Date"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <div className="custom--date relative">
-                    <span className="absolute top-[50%] translate-y-[-50%] left-[15px] z-[1]">
-                      <LuCalendar />
-                    </span>
-                    <DatePicker
-                      selected={pipelineCustomTo}
-                      onChange={setPipelineCustomTo}
-                      dateFormat="yyyy-MM-dd"
-                      className="input--icon"
-                      placeholderText="To Date"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <HighchartsReact
-              highcharts={Highcharts}
-              options={pieChartOptions}
-            />
-          </div>
-
-          {/* Verifications Done Card */}
-          <div className="bg-white rounded-lg custom--shodow lg:p-4 p-2">
-            <div className="flex justify-between items-center mb-0 flex-wrap gap-4">
-              <h2 className="lg:text-lg text-[16px] font-semibold text-gray-900">
-                Verifications Done
-              </h2>
-              <div className="lg:w-44">
-                <Select
-                  value={verificationFilter}
-                  onChange={setVerificationFilter}
-                  options={filterOptions}
-                  styles={customStyles}
-                />
-              </div>
-            </div>
-
-            {verificationFilter.value === "custom" && (
-              <div className="my-2 mb-0 lg:p-4 p-2 bg-gray-50 rounded-lg grid grid-cols-2 gap-3">
-                <div>
-                  <div className="custom--date relative">
-                    <span className="absolute top-[50%] translate-y-[-50%] left-[15px] z-[1]">
-                      <LuCalendar />
-                    </span>
-                    <DatePicker
-                      selected={verificationCustomFrom}
-                      onChange={setVerificationCustomFrom}
-                      dateFormat="yyyy-MM-dd"
-                      className="input--icon"
-                      placeholderText="From Date"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <div className="custom--date relative">
-                    <span className="absolute top-[50%] translate-y-[-50%] left-[15px] z-[1]">
-                      <LuCalendar />
-                    </span>
-                    <DatePicker
-                      selected={verificationCustomTo}
-                      onChange={setVerificationCustomTo}
-                      dateFormat="yyyy-MM-dd"
-                      className="input--icon"
-                      placeholderText="To Date"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="mt-5">
-              <HighchartsReact
-                highcharts={Highcharts}
-                options={lineChartOptions}
-              />
-            </div>
-          </div>
+          )}
         </div>
-
-        <SchoolDashboardTables />
-
-        <div className="mt-3">
-          <div className="bg-white custom--shodow rounded-[10px] lg:p-4 p-2">
-            <div className="flex justify-between items-center mb-3 flex-wrap">
-              <h3 className="lg:text-lg text-[16px] font-semibold text-gray-900">
-                Co-ordinator Performance
-              </h3>
-              <Link to="/cordinator-performance" className="underline text-[#009EB2] text-lg">
-                <small>View All</small>
-              </Link>
-            </div>
-
-            <div className="flex justify-between items-center mb-4">
-              <Select
-                value={selectedPeriod}
-                onChange={handlePeriodChange}
-                options={periodOptions}
-                styles={customStyles}
-                className="lg:min-w-[150px] min-w-[100px]"
-              />
-
-              {/* Custom date picker fields shown conditionally */}
-              {showCustomDate && (
-                <div className="flex items-center gap-3 w-[60%]">
-                  <div className="custom--date relative">
-                    <span className="absolute top-[50%] translate-y-[-50%] left-[15px] z-[1]">
-                      <LuCalendar />
-                    </span>
-                    <DatePicker
-                      selected={fromDate}
-                      onChange={setFromDate}
-                      dateFormat="yyyy-MM-dd"
-                      className="input--icon"
-                      placeholderText="From Date"
-                    />
-                  </div>
-                  <div className="custom--date relative">
-                    <span className="absolute top-[50%] translate-y-[-50%] left-[15px] z-[1]">
-                      <LuCalendar />
-                    </span>
-                    <DatePicker
-                      selected={toDate}
-                      onChange={setToDate}
-                      placeholderText="To Date"
-                      dateFormat="yyyy-MM-dd"
-                      className="input--icon"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="rounded-[10px] overflow-hidden">
-              <div className="relative overflow-x-auto ">
-                <table className="min-w-full text-sm text-left">
-                  <thead className="bg-[#F1F1F1]">
-                    <tr>
-                      <th className="px-3 py-3 min-w-[150px]">Name</th>
-                      <th className="px-3 py-3 min-w-[120px]">
-                        In Preparation
-                      </th>
-                      <th className="px-3 py-3 min-w-[120px]">In Transit</th>
-                      <th className="px-3 py-3 min-w-[120px]">Delivered</th>
-                      <th className="px-3 py-3 min-w-[120px]">Delayed</th>
+        <div className="bg-white custom--shodow rounded-[10px] p-2">
+          <div className="rounded-[10px] overflow-hidden">
+            <div className="relative overflow-x-auto ">
+              <table className="min-w-full text-sm text-left">
+                <thead className="bg-[#F1F1F1]">
+                  <tr>
+                    <th className="px-3 py-3 min-w-[150px]">Name</th>
+                    <th className="px-3 py-3 min-w-[120px]">In Preparation</th>
+                    <th className="px-3 py-3 min-w-[120px]">In Transit</th>
+                    <th className="px-3 py-3 min-w-[120px]">Delivered</th>
+                    <th className="px-3 py-3 min-w-[120px]">Delayed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCodinatorPerformanceData.map((item, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="px-3 py-3">{item.name}</td>
+                      <td className="px-3 py-3">{item.inPreparation}</td>
+                      <td className="px-3 py-3">{item.inTransit}</td>
+                      <td className="px-3 py-3">{item.delivered}</td>
+                      <td className="px-3 py-3">{item.delayed}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredCodinatorPerformanceData.map((item, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item.name}</td>
-                        <td className="px-3 py-3">{item.inPreparation}</td>
-                        <td className="px-3 py-3">{item.inTransit}</td>
-                        <td className="px-3 py-3">{item.delivered}</td>
-                        <td className="px-3 py-3">{item.delayed}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-3">
-          <div className="bg-white custom--shodow rounded-[10px] lg:p-4 p-2">
-            <div className="flex justify-between items-center mb-3 flex-wrap">
-              <h3 className="lg:text-lg text-[16px] font-semibold text-gray-900">
-                Schoolwise Feedback
-              </h3>
-              <Link
-                to="/schoolwise-feedback"
-                className="underline text-[#009EB2] text-lg"
-              >
-                <small>View All</small>
-              </Link>
-            </div>
-            <div className="rounded-[10px] overflow-hidden">
-              <div className="relative overflow-x-auto ">
-                <table className="min-w-full text-sm text-left">
-                  <thead className="bg-[#F1F1F1]">
-                    <tr>
-                      <th className="px-3 py-3 min-w-[170px]">School Name</th>
-                      <th className="px-3 py-3 min-w-[120px] text-center">
-                        Total Students
-                      </th>
-                      <th className="px-3 py-3 min-w-[120px] text-center">
-                        Feedback Submitted
-                      </th>
-                      <th className="px-3 py-3 min-w-[120px] text-center">
-                        Average Rating Submitted
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {schoolwiseFeedBack.map((item, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item.name}</td>
-                        <td className="px-3 py-3 text-center">
-                          {item.totalStudent}
-                        </td>
-                        <td className="px-3 py-3 text-center">
-                          {item.feedback_submitted}
-                        </td>
-                        <td className="px-3 py-3 text-center">
-                          {item.average_rating}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -737,4 +541,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default CordinatorPerformanceListScreen;
