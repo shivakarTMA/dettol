@@ -34,7 +34,9 @@ const toggleMenu = (menuKey) => {
     return newState;
   });
 
-  setToggleMenuBar(false);
+  if (window.innerWidth > 1200) {
+    setToggleMenuBar(false);
+  }
 };
   useEffect(() => {
     if (toggleMenuBar) {
@@ -177,7 +179,7 @@ const toggleMenu = (menuKey) => {
             </Link>
 
             <div
-              className="nav-link d-flex justify-between align-items-center mb-2"
+              className="nav-link d-flex justify-between align-items-center mb-2 dropdown--menu"
               onClick={() => toggleMenu("feedback")}
               style={{ cursor: "pointer" }}
             >
@@ -217,7 +219,7 @@ const toggleMenu = (menuKey) => {
             )}
 
             <div
-              className="nav-link d-flex justify-between align-items-center mb-2"
+              className="nav-link d-flex justify-between align-items-center mb-2 dropdown--menu"
               onClick={() => toggleMenu("reports")}
               style={{ cursor: "pointer" }}
             >
@@ -288,7 +290,7 @@ const toggleMenu = (menuKey) => {
         {userType === "LEADERSHIP" && (
           <>
             <div
-              className="nav-link d-flex justify-between align-items-center mb-2"
+              className="nav-link d-flex justify-between align-items-center mb-2 dropdown--menu"
               onClick={() => toggleMenu("feedback")}
               style={{ cursor: "pointer" }}
             >
@@ -328,7 +330,7 @@ const toggleMenu = (menuKey) => {
             )}
 
             <div
-              className="nav-link d-flex justify-between align-items-center mb-2"
+              className="nav-link d-flex justify-between align-items-center mb-2 dropdown--menu"
               onClick={() => toggleMenu("reports")}
               style={{ cursor: "pointer" }}
             >
@@ -400,7 +402,7 @@ const toggleMenu = (menuKey) => {
             </Link>
 
             <div
-              className="nav-link d-flex justify-between align-items-center mb-2"
+              className="nav-link d-flex justify-between align-items-center mb-2 dropdown--menu"
               onClick={() => toggleMenu("reports")}
               style={{ cursor: "pointer" }}
             >
@@ -549,7 +551,7 @@ const toggleMenu = (menuKey) => {
             </Link>
 
             <div
-              className="nav-link d-flex justify-between align-items-center mb-2"
+              className="nav-link d-flex justify-between align-items-center mb-2 dropdown--menu"
               onClick={() => toggleMenu("feedback")}
               style={{ cursor: "pointer" }}
             >
@@ -589,7 +591,7 @@ const toggleMenu = (menuKey) => {
             )}
 
             <div
-              className="nav-link d-flex justify-between align-items-center mb-2"
+              className="nav-link d-flex justify-between align-items-center mb-2 dropdown--menu"
               onClick={() => toggleMenu("reports")}
               style={{ cursor: "pointer" }}
             >

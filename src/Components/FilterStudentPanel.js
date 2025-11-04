@@ -38,22 +38,22 @@ const FilterStudentPanel = ({
     })
   );
 
-//  useEffect(() => {
-//     const handleClickOutside = (event) => {
-//       // If the click is inside the modal, ignore it
-//       if (modalRef.current && modalRef.current.contains(event.target)) return;
+ useEffect(() => {
+    const handleClickOutside = (event) => {
+      // If the click is inside the modal, ignore it
+      if (modalRef.current && modalRef.current.contains(event.target)) return;
 
-//       // If the click is inside any react-select element, ignore it
-//       if (event.target.closest(".react-select")) return;
+      // If the click is inside any react-select element, ignore it
+      if (event.target.closest(".react-select")) return;
 
-//       onClose();
-//     };
+      onClose();
+    };
 
-//     document.addEventListener("mousedown", handleClickOutside);
-//     return () => {
-//       document.removeEventListener("mousedown", handleClickOutside);
-//     };
-//   }, [onClose]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose]);
 
   return (
     <div
@@ -102,7 +102,7 @@ const FilterStudentPanel = ({
       <div className="flex justify-end gap-2">
         <button
           onClick={onApply}
-          className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+          className="px-4 py-2 rounded-lg bg-[#4D57EE] text-white"
         >
           Apply
         </button>

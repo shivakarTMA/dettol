@@ -28,7 +28,7 @@ const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
             <div className="toggle--bar w-[32px]" onClick={handleToggleMenu}>
               <img src={ToggleMenu} className="cursor-pointer w-8" />
             </div>
-            <h2 className="font-semibold lg:text-2xl text-xl">{pageTitle}</h2>
+            <h2 className="font-semibold lg:text-2xl text-lg">{pageTitle}</h2>
           </div>
 
           {/* Right Section */}

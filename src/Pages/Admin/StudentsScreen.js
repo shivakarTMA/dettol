@@ -19,8 +19,6 @@ const StudentsScreen = () => {
   // Edit & Delete states
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [studentToDelete, setStudentToDelete] = useState(null);
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -63,17 +61,6 @@ const StudentsScreen = () => {
     setEditModalOpen(true);
   };
 
-  // Open delete modal
-  const handleDelete = (student) => {
-    setStudentToDelete(student);
-    setDeleteModalOpen(true);
-  };
-
-  // Confirm delete
-  const confirmDelete = () => {
-    setStudents((prev) => prev.filter((s) => s.id !== studentToDelete.id));
-    setDeleteModalOpen(false);
-  };
 
   // Filtered student data
   const filteredStudents = students.filter((student) => {
@@ -199,16 +186,6 @@ const StudentsScreen = () => {
                                 className="w-full"
                               />
                             </div>
-                            <div
-                              className="cursor-pointer w-5"
-                              onClick={() => handleDelete(item)}
-                            >
-                              <img
-                                src={deleteIcon}
-                                alt="view"
-                                className="w-full"
-                              />
-                            </div>
                           </div>
                         </td>
                       </tr>
@@ -245,44 +222,6 @@ const StudentsScreen = () => {
           />
         )}
 
-        {/* Delete Modal */}
-        {deleteModalOpen && (
-          <>
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-40"
-              onClick={() => setDeleteModalOpen(false)}
-            ></div>
-
-             <div className="bg-white fixed rounded-[20px] shadow-lg lg:p-6 p-4 w-[95%] max-w-[450px] top-[50%] left-[50%] z-[999] translate-x-[-50%] translate-y-[-50%]">
-                <img
-                  src={confirmIcon}
-                  className={`lg:w-[50px] w-[35px] mx-auto`}
-                  alt="check"
-                />
-                <p className="text-center lg:text-[25px] text-[22px] mb-2 font-[500]">
-                  Confirm Delete
-                </p>
-                <p className="text-center lg:text-md text-[14px] mb-4 leading-normal">
-                  Are you sure you want to delete
-                  "<strong>{studentToDelete.Name}</strong>"?
-                </p>
-                <div className="flex justify-center gap-2">
-                  <button
-                    onClick={() => setDeleteModalOpen(false)}
-                    className="bg-[#EFEFEF] text-black lg:px-4 px-3 lg:py-2 py-1 rounded-[5px] flex items-center lg:gap-2 gap-1 lg:text-md text-[14px]"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={confirmDelete}
-                    className="bg-[#4D57EE] text-white lg:px-4 px-3 lg:py-2 py-1 rounded-[5px] flex items-center lg:gap-2 gap-1 lg:text-md text-[14px]"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-          </>
-        )}
       </div>
     </div>
   );

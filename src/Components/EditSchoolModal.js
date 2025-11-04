@@ -1,45 +1,54 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { IoMdClose } from "react-icons/io";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import { toast } from "react-toastify";
+import { authAxios } from "../Config/config";
 
-// Validation schema using Yup
-const validationSchema = Yup.object().shape({
-  name_en: Yup.string().required("Name English is required"),
-  name_hi: Yup.string().required("Name Hindi is required"),
-  address_en: Yup.string().required("Address English is required"),
-  address_in: Yup.string().required("Address Hindi is required"),
-  city_en: Yup.string().required("City English is required"),
-  city_hi: Yup.string().required("City Hindi is required"),
-  pincode: Yup.number().required("Pincode is required"),
-});
+const EditSchoolModal = ({ setShowModal, editingOption, formik }) => {
+  useEffect(() => {
+    if (!editingOption) return;
 
-const EditSchoolModal = ({ school, onClose, onSave }) => {
-  const initialValues = {
-    name_en: "Kendriya Vidyalaya No. 1 AFS Gorakhpur",
-    name_hi: "केन्द्रीय विद्यालय संख्या 1 एएफएस गोरखपुर",
-    address_en: "New Project Air Force Station, Post Kusumi, Gorakhpur",
-    address_hi: "न्यू प्रोजेक्ट एयर फोर्स स्टेशन, पोस्ट कुसुमी, गोरखपुर",
-    city_en: "Gorakhpur",
-    city_hi: "गोरखपुर",
-    pincode: "273002",
-  };
-  const formik = useFormik({
-    initialValues: initialValues,
-    enableReinitialize: true, // important to update form when student changes
-    validationSchema,
-    onSubmit: (values) => {
-      onClose();
-      toast.success("Updated successfully!");
-    },
-  });
+    const fetchStaffById = async (id) => {
+      try {
+        const res = await authAxios().get(`/school/${id}`);
+        const data = res.data?.data || res.data || null;
+
+        console.log(data, "SHIVAKAR");
+
+        if (data) {
+          formik.setValues({
+            name: data.name || "",
+            mobile: data.mobile || "",
+            role: data.role || "",
+            report_to: data.report_to || "",
+
+            name_en: data.name_en || "",
+            address_en: data.address_en || "",
+            district_en: data.district_en || "",
+            city_en: data.city_en || "",
+            name_hi: data.name_hi || "",
+            address_hi: data.address_hi || "",
+            district_hi: data.district_hi || "",
+            city_hi: data.city_hi || "",
+            pincode: data.pincode || "",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch module details");
+      }
+    };
+
+    fetchStaffById(editingOption);
+  }, [editingOption]);
 
   return (
     <>
       <div
         className="fixed inset-0 bg-black bg-opacity-50 z-40"
-        onClick={onClose}
+        onClick={() => {
+          formik.resetForm();
+          setShowModal(false);
+        }}
       ></div>
       <div className="fixed inset-0 flex justify-center items-start pt-10 pb-5 z-50 overflow-auto w-full max-w-[1000px] mx-auto custom--overflow">
         <div className="flex flex-col relative w-[95%] mx-auto">
@@ -47,7 +56,14 @@ const EditSchoolModal = ({ school, onClose, onSave }) => {
             <div className="flex gap-2 items-center justify-between lg:py-3 py-2 lg:px-5 px-3 border-b border-b-[#D4D4D4]">
               <h3 className="text-lg font-semibold">Edit School</h3>
               {/* Close button */}
-              <button className="text-2xl" onClick={onClose} aria-label="Close">
+              <button
+                className="text-2xl"
+                onClick={() => {
+                  formik.resetForm();
+                  setShowModal(false);
+                }}
+                aria-label="Close"
+              >
                 <IoMdClose />
               </button>
             </div>
@@ -188,7 +204,10 @@ const EditSchoolModal = ({ school, onClose, onSave }) => {
               <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={() => {
+                    formik.resetForm();
+                    setShowModal(false);
+                  }}
                   className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
                 >
                   Cancel

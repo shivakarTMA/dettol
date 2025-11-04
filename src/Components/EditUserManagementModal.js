@@ -1,23 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import { toast } from "react-toastify";
 import Select from "react-select";
 import { customStyles } from "../Helper/helper";
-
-// Validation schema using Yup
-const validationSchema = Yup.object().shape({
-  name_en: Yup.string().required("Name English is required"),
-  Mobile_No: Yup.string()
-    .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
-    .required("Mobile number is required"),
-  address_en: Yup.string().required("Address English is required"),
-  address_in: Yup.string().required("Address Hindi is required"),
-  city_en: Yup.string().required("City English is required"),
-  city_hi: Yup.string().required("City Hindi is required"),
-  pincode: Yup.number().required("Pincode is required"),
-});
+import { authAxios } from "../Config/config";
 
 const userRole = [
   {
@@ -35,57 +21,75 @@ const userRole = [
   { value: "TELEMEDICINE", label: "Telemedicine" },
 ];
 
-const userReport = [
-  {
-    value: "ADMIN",
-    label: "Admin",
-  },
-  {
-    value: "LEADERSHIP",
-    label: "Leadership",
-  },
-  {
-    value: "PROJECT_MANAGER",
-    label: "Project Manager",
-  },
-  {
-    value: "COORDINATOR",
-    label: "Coordinator",
-  },
-  { value: "TELEMEDICINE", label: "Telemedicine" },
-];
+const EditUserManagementModal = ({ setShowModal, editingOption, formik }) => {
+  const [userReport, setUserReport] = useState([]);
 
-const EditUserManagementModal = ({ school, onClose, onSave }) => {
-  const initialValues = {
-    user_id: "USER_001",
-    name: "Ankit Sharma",
-    Mobile_No: "9875485456",
-    role: "COORDINATOR",
-    report_to: "PROJECT_MANAGER",
+  const fetchAllUser = async () => {
+    try {
+      const res = await authAxios().get("/staff/fetch/all");
+
+      let data = res.data?.data || [];
+      setUserReport(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch all staff");
+    }
   };
-  const formik = useFormik({
-    initialValues: initialValues,
-    enableReinitialize: true, // important to update form when student changes
-    validationSchema,
-    onSubmit: (values) => {
-      onClose();
-      toast.success("Updated successfully!");
-    },
-  });
+
+  useEffect(() => {
+    fetchAllUser();
+  }, []);
+
+  useEffect(() => {
+    if (!editingOption) return;
+
+    const fetchStaffById = async (id) => {
+      try {
+        const res = await authAxios().get(`/staff/${id}`);
+        const data = res.data?.data || res.data || null;
+
+        if (data) {
+          formik.setValues({
+            name: data.name || "",
+            mobile: data.mobile || "",
+            role: data.role || "",
+            report_to: data.report_to || "",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch module details");
+      }
+    };
+
+    fetchStaffById(editingOption);
+  }, [editingOption]);
 
   return (
     <>
       <div
         className="fixed inset-0 bg-black bg-opacity-50 z-40"
-        onClick={onClose}
+        onClick={() => {
+          formik.resetForm();
+          setShowModal(false);
+        }}
       ></div>
       <div className="fixed inset-0 flex justify-center items-start pt-10 pb-5 z-50 overflow-auto w-full max-w-[600px] mx-auto custom--overflow">
         <div className="flex flex-col relative w-[95%] mx-auto">
           <div className="w-full bg-white rounded-[20px]">
             <div className="flex gap-2 items-center justify-between lg:py-3 py-2 lg:px-5 px-3 border-b border-b-[#D4D4D4]">
-              <h3 className="text-lg font-semibold">Edit User Management</h3>
+              <h3 className="text-lg font-semibold">
+                {editingOption ? "Edit User" : "Create User"}
+              </h3>
               {/* Close button */}
-              <button className="text-2xl" onClick={onClose} aria-label="Close">
+              <button
+                className="text-2xl"
+                onClick={() => {
+                  formik.resetForm();
+                  setShowModal(false);
+                }}
+                aria-label="Close"
+              >
                 <IoMdClose />
               </button>
             </div>
@@ -116,16 +120,16 @@ const EditUserManagementModal = ({ school, onClose, onSave }) => {
                   </label>
                   <input
                     type="text"
-                    name="Mobile_No"
-                    value={formik.values.Mobile_No || ""}
+                    name="mobile"
+                    value={formik.values.mobile || ""}
                     onChange={formik.handleChange}
                     placeholder="Mobile Number"
                     className="custom--input w-full"
                     maxLength={10}
                   />
-                  {formik.touched.Mobile_No && formik.errors.Mobile_No && (
+                  {formik.touched.mobile && formik.errors.mobile && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.Mobile_No}
+                      {formik.errors.mobile}
                     </div>
                   )}
                 </div>
@@ -138,10 +142,7 @@ const EditUserManagementModal = ({ school, onClose, onSave }) => {
                       (option) => option.value === formik.values.role
                     )} // ✅ React Select expects the full object, not just the value
                     onChange={(option) =>
-                      formik.setFieldValue(
-                        "role",
-                        option ? option.value : ""
-                      )
+                      formik.setFieldValue("role", option ? option.value : "")
                     } // ✅ Handles both select & clear
                     options={userRole}
                     placeholder="Role"
@@ -159,15 +160,20 @@ const EditUserManagementModal = ({ school, onClose, onSave }) => {
                   </label>
                   <Select
                     value={userReport.find(
-                      (option) => option.value === formik.values.report_to
-                    )} // ✅ React Select expects the full object, not just the value
-                    onChange={(option) =>
+                      (user) => user.name === formik.values.report_to // Match selected user by ID
+                    )}
+                    onChange={(selectedOption) => {
+                      // When a new "Reports To" is selected, store the whole selected user object
+                      // in Formik's state, but only send user.id in the payload
                       formik.setFieldValue(
                         "report_to",
-                        option ? option.value : ""
-                      )
-                    } // ✅ Handles both select & clear
-                    options={userReport}
+                        selectedOption ? selectedOption.value : "" // Save the user id (value)
+                      );
+                    }}
+                    options={userReport.map((user) => ({
+                      value: user.id, // The ID will be used in the payload
+                      label: user.name,
+                    }))}
                     placeholder="Reports To"
                     styles={customStyles}
                   />
@@ -181,7 +187,10 @@ const EditUserManagementModal = ({ school, onClose, onSave }) => {
               <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={() => {
+                    formik.resetForm();
+                    setShowModal(false);
+                  }}
                   className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
                 >
                   Cancel

@@ -20,7 +20,7 @@ import SpinAwardsScreen from "../Pages/Admin/SpinAwardsScreen";
 import LearnModuleListScreen from "../Pages/Admin/LearnModuleListScreen";
 import TelemedicineListScreen from "../Pages/Admin/TelemedicineListScreen";
 import EmployeeFeedbackListScreen from "../Pages/Admin/EmployeeFeedbackListScreen";
-import UserFeedbackListScreen from "../Pages/Admin/UserFeedbackListScreen";
+import StudentFeedbackListScreen from "../Pages/Admin/StudentFeedbackListScreen";
 import SchoolWiseMilestonesListScreen from "../Pages/Admin/SchoolWiseMilestonesListScreen";
 import SchoolWiseActiveStudentScreen from "../Pages/Admin/SchoolWiseActiveStudentScreen";
 import SchoolwiseFeedbackListScreen from "../Pages/Admin/SchoolwiseFeedbackListScreen";
@@ -136,7 +136,7 @@ export default function Routing() {
               path="/student-feedback"
               element={
                 <PrivateRoute>
-                  <UserFeedbackListScreen />
+                  <StudentFeedbackListScreen />
                 </PrivateRoute>
               }
             />
@@ -214,7 +214,7 @@ export default function Routing() {
               path="/student-feedback"
               element={
                 <PrivateRoute>
-                  <UserFeedbackListScreen />
+                  <StudentFeedbackListScreen />
                 </PrivateRoute>
               }
             />
@@ -326,7 +326,7 @@ export default function Routing() {
               path="/student-feedback"
               element={
                 <PrivateRoute>
-                  <UserFeedbackListScreen />
+                  <StudentFeedbackListScreen />
                 </PrivateRoute>
               }
             />

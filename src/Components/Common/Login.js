@@ -13,6 +13,7 @@ import {
 } from "../../Redux/Reducers/authSlice";
 import Logo from "../../Assests/Images/logo.png";
 import bgLogin from "../../Assests/Images/bg-login.png";
+import { apiAxios } from "../../Config/config";
 
 const Login = (props) => {
   const { setLoading } = props;
@@ -20,50 +21,11 @@ const Login = (props) => {
   const dispatch = useDispatch();
   const { accessToken } = useSelector((state) => state.auth);
 
-
   const [data, setData] = useState({ identifier: "", otp: "" });
   const [step, setStep] = useState(1);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const users = [
-    {
-      identifier: "9999990001",
-      otp: "111111",
-      name: "Admin User",
-      token: "admin-token",
-      userType: "ADMIN",
-    },
-    {
-      identifier: "9999990002",
-      otp: "222222",
-      name: "Coordinator User",
-      token: "coordinator-token",
-      userType: "COORDINATOR",
-    },
-    {
-      identifier: "9999990003",
-      otp: "333333",
-      name: "Leadership User",
-      token: "Leadership-token",
-      userType: "LEADERSHIP",
-    },
-    {
-      identifier: "9999990004",
-      otp: "444444",
-      name: "Project Manager User",
-      token: "project-manager-token",
-      userType: "PROJECT_MANAGER",
-    },
-    {
-      identifier: "9999990005",
-      otp: "555555",
-      name: "Telemedicine User",
-      token: "telemedicine-token",
-      userType: "TELEMEDICINE",
-    },
-  ];
-
-    // Redirect to home if already logged in
+  // Redirect to home if already logged in
   useEffect(() => {
     if (accessToken) {
       navigate("/");
@@ -78,44 +40,62 @@ const Login = (props) => {
     }));
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (step === 1) {
-      // Step 1: validate phone number
-      setLoading(true);
       try {
-        const foundUser = users.find((u) => u.identifier === data.identifier);
-        if (foundUser) {
-          setCurrentUser(foundUser);
-          toast.success(`OTP sent successfully.`);
-          console.log(`Mock OTP for ${data.identifier}: ${foundUser.otp}`);
+        setLoading(true);
+        // Send request to /staff/login with mobile
+        const response = await apiAxios().post("staff/login", {
+          mobile: data.identifier,
+        });
+
+        if (response.data.status) {
+          setCurrentUser({ mobile: data.identifier });
+          toast.success(response.data.message || "OTP sent successfully");
           setStep(2);
         } else {
-          toast.error("Please enter a valid phone number.");
+          toast.error(response.data.message || "Failed to send OTP");
         }
       } catch (error) {
-        toast.error("Something went wrong while sending OTP");
+        toast.error(
+          error.response?.data?.message || "Invalid phone number or email"
+        );
       } finally {
         setLoading(false);
       }
     } else if (step === 2) {
-      // Step 2: verify OTP
-      setLoading(true);
       try {
-        if (currentUser && data.otp === currentUser.otp) {
-          dispatch(setAccessToken(currentUser.token));
-          dispatch(setUser(currentUser));
-          dispatch(setUserType(currentUser.userType));
+        setLoading(true);
+        // Send request to /staff/otp/verify with mobile and OTP
+        const response = await apiAxios().post("staff/otp/verify", {
+          mobile: currentUser.mobile,
+          otp: data.otp,
+        });
+
+        if (response.data.status) {
+          const result = response.data.data;
+
+          dispatch(setAccessToken(result.access_token));
+          dispatch(
+            setUser({
+              id: result.id,
+              name: result.name,
+              mobile: result.mobile,
+              role: result.role,
+            })
+          );
+          dispatch(setUserType(result.role));
           dispatch(setIsAuthenticated(true));
-          toast.success(`Welcome, ${currentUser.name}!`);
+
+          toast.success(response.data.message || "Login successful");
           navigate("/");
         } else {
-          toast.error("Invalid OTP. Please try again.");
+          toast.error(response.data.message || "Invalid OTP");
         }
       } catch (error) {
-        toast.error("Error verifying OTP");
+        toast.error(error.response?.data?.message || "Invalid OTP");
       } finally {
         setLoading(false);
       }
@@ -124,8 +104,8 @@ const Login = (props) => {
 
   return (
     <div className="min-h-screen bg-whtie flex items-center justify-center p-4 relative overflow-hidden">
-       {/* Background Image with Overlay */}
-      <div 
+      {/* Background Image with Overlay */}
+      <div
         className="absolute inset-0 bg-center"
         style={{
           backgroundImage: `url('${bgLogin}')`,
@@ -134,30 +114,28 @@ const Login = (props) => {
         <div className="absolute inset-0 bg-gray-300 backdrop-blur-sm opacity-[0.5]"></div>
       </div>
 
-
       <div className="w-full max-w-md relative z-10">
         <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-10 transform transition-all duration-300">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center  mb-4 ">
-              <img
-                src={Logo}
-                alt="logo"
-                width={150}
-                height={30}
-              />
+              <img src={Logo} alt="logo" width={150} height={30} />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Welcome Back
+            </h2>
             <p className="text-gray-600">Sign in to continue to your account</p>
           </div>
 
           <div className="space-y-6">
             {step === 1 && (
               <div className="space-y-2 animate-fadeIn">
-                <label htmlFor="identifier" className="block text-sm font-semibold text-gray-700">
+                <label
+                  htmlFor="identifier"
+                  className="block text-sm font-semibold text-gray-700"
+                >
                   Phone Number
                 </label>
                 <div className="relative group">
-           
                   <div className="relative flex items-center bg-white rounded-xl border-2 border-gray-200 transition-all duration-300 overflow-hidden">
                     <span className="flex items-center justify-center w-12 h-14 text-gray-500 pl-2">
                       <FaPhoneAlt className="w-5 h-5" />
@@ -182,7 +160,10 @@ const Login = (props) => {
 
             {step === 2 && (
               <div className="space-y-2 animate-fadeIn">
-                <label htmlFor="otp" className="block text-sm font-semibold text-gray-700">
+                <label
+                  htmlFor="otp"
+                  className="block text-sm font-semibold text-gray-700"
+                >
                   Enter OTP
                 </label>
                 <div className="relative group">
@@ -215,9 +196,19 @@ const Login = (props) => {
               onClick={handleSubmit}
               className="w-full h-14 bg-[var(--primarycolor)] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-2 group"
             >
-              <span>{step === 1 ? 'Send OTP' : 'Verify & Login'}</span>
-              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              <span>{step === 1 ? "Send OTP" : "Verify & Login"}</span>
+              <svg
+                className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
               </svg>
             </button>
 
@@ -234,9 +225,7 @@ const Login = (props) => {
               </button>
             )}
           </div>
-
         </div>
-
       </div>
     </div>
   );

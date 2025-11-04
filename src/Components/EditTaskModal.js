@@ -93,7 +93,7 @@ const EditTaskModal = ({ school, onClose, onSave }) => {
         <div className="flex flex-col relative w-[95%] mx-auto">
           <div className="w-full bg-white rounded-[20px]">
             <div className="flex gap-2 items-center justify-between lg:py-3 py-2 lg:px-5 px-3 border-b border-b-[#D4D4D4]">
-              <h3 className="text-lg font-semibold">Edit School</h3>
+              <h3 className="text-lg font-semibold">Edit Task</h3>
               {/* Close button */}
               <button className="text-2xl" onClick={onClose} aria-label="Close">
                 <IoMdClose />

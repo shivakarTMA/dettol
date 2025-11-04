@@ -61,6 +61,7 @@
     transform: translateX(0%);
     width: 80%;
     max-width: 300px;
+    z-index: 999;
   }
   
 }
@@ -124,4 +125,13 @@
   .side--content--area {
     width: 100%;
   }
+
+  .dropdown--menu {
+    justify-content: space-between !important;
+}
+
+.dropdown--menu > div {
+    flex-direction: row !important;
+    gap: 15px;
+}
 }

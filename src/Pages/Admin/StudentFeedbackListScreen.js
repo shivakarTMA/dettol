@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { GoStarFill } from "react-icons/go";
-import { authAxios } from "../../Config/config";
 import { toast } from "react-toastify";
+import { authAxios } from "../../Config/config";
 import { formatDate } from "../../Helper/helper";
 
-const EmployeeFeedbackListScreen = () => {
-  const [employeeFeedback, setEmployeeFeedback] = useState([]);
+const StudentFeedbackListScreen = () => {
+  const [studentFeedback, setStudentFeedback] = useState([]);
 
   const fetchUserManagement = async () => {
     try {
-      const res = await authAxios().get("/staff/feedback/list");
+      const res = await authAxios().get("/student/feedbaclk/list");
 
       let data = res.data?.data || [];
-      setEmployeeFeedback(data);
+      setStudentFeedback(data);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch employee feedback");
+      toast.error("Failed to fetch student feedback");
     }
   };
 
@@ -24,12 +24,12 @@ const EmployeeFeedbackListScreen = () => {
   }, []);
 
   const averageRating =
-    employeeFeedback.length > 0
-      ? (
-          employeeFeedback.reduce((sum, item) => sum + item.rating, 0) /
-          employeeFeedback.length
-        ).toFixed(1)
-      : 0;
+  studentFeedback.length > 0
+    ? (
+        studentFeedback.reduce((sum, item) => sum + item.rating, 0) /
+        studentFeedback.length
+      ).toFixed(1)
+    : 0;
 
   return (
     <div>
@@ -46,31 +46,34 @@ const EmployeeFeedbackListScreen = () => {
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[120px]">Staff Name</th>
+                    <th className="px-3 py-3 min-w-[120px]">Student Name</th>
+                    <th className="px-3 py-3 min-w-[120px]">School Name</th>
                     <th className="px-3 py-3 min-w-[120px]">Rating</th>
                     <th className="px-3 py-3 min-w-[250px]">Comments</th>
                     <th className="px-3 py-3 min-w-[110px]">Submitted At</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {employeeFeedback.length === 0 ? (
+
+                  {studentFeedback.length === 0 ? (
                     <tr>
                       <td colSpan="5" className="px-3 py-3 text-center">
                         No data available
                       </td>
                     </tr>
                   ) : (
-                    employeeFeedback.map((item, index) => (
+                    studentFeedback.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item?.staff_name}</td>
+                        <td className="px-3 py-3">{item?.student_name_en}</td>
+                        <td className="px-3 py-3">{item?.school_name}</td>
                         <td className="px-3 py-3">
                           <div className="flex gap-[2px]">
-                            {Array.from({ length: item.rating }, (_, i) => (
+                            {Array.from({ length: item?.rating }, (_, i) => (
                               <GoStarFill key={i} className="text-yellow-500" />
                             ))}
                           </div>
                         </td>
-                        <td className="px-3 py-3">{item.comment}</td>
+                        <td className="px-3 py-3">{item?.comment}</td>
                         <td className="px-3 py-3">{formatDate(item.created_at)}</td>
                       </tr>
                     ))
@@ -85,4 +88,4 @@ const EmployeeFeedbackListScreen = () => {
   );
 };
 
-export default EmployeeFeedbackListScreen;
+export default StudentFeedbackListScreen;

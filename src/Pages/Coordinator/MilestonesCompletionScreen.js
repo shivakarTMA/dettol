@@ -14,17 +14,17 @@ const milestoneDetailsSample = {
     {
       id: 1,
       text: "Wash hands with soap for at least 20 seconds",
-      completed: true,
+      completed: null,
     },
     {
       id: 2,
       text: "Use tissues for blowing nose and dispose properly",
-      completed: true,
+      completed: null,
     },
     {
       id: 3,
       text: "Avoid sharing spoon/plate while eating food with classmates",
-      completed: true,
+      completed: null,
     },
     {
       id: 4,

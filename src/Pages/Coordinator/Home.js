@@ -11,6 +11,7 @@ import shippingIcon from "../../Assests/Images/icons/shipping.svg";
 import MilestonePopup from "../../Components/MilestonePopup";
 import { LuCalendar } from "react-icons/lu";
 import SchoolDashboardTables from "../../Components/SchoolDashboardTables";
+import SubmitRatingPopup from "../../Components/SubmitRatingPopup";
 
 const milestoneDetailsSample = {
   studentName: "Name of Student",
@@ -22,38 +23,34 @@ const milestoneDetailsSample = {
     {
       id: 1,
       text: "Wash hands with soap for at least 20 seconds",
-      completed: true,
-      action: null,
+      completed: null,
     },
     {
       id: 2,
       text: "Use tissues for blowing nose and dispose properly",
-      completed: true,
-      action: null,
+      completed: null,
     },
     {
       id: 3,
       text: "Avoid sharing spoon/plate while eating food with classmates",
-      completed: true,
-      action: null,
+      completed: null,
     },
     {
       id: 4,
       text: "Use personal water bottle instead of drinking fountains",
-      completed: false,
-      action: null,
+      completed: null,
     },
     {
       id: 5,
       text: "Wipe down shared computer keyboards before use",
-      completed: false,
-      action: null,
+      completed: null,
     },
   ],
 };
 
 const CoordinatorDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState(null);
   const [pipelineFilter, setPipelineFilter] = useState({
     value: "last7days",
@@ -323,6 +320,15 @@ const CoordinatorDashboard = () => {
   const handleViewClick = (milestone) => {
     setSelectedMilestone(milestone.details);
     setIsModalOpen(true);
+  };
+
+    const handlePopupSubmit = (tasks) => {
+    console.log("📦 Received in parent:", tasks);
+    const allCompleted = tasks.every((task) => task.completed === true);
+    console.log(allCompleted, "allCompleted");
+    if (allCompleted) {
+      setIsSuccessModalOpen(true);
+    }
   };
 
   return (
@@ -615,11 +621,19 @@ const CoordinatorDashboard = () => {
         </div>
       </div>
 
-      {selectedMilestone && (
+      {isModalOpen && (
         <MilestonePopup
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          setIsModalOpen={setIsModalOpen}
           milestone={selectedMilestone}
+          onSubmit={handlePopupSubmit} // ✅ MUST be here
+        />
+      )}
+            {/* ✅ Success / Rating Popup */}
+      {isSuccessModalOpen && (
+        <SubmitRatingPopup
+          isOpen={isSuccessModalOpen} // ✅ Add this line
+          onClose={() => setIsSuccessModalOpen(false)}
         />
       )}
     </>
