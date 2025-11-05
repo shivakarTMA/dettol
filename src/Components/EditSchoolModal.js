@@ -214,7 +214,7 @@ const EditSchoolModal = ({ setShowModal, editingOption, formik }) => {
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#4D57EE] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
+                  className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
                 >
                   Save
                 </button>

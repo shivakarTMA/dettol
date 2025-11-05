@@ -12,7 +12,7 @@ import {
   setUserType,
 } from "../../Redux/Reducers/authSlice";
 import Logo from "../../Assests/Images/logo.png";
-import bgLogin from "../../Assests/Images/bg-login.png";
+import bgLogin from "../../Assests/Images/bg-login.jpg";
 import { apiAxios } from "../../Config/config";
 
 const Login = (props) => {
@@ -103,19 +103,12 @@ const Login = (props) => {
   };
 
   return (
-    <div className="min-h-screen bg-whtie flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Image with Overlay */}
-      <div
-        className="absolute inset-0 bg-center"
-        style={{
-          backgroundImage: `url('${bgLogin}')`,
-        }}
-      >
-        <div className="absolute inset-0 bg-gray-300 backdrop-blur-sm opacity-[0.5]"></div>
+    <div className="min-h-screen bg-white flex lg:flex-row flex-col relative overflow-hidden justify-center">
+      <div class="lg:block hidden w-full" style={{backgroundImage:`url(${bgLogin})`,backgroundSize:'cover',backgroundPosition:'center'}}>
       </div>
 
-      <div className="w-full max-w-md relative z-10">
-        <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-10 transform transition-all duration-300">
+      <div class="w-full flex items-center justify-center">
+        <div className="lg:p-2 p-5 transform transition-all duration-300 max-w-[450px] w-full">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center  mb-4 ">
               <img src={Logo} alt="logo" width={150} height={30} />

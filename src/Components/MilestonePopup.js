@@ -112,7 +112,7 @@ export default function MilestonePopup({
               <h3 className="font-bold text-lg">{milestone.milestoneTitle}</h3>
               <button
                 onClick={handleSubmit}
-                className="bg-[#4D57EE] text-white px-4 py-1 rounded"
+                className="bg-[#008421] text-white px-4 py-1 rounded"
               >
                 Verify
               </button>
@@ -134,7 +134,7 @@ export default function MilestonePopup({
                         onClick={() => handleCheckTask(id)}
                         className={`lg:px-3 lg:py-2 px-2 py-2 rounded-l-[5px] border ${
                           completed === true
-                            ? "bg-[#4D57EE] border-[#4D57EE] text-white"
+                            ? "bg-[#008421] border-[#008421] text-white"
                             : "bg-white border-black"
                         }`}
                       >

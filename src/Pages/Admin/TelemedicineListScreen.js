@@ -1,126 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TbPhoneDone } from "react-icons/tb";
 import ConfirmTelemedicineModal from "../../Components/ConfirmTelemedicineModal";
 import searchIcon from "../../Assests/Images/icons/search.svg";
 import { toast } from "react-toastify";
+import Pagination from "../../Components/Common/Pagination";
+import { authAxios } from "../../Config/config";
 
 const TelemedicineListScreen = () => {
-  const [telemedicine, setTelemedicine] = useState([
-    {
-      name_en: "Shivsagar",
-      phone: "9876543210",
-      parent_name_en: "Suman",
-      gender_en: "Male",
-      district_en: "Piprauli",
-      city_en: "Gorakhpur",
-      age: 13,
-      class: 5,
-      card_no: "6587752896350001",
-      total_calls_done: 2,
-    },
-    {
-      name_en: "Ansh Yadav",
-      phone: "9876543211",
-      parent_name_en: "Subash",
-      gender_en: "Female",
-      district_en: "Piprauli",
-      city_en: "Gorakhpur",
-      age: 12,
-      class: 5,
-      card_no: "6587752896350002",
-      total_calls_done: 3,
-    },
-    {
-      name_en: "Anuska",
-      phone: "9876543212",
-      parent_name_en: "Sarita Devi",
-      gender_en: "Male",
-      district_en: "Piprauli",
-      city_en: "Gorakhpur",
-      age: 10,
-      class: 5,
-      card_no: "6587752896350003",
-      total_calls_done: 2,
-    },
-    {
-      name_en: "Anshika",
-      phone: "9776543210",
-      parent_name_en: "Soniya",
-      gender_en: "Female",
-      district_en: "Piprauli",
-      city_en: "Gorakhpur",
-      age: 9,
-      class: 5,
-      card_no: "6587752896350004",
-      total_calls_done: 1,
-    },
-    {
-      name_en: "Sivnya",
-      phone: "9076543210",
-      parent_name_en: "Nanina",
-      gender_en: "Male",
-      district_en: "Piprauli",
-      city_en: "Gorakhpur",
-      age: 11,
-      class: 5,
-      card_no: "6587752896350005",
-      total_calls_done: 0,
-    },
-    {
-      name_en: "Anuska",
-      phone: "9876543212",
-      parent_name_en: "Gyanmati",
-      gender_en: "Female",
-      district_en: "Piprauli",
-      city_en: "Gorakhpur",
-      age: 14,
-      class: 5,
-      card_no: "6587752896350006",
-      total_calls_done: 1,
-    },
-    {
-      name_en: "Anuska",
-      phone: "9876543212",
-      parent_name_en: "Sarita Devi",
-      gender_en: "Male",
-      district_en: "Piprauli",
-      city_en: "Gorakhpur",
-      age: 8,
-      class: 5,
-      card_no: "6587752896350007",
-      total_calls_done: 0,
-    },
-    {
-      name_en: "Anshu Yadav",
-      phone: "9876543212",
-      parent_name_en: "Rita",
-      gender_en: "Female",
-      district_en: "Piprauli",
-      city_en: "Gorakhpur",
-      age: 13,
-      class: 5,
-      card_no: "6587752896350008",
-      total_calls_done: 0,
-    },
-    {
-      name_en: "Ritika",
-      phone: "9111143212",
-      parent_name_en: "Ramrishi",
-      gender_en: "Male",
-      district_en: "Piprauli",
-      city_en: "Gorakhpur",
-      age: 12,
-      class: 5,
-      card_no: "6587752896350009",
-      total_calls_done: 2,
-    },
-  ]);
+  const [telemedicine, setTelemedicine] = useState([]);
   const [phoneSearch, setPhoneSearch] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [cardSearch, setCardSearch] = useState("");
   const [cardError, setCardError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [selectedStudentId, setSelectedStudentId] = useState('');
+
+  const [page, setPage] = useState(1);
+  const [rowsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
   const formatCardNumber = (cardNo) => {
     const str = cardNo.toString().padStart(16, "0");
     return `${str.slice(0, 4)}-${str.slice(4, 8)}-${str.slice(
@@ -129,71 +28,98 @@ const TelemedicineListScreen = () => {
     )}-${str.slice(12, 16)}`;
   };
 
-  const openModal = (index) => {
-    setSelectedIndex(index);
+  const fetchTelemedicineList = async (currentPage = page, search = "") => {
+    try {
+      const res = await authAxios().get("/telemedicine/list", {
+        params: {
+          page: currentPage,
+          limit: rowsPerPage,
+          search: search ? search : undefined,
+        },
+      });
+
+      let data = res.data?.data || [];
+      setTelemedicine(data);
+      setPage(res.data?.currentPage || 1);
+      setTotalPages(res.data?.totalPage || 1);
+      setTotalCount(res.data?.totalCount || data.length);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch telemedicine");
+    }
+  };
+
+  useEffect(() => {
+    fetchTelemedicineList();
+  }, []);
+
+  const openModal = (studentId) => {
+    setSelectedStudentId(studentId);
     setModalOpen(true);
   };
 
-  const handleConfirm = () => {
-    if (selectedIndex !== null) {
-      const updatedTelemedicine = [...telemedicine];
-      updatedTelemedicine[selectedIndex].total_calls_done += 1;
-      setTelemedicine(updatedTelemedicine);
-    }
-    setModalOpen(false);
-    setSelectedIndex(null);
+  const handleConfirm = async () => {
+    try {
+      if (!selectedStudentId) {
+        toast.error("Student ID not found");
+        return;
+      }
 
-    toast.success("Confirm successfully!");
+      await authAxios().post("/telemedicine/create", {
+        student_id: selectedStudentId,
+      });
+
+      toast.success("Call marked successfully!");
+
+      fetchTelemedicineList(1, "");
+      setModalOpen(false);
+      setSelectedStudentId(null);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to confirm call");
+    }
   };
 
   const handleCancel = () => {
     setModalOpen(false);
-    setSelectedIndex(null);
+    setSelectedStudentId(null);
   };
 
   const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, ""); // only digits
+    const value = e.target.value.replace(/[^0-9]/g, "");
     setPhoneSearch(value);
 
-    if (value && value.length !== 10) {
+    if (!value) {
+      setPhoneError("");
+      fetchTelemedicineList(1, "");
+      return;
+    }
+
+    if (value.length !== 10) {
       setPhoneError("Please enter 10 digits");
     } else {
       setPhoneError("");
+      fetchTelemedicineList(1, value);
     }
   };
-
   const handleCardSearchChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, ""); // remove non-numeric chars
+    const value = e.target.value.replace(/[^0-9]/g, "");
     setCardSearch(value);
 
-    if (value && value.length < 16) {
+    if (!value) {
+      setCardError("");
+      fetchTelemedicineList(1, "");
+      return;
+    }
+
+    if (value.length !== 16) {
       setCardError("Please enter 16 digits");
     } else {
       setCardError("");
+      fetchTelemedicineList(1, value);
     }
   };
 
-  const filteredTelemedicine = telemedicine.filter((item) => {
-    let matchesPhone = true;
-    let matchesCard = true;
-
-    // Exact match for phone if search is not empty
-    if (phoneSearch) {
-      matchesPhone = item.phone === phoneSearch.trim();
-    }
-
-    // Exact match for 12-digit card number
-    if (cardSearch) {
-      if (cardSearch.length === 16) {
-        const cardDigits = item.card_no.replace(/-/g, "");
-        matchesCard = cardDigits === cardSearch;
-      } else {
-        matchesCard = false;
-      }
-    }
-
-    return matchesPhone && matchesCard;
-  });
 
   return (
     <div>
@@ -217,7 +143,10 @@ const TelemedicineListScreen = () => {
           {/* Card Search */}
           <div className="w-full">
             <div className="relative w-full">
-              <img src={searchIcon} className="absolute top-[13px] left-[15px]" />
+              <img
+                src={searchIcon}
+                className="absolute top-[13px] left-[15px]"
+              />
               <input
                 type="text"
                 placeholder="Search by card number"
@@ -255,10 +184,10 @@ const TelemedicineListScreen = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredTelemedicine.length > 0 ? (
-                  filteredTelemedicine.map((item, index) => (
+                {telemedicine.length > 0 ? (
+                  telemedicine.map((item, index) => (
                     <tr key={index} className="border-t">
-                      <td className="px-3 py-3">{item?.name_en}</td>
+                      <td className="px-3 py-3">{item?.id}</td>
                       <td className="px-3 py-3">{item?.parent_name_en}</td>
                       <td className="px-3 py-3">{item?.gender_en}</td>
                       <td className="px-3 py-3">{item?.district_en}</td>
@@ -269,7 +198,9 @@ const TelemedicineListScreen = () => {
                         {formatCardNumber(item?.card_no)}
                       </td>
                       <td className="px-3 py-3 text-center">
-                        {item.total_calls_done > 3 ? 'limit exceeded': item?.total_calls_done}
+                        {item.total_calls_done > 3
+                          ? "limit exceeded"
+                          : item?.total_calls_done}
                       </td>
                       <td className="px-3 py-3">
                         <div className="flex gap-2">
@@ -279,7 +210,7 @@ const TelemedicineListScreen = () => {
                                 ? "opacity-50 pointer-events-none"
                                 : ""
                             }`}
-                            onClick={() => openModal(index)}
+                            onClick={() => openModal(item?.id)}
                           >
                             <TbPhoneDone className="text-xl" />
                           </div>
@@ -301,6 +232,18 @@ const TelemedicineListScreen = () => {
           </div>
         </div>
       </div>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        rowsPerPage={rowsPerPage}
+        totalCount={totalCount}
+        currentDataLength={telemedicine.length}
+        onPageChange={(newPage) => {
+          setPage(newPage);
+          fetchTelemedicineList(newPage);
+        }}
+      />
 
       {/* Confirm Modal */}
       <ConfirmTelemedicineModal

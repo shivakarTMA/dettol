@@ -201,7 +201,7 @@ const SchoolDashboardTables = () => {
           </h2>
           <Link
             to={`/milestones-achieved`}
-            className="underline text-[#009EB2] text-lg"
+            className="underline text-[#008421] text-lg"
           >
             <small>View All</small>
           </Link>
@@ -257,7 +257,7 @@ const SchoolDashboardTables = () => {
           <h2 className="lg:text-lg text-[16px] font-semibold text-gray-900">
             School Wise Active Students
           </h2>
-          <Link to="/active-students" className="underline text-[#009EB2] text-lg">
+          <Link to="/active-students" className="underline text-[#008421] text-lg">
             <small>View All</small>
           </Link>
         </div>

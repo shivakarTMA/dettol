@@ -48,8 +48,8 @@ const toggleMenu = (menuKey) => {
   return (
     <div className={`sidebar ${toggleMenuBar ? "activetoggle" : ""}`}>
       <div className="sidebar-logo d-flex align-items-center">
-        <Link to="/">
-          <img src={Logo} alt="logo" width="100px" height="50px" />
+        <Link to="/" className="text-center">
+          <img src={Logo} alt="logo" width="122" height="120" className="mx-auto" />
         </Link>
       </div>
 

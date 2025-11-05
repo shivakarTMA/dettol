@@ -1,60 +1,152 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import editIcon from "../../Assests/Images/icons/edit.svg";
 import Pagination from "../../Components/Common/Pagination";
 import { FaPlus } from "react-icons/fa";
 import EditTaskModal from "../../Components/EditTaskModal";
+import { toast } from "react-toastify";
+import { authAxios } from "../../Config/config";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import Select from "react-select";
+import { customStyles } from "../../Helper/helper";
 
-const taskList = [
-  {
-    category_name: "Personal Hygiene",
-    title: "Plant and care for community greenery",
-    loyalty_points: 5,
-  },
-  {
-    category_name: "During Illness",
-    title:
-      "Create and perform a hygiene-themed skit at a community center / neighbourhood event",
-    loyalty_points: 5,
-  },
-  {
-    category_name: "At Home",
-    title: "Create poster on hygiene messages for proper waste disposal",
-    loyalty_points: 5,
-  },
-  {
-    category_name: "During Illness",
-    title: "Design a hygiene board game to teach younger children",
-    loyalty_points: 5,
-  },
-  {
-    category_name: "During Illness",
-    title: "Organise a “Hygiene Heroes” club at school or community center",
-    loyalty_points: 5,
-  },
-  {
-    category_name: "School Hygiene",
-    title: "Design a hygiene board game to teach younger children",
-    loyalty_points: 5,
-  },
-];
+const validationSchema = Yup.object().shape({
+  category_id: Yup.string().required("Category is required"),
+  title_en: Yup.string().required("Title English is required"),
+  title_hi: Yup.string().required("Title Hindi is required"),
+  loyalty_points: Yup.number()
+    .typeError("Loyalty Points must be a number")
+    .required("Loyalty Points is required"),
+  position: Yup.number()
+    .typeError("Position must be a number")
+    .required("Position is required"),
+  instructions_en: Yup.array()
+    .of(Yup.string().required("Instruction (English) is required"))
+    .min(1, "At least one instruction is required"),
+  instructions_hi: Yup.array()
+    .of(Yup.string().required("Instruction (Hindi) is required"))
+    .min(1, "At least one instruction is required"),
+});
 
 const TaskListScreen = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [taskList, setTaskList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState({
+    value: "All",
+    label: "All",
+  });
+
+  const [editingOption, setEditingOption] = useState(null);
+
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const fetchTasksList = async (
+    currentPage = page,
+    category_id = selectedCategory.value
+  ) => {
+    try {
+      const params = {
+        page: currentPage,
+        limit: rowsPerPage,
+      };
 
-  const handleEdit = (school) => {
-    setSelectedCategory(school);
-    setEditModalOpen(true);
+      if (category_id !== "All") {
+        params.category_id = category_id;
+      }
+
+      const res = await authAxios().get("/task/fetch/all", { params });
+
+      const data = res.data?.data || [];
+      setTaskList(data);
+      setPage(res.data?.currentPage || 1);
+      setTotalPages(res.data?.totalPage || 1);
+      setTotalCount(res.data?.totalCount || data.length);
+    } catch (err) {
+      toast.error("Failed to fetch task");
+    }
   };
+
+  const fetchCategoryList = async () => {
+    try {
+      const res = await authAxios().get("/category/fetch/all");
+      const categories = res.data?.data || [];
+
+      setCategoryList([
+        { value: "All", label: "All" },
+        ...categories.map((c) => ({ value: c.id, label: c.name_en })),
+      ]);
+    } catch (err) {
+      toast.error("Failed to fetch category");
+    }
+  };
+
+  useEffect(() => {
+    fetchTasksList();
+    fetchCategoryList();
+  }, []);
+
+  const formik = useFormik({
+    initialValues: {
+      category_id: null, // Category ID
+      title_en: "", // English title
+      instructions_en: [], // English instructions
+      title_hi: "", // Hindi title
+      instructions_hi: [], // Hindi instructions
+      loyalty_points: "", // Loyalty points
+      position: "", // Position
+      status: "ACTIVE", // Default status
+    },
+    validationSchema,
+    onSubmit: async (values, { resetForm }) => {
+      console.log(values, "values");
+      try {
+        const payload = { ...values };
+
+        if (editingOption) {
+          // Update
+          await authAxios().put(`/task/update/${editingOption}`, payload);
+          toast.success("Updated Successfully");
+        } else {
+          // Create
+          await authAxios().post("/task/create", payload);
+          toast.success("Created Successfully");
+        }
+
+        // 🔄 Re-fetch after save
+        fetchTasksList();
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to save user");
+      }
+
+      resetForm();
+      setEditingOption(null);
+      setShowModal(false);
+    },
+  });
+
+  console.log(taskList, "taskList");
+  console.log(selectedCategory, "selectedCategory");
 
   return (
     <>
       <div className="">
+        <div className="max-w-[150px] w-full mb-3">
+          <Select
+            value={selectedCategory}
+            onChange={(selected) => {
+              setSelectedCategory(selected);
+              setPage(1);
+              fetchTasksList(1, selected.value);
+            }}
+            options={categoryList}
+            styles={customStyles}
+          />
+        </div>
         <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
           <div className="rounded-[10px] overflow-hidden">
             <div className="relative overflow-x-auto ">
@@ -71,12 +163,15 @@ const TaskListScreen = () => {
                   {taskList.map((item, index) => (
                     <tr key={index} className="border-t">
                       <td className="px-3 py-3">{item.category_name}</td>
-                      <td className="px-3 py-3">{item.title}</td>
+                      <td className="px-3 py-3">{item.title_en}</td>
                       <td className="px-3 py-3">{item.loyalty_points}</td>
                       <td className="px-3 py-3">
                         <div
                           className="cursor-pointer w-6"
-                          onClick={() => handleEdit(item)}
+                          onClick={() => {
+                            setEditingOption(item?.id);
+                            setShowModal(true);
+                          }}
                         >
                           <img src={editIcon} alt="view" className="w-full" />
                         </div>
@@ -97,16 +192,17 @@ const TaskListScreen = () => {
           currentDataLength={taskList.length}
           onPageChange={(newPage) => {
             setPage(newPage);
+            fetchTasksList(newPage);
           }}
         />
       </div>
 
       {/* Edit Modal */}
-      {editModalOpen && (
+      {showModal && (
         <EditTaskModal
-          school={selectedCategory}
-          setSchool={setSelectedCategory}
-          onClose={() => setEditModalOpen(false)}
+          setShowModal={setShowModal}
+          editingOption={editingOption}
+          formik={formik}
         />
       )}
     </>

@@ -306,10 +306,10 @@ const AdminDashboard = () => {
       {
         name: "Status",
         data: [
-          { name: "Shipped", y: pipelineData.shipped, color: "#0A6BA8" },
-          { name: "In route", y: pipelineData.inRoute, color: "#A8D8F0" },
-          { name: "Delayed", y: pipelineData.delayed, color: "#0098D9" },
-          { name: "Delivered", y: pipelineData.delivered, color: "#7DD3F5" },
+          { name: "Shipped", y: pipelineData.shipped, color: "#009A27" },
+          { name: "In route", y: pipelineData.inRoute, color: "#B8F5C7" },
+          { name: "Delayed", y: pipelineData.delayed, color: "#008421" },
+          { name: "Delivered", y: pipelineData.delivered, color: "#B8F5C7" },
         ],
       },
     ],
@@ -329,18 +329,18 @@ const AdminDashboard = () => {
     xAxis: {
       categories: categories, // Dynamic date categories
       lineColor: "#E5E7EB",
-      tickColor: "#E5E7EB",
-      labels: { style: { color: "#6B7280", fontSize: "11px" } },
+      tickColor: "#E5E5E5",
+      labels: { style: { color: "#000000", fontSize: "11px" } },
     },
     yAxis: {
       title: { text: "" },
-      gridLineColor: "#E5E7EB",
-      labels: { style: { color: "#6B7280", fontSize: "11px" } },
+      gridLineColor: "#E5E5E5",
+      labels: { style: { color: "#000000", fontSize: "11px" } },
       min: 0,
     },
     legend: { enabled: false },
     tooltip: {
-      backgroundColor: "#1F2937",
+      backgroundColor: "#008421",
       borderColor: "#1F2937",
       style: { color: "#FFFFFF" },
       formatter: function () {
@@ -354,79 +354,17 @@ const AdminDashboard = () => {
         marker: {
           enabled: true,
           radius: 4,
-          fillColor: "#0A6BA8",
+          fillColor: "#008421",
           lineWidth: 2,
           lineColor: "#FFFFFF",
         },
-        lineWidth: 2,
+        lineWidth: 1,
       },
     },
     series: [
-      { name: "Verifications", data: verificationData, color: "#0A6BA8" },
+      { name: "Verifications", data: verificationData, color: "#000000" },
     ],
   };
-
-  const coordinatorPerformance = [
-    {
-      name: "Kshitiz Bali",
-      inPreparation: 9,
-      inTransit: 13,
-      delivered: 42,
-      delayed: 5,
-    },
-    {
-      name: "Shivakar Sharma",
-      inPreparation: 18,
-      inTransit: 24,
-      delivered: 25,
-      delayed: 6,
-    },
-    {
-      name: "Puneet Yadav",
-      inPreparation: 14,
-      inTransit: 12,
-      delivered: 34,
-      delayed: 4,
-    },
-    {
-      name: "Ajeet Singh",
-      inPreparation: 35,
-      inTransit: 12,
-      delivered: 23,
-      delayed: 2,
-    },
-  ];
-
-  const milestonesSummary = [
-    {
-      name: "Student 1",
-      school: "LN PUBLIC SCHOOL",
-      reward: "Milestone 1",
-      status: "shipped",
-      details: milestoneDetailsSample,
-    },
-    {
-      name: "Student 2",
-      school: "MINILAND CONVENT SCHOOL",
-      reward: "Milestone 3 + 1 dettol soap",
-      status: "in route",
-      details: milestoneDetailsSample,
-    },
-    {
-      name: "Student 3",
-      school: "DEWAN PUBLIC SCHOOL",
-      reward: "Milestone 2",
-      status: "delivered",
-      details: milestoneDetailsSample,
-    },
-    {
-      name: "Student 4",
-      school: "LITTLE FLOWER PUBLIC SCHOOL",
-      reward: "Milestone 2 + 3 dettol soap",
-      status: "shipped",
-      details: milestoneDetailsSample,
-    },
-  ];
 
   const schoolwiseFeedBack = [
     {
@@ -475,8 +413,8 @@ const AdminDashboard = () => {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 ">
             <StatCard title="Schools Assigned" value="09" />
-            <StatCard title="Students Enrolled" value="1250" />
             <StatCard title="Students Registered" value="850" />
+            <StatCard title="Students Enrolled" value="1250" />
             <StatCard title="Active Students" value="213" />
             <StatCard title="Verification Pending" value="234" />
             <StatCard title="Rewards Delivered" value="125" />
@@ -605,7 +543,7 @@ const AdminDashboard = () => {
               <h3 className="lg:text-lg text-[16px] font-semibold text-gray-900">
                 Co-ordinator Performance
               </h3>
-              <Link to="/cordinator-performance" className="underline text-[#009EB2] text-lg">
+              <Link to="/cordinator-performance" className="underline text-[#008421] text-lg">
                 <small>View All</small>
               </Link>
             </div>
@@ -689,7 +627,7 @@ const AdminDashboard = () => {
               </h3>
               <Link
                 to="/schoolwise-feedback"
-                className="underline text-[#009EB2] text-lg"
+                className="underline text-[#008421] text-lg"
               >
                 <small>View All</small>
               </Link>

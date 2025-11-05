@@ -18,7 +18,7 @@ export const customStyles = {
   },
   multiValue: (base) => ({
     ...base,
-    backgroundColor: "#f3f3f3",
+    backgroundColor: "#009A27",
   }),
   multiValueLabel: (base) => ({
     ...base,
@@ -29,13 +29,13 @@ export const customStyles = {
     ...base,
     color: "#666",
     ":hover": {
-      backgroundColor: "#e2e2e2",
+      backgroundColor: "#009A27",
       color: "black",
     },
   }),
   option: (base, state) => ({
     ...base,
-    backgroundColor: state.isFocused ? "#0072CE" : "#ffffff",
+    backgroundColor: state.isFocused ? "#009A27" : "#ffffff",
     color: state.isFocused ? "#ffffff" : "#000000",
     cursor: "pointer",
     fontSize: window.innerWidth < 640 ? "13px" : "14px",

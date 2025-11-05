@@ -102,7 +102,7 @@ const FilterStudentPanel = ({
       <div className="flex justify-end gap-2">
         <button
           onClick={onApply}
-          className="px-4 py-2 rounded-lg bg-[#4D57EE] text-white"
+          className="px-4 py-2 rounded-lg bg-[#008421] text-white"
         >
           Apply
         </button>

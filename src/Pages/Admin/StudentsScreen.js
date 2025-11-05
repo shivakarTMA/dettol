@@ -1,24 +1,57 @@
 import React, { useEffect, useState } from "react";
 import searchIcon from "../../Assests/Images/icons/search.svg";
-import deleteIcon from "../../Assests/Images/icons/delete.svg";
 import editIcon from "../../Assests/Images/icons/edit.svg";
 import Pagination from "../../Components/Common/Pagination";
 import FilterStudentPanel from "../../Components/FilterStudentPanel";
 import EditStudentModal from "../../Components/EditStudentModal";
-import { studentData } from "../../Helper/dummyData";
 import { HiOutlineAdjustmentsHorizontal } from "react-icons/hi2";
-import confirmIcon from "../../Assests/Images/icons/confirm.svg";
+import { authAxios } from "../../Config/config";
+import { toast } from "react-toastify";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { PiStudentLight } from "react-icons/pi";
+
+const validationSchema = Yup.object().shape({
+  profile_pic: Yup.mixed()
+    .required("Profile Image is required")
+    .test("fileType", "Only image files are allowed", (value) => {
+      if (typeof value === "string") return true; // when editing existing image (URL)
+      return value && value instanceof File;
+    }),
+  name_en: Yup.string().required("Name English is required"),
+  name_hi: Yup.string().required("Name Hindi is required"),
+  parent_name_en: Yup.string().required("Parent Name English is required"),
+  parent_name_hi: Yup.string().required("Parent Name Hindi is required"),
+  mobile: Yup.string()
+    .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
+    .required("Mobile number is required"),
+  gender_en: Yup.string().required("Gender English is required"),
+  gender_hi: Yup.string().required("Gender Hindi is required"),
+  age: Yup.number()
+    .min(3, "Age must be at least 3")
+    .required("Age is required"),
+  class_name: Yup.string().required("Class is required"),
+  section: Yup.string().required("Section is required"),
+  address_en: Yup.string().required("Address English is required"),
+  address_hi: Yup.string().required("Address Hindi is required"),
+  district_en: Yup.string().required("District English is required"),
+  district_hi: Yup.string().required("District Hindi is required"),
+  city_en: Yup.string().required("City English is required"),
+  city_hi: Yup.string().required("City Hindi is required"),
+
+  pincode: Yup.number().required("Pincode is required"),
+  card_no: Yup.string().required("Card No. is required"),
+  school_id: Yup.string().required("School Name is required"),
+});
 
 const StudentsScreen = () => {
-  const [students, setStudents] = useState(studentData);
+  const [showModal, setShowModal] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [editingOption, setEditingOption] = useState(null);
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-
-  // Edit & Delete states
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -30,6 +63,121 @@ const StudentsScreen = () => {
 
   const [tempFilters, setTempFilters] = useState(filters);
   const [showFilterModal, setShowFilterModal] = useState(false);
+
+  const fetchStudentList = async (currentPage = page) => {
+    try {
+      const res = await authAxios().get("/student/fetch/all", {
+        params: {
+          page: currentPage,
+          limit: rowsPerPage,
+        },
+      });
+
+      let data = res.data?.data || [];
+      setStudents(data);
+      setPage(res.data?.currentPage || 1);
+      setTotalPages(res.data?.totalPage || 1);
+      setTotalCount(res.data?.totalCount || data.length);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch reward");
+    }
+  };
+
+  useEffect(() => {
+    fetchStudentList();
+  }, []);
+
+  const formik = useFormik({
+    initialValues: {
+      profile_pic: null,
+      name_en: "",
+      parent_name_en: "",
+      parent_name_hi: "",
+      name_hi: "",
+      mobile: "",
+      gender_en: "",
+      gender_hi: "",
+      age: null,
+      class_name: null,
+      section: "",
+      address_en: "",
+      address_hi: "",
+      district_en: "",
+      district_hi: "",
+      city_en: "",
+      city_hi: "",
+      pincode: "",
+      card_no: "",
+      school_id: null,
+      status: "ACTIVE",
+    },
+    validationSchema,
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        const formData = new FormData();
+
+        formData.append("name_en", values.name_en);
+        formData.append("name_hi", values.name_hi);
+        formData.append("parent_name_en", values.parent_name_en);
+        formData.append("parent_name_hi", values.parent_name_hi);
+        formData.append("mobile", values.mobile);
+        formData.append("gender_en", values.gender_en);
+        formData.append("gender_hi", values.gender_hi);
+        formData.append("age", values.age);
+        formData.append("class_name", values.class_name);
+        formData.append("section", values.section);
+        formData.append("address_en", values.address_en);
+        formData.append("address_hi", values.address_hi);
+        formData.append("district_en", values.district_en);
+        formData.append("district_hi", values.district_hi);
+        formData.append("city_en", values.city_en);
+        formData.append("city_hi", values.city_hi);
+        formData.append("pincode", values.pincode);
+        formData.append("card_no", values.card_no);
+        formData.append("school_id", values.school_id);
+        formData.append("status", values.status);
+
+        if (values.profile_pic instanceof File) {
+          formData.append("file", values.profile_pic);
+        }
+
+        let response;
+
+        if (editingOption) {
+          await authAxios().put(`/student/update/${editingOption}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          toast.success("Updated Successfully");
+        } else {
+          await authAxios().post(`/student/create`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          toast.success("Created Successfully");
+        }
+
+        if (response?.data?.status === false) {
+          const message = response.data.message;
+          if (
+            message.includes("already exists") ||
+            message.includes("already exists for this card number")
+          ) {
+            toast.error(message);
+            // 🚫 Stop here — don't reset form or close modal
+            return;
+          }
+        }
+
+        fetchStudentList();
+        resetForm();
+        setEditingOption(null);
+        setShowModal(false);
+      } catch (err) {
+        console.error(err);
+        toast.error(err.response?.data?.message || err.message);
+      }
+    },
+  });
 
   useEffect(() => {
     if (showFilterModal) {
@@ -55,13 +203,6 @@ const StudentsScreen = () => {
     setTempFilters(newFilters);
   };
 
-  // Open edit modal
-  const handleEdit = (student) => {
-    setSelectedStudent(student);
-    setEditModalOpen(true);
-  };
-
-
   // Filtered student data
   const filteredStudents = students.filter((student) => {
     const genderMatch = filters.Gender
@@ -83,6 +224,17 @@ const StudentsScreen = () => {
         <div className="flex justify-between items-center flex-wrap gap-3 mb-5">
           <div className="relative">
             <div className="flex gap-2 items-center">
+              <button
+                className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
+                onClick={() => {
+                  setEditingOption(null);
+                  formik.resetForm();
+                  setShowModal(true);
+                }}
+              >
+                <PiStudentLight className="text-xl" />
+                <span>Create student</span>
+              </button>
               <button
                 onClick={() => setShowFilterModal(true)}
                 className="w-[34px] h-[30px] bg-white text-black rounded-[5px] flex items-center justify-center gap-2 min-h-[30px] border-[#D4D4D4] border-[2px]"
@@ -156,29 +308,32 @@ const StudentsScreen = () => {
                   {filteredStudents?.length > 0 ? (
                     filteredStudents.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item.Name}</td>
-                        <td className="px-3 py-3">{item.Gender}</td>
-                        <td className="px-3 py-3">{item.school_id}</td>
+                        <td className="px-3 py-3">{item.name_en}</td>
+                        <td className="px-3 py-3">{item.gender_en}</td>
+                        <td className="px-3 py-3">{item.school_name}</td>
                         <td className="px-3 py-3">
-                          {String(item.Age).padStart(2, "0")}
+                          {String(item.age).padStart(2, "0")}
                         </td>
-                        <td className="px-3 py-3">{item.District}</td>
+                        <td className="px-3 py-3">{item.district_en}</td>
                         <td className="px-3 py-3">2025-10-01</td>
                         <td className="px-3 py-3">
                           <span
                             className={` block w-fit px-3 py-1 rounded-full capitalize ${
-                              item.Status === "Active" ? "bg-green-200" : ""
-                            } ${item.Status === "Inactive" ? "bg-gray-200" : ""}
+                              item.status === "ACTIVE" ? "bg-green-200" : ""
+                            } ${item.status === "INACTIVE" ? "bg-gray-200" : ""}
                             `}
                           >
-                            {item.Status}
+                            {item.status}
                           </span>
                         </td>
                         <td className="px-3 py-3">
                           <div className="flex gap-2">
                             <div
                               className="cursor-pointer w-5"
-                              onClick={() => handleEdit(item?.id)}
+                              onClick={() => {
+                                setEditingOption(item?.id);
+                                setShowModal(true);
+                              }}
                             >
                               <img
                                 src={editIcon}
@@ -215,13 +370,13 @@ const StudentsScreen = () => {
         />
 
         {/* Edit Modal */}
-        {editModalOpen && (
+        {showModal && (
           <EditStudentModal
-            student={selectedStudent}
-            onClose={() => setEditModalOpen(false)}
+            setShowModal={setShowModal}
+            editingOption={editingOption}
+            formik={formik}
           />
         )}
-
       </div>
     </div>
   );

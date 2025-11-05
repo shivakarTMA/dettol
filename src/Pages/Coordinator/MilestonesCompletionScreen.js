@@ -127,7 +127,7 @@ const MilestonesCompletionScreen = () => {
                 <div>
                   <div className="flex flex-nowrap gap-1 w-full items-center">
                     <div
-                      className="bg-[#4D57EE] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center cursor-pointer p-[6px]"
+                      className="bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center cursor-pointer p-[6px]"
                       onClick={() => handleViewClick(item)}
                     >
                       <img
@@ -137,7 +137,7 @@ const MilestonesCompletionScreen = () => {
                       />
                     </div>
                     <div
-                      className={`bg-[#4D57EE] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px]
+                      className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px]
                         ${
                           item.status === "in route"
                             ? "opacity-50 cursor-not-allowed"

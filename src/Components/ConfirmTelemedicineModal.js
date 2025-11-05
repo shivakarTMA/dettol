@@ -29,7 +29,7 @@ const ConfirmTelemedicineModal = ({
           </button>
           <button
             onClick={onConfirm}
-            className="bg-[#4D57EE] text-white lg:px-4 px-3 lg:py-2 py-1 rounded-[5px] flex items-center lg:gap-2 gap-1 lg:text-md text-[14px]"
+            className="bg-[#008421] text-white lg:px-4 px-3 lg:py-2 py-1 rounded-[5px] flex items-center lg:gap-2 gap-1 lg:text-md text-[14px]"
           >
             {btnConfirm}
           </button>

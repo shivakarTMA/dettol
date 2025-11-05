@@ -211,10 +211,10 @@ const CoordinatorDashboard = () => {
       {
         name: "Status",
         data: [
-          { name: "Shipped", y: pipelineData.shipped, color: "#0A6BA8" },
-          { name: "In route", y: pipelineData.inRoute, color: "#A8D8F0" },
-          { name: "Delayed", y: pipelineData.delayed, color: "#0098D9" },
-          { name: "Delivered", y: pipelineData.delivered, color: "#7DD3F5" },
+          { name: "Shipped", y: pipelineData.shipped, color: "#009A27" },
+          { name: "In route", y: pipelineData.inRoute, color: "#B8F5C7" },
+          { name: "Delayed", y: pipelineData.delayed, color: "#008421" },
+          { name: "Delivered", y: pipelineData.delivered, color: "#B8F5C7" },
         ],
       },
     ],
@@ -234,18 +234,18 @@ const CoordinatorDashboard = () => {
     xAxis: {
       categories: categories, // Dynamic date categories
       lineColor: "#E5E7EB",
-      tickColor: "#E5E7EB",
-      labels: { style: { color: "#6B7280", fontSize: "11px" } },
+      tickColor: "#E5E5E5",
+      labels: { style: { color: "#000000", fontSize: "11px" } },
     },
     yAxis: {
       title: { text: "" },
-      gridLineColor: "#E5E7EB",
-      labels: { style: { color: "#6B7280", fontSize: "11px" } },
+      gridLineColor: "#E5E5E5",
+      labels: { style: { color: "#000000", fontSize: "11px" } },
       min: 0,
     },
     legend: { enabled: false },
     tooltip: {
-      backgroundColor: "#1F2937",
+      backgroundColor: "#008421",
       borderColor: "#1F2937",
       style: { color: "#FFFFFF" },
       formatter: function () {
@@ -259,15 +259,15 @@ const CoordinatorDashboard = () => {
         marker: {
           enabled: true,
           radius: 4,
-          fillColor: "#0A6BA8",
+          fillColor: "#008421",
           lineWidth: 2,
           lineColor: "#FFFFFF",
         },
-        lineWidth: 2,
+        lineWidth: 1,
       },
     },
     series: [
-      { name: "Verifications", data: verificationData, color: "#0A6BA8" },
+      { name: "Verifications", data: verificationData, color: "#000000" },
     ],
   };
 
@@ -322,7 +322,7 @@ const CoordinatorDashboard = () => {
     setIsModalOpen(true);
   };
 
-    const handlePopupSubmit = (tasks) => {
+  const handlePopupSubmit = (tasks) => {
     console.log("📦 Received in parent:", tasks);
     const allCompleted = tasks.every((task) => task.completed === true);
     console.log(allCompleted, "allCompleted");
@@ -340,8 +340,8 @@ const CoordinatorDashboard = () => {
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 ">
             <StatCard title="Schools Assigned" value="09" />
-            <StatCard title="Students Enrolled" value="1250" />
             <StatCard title="Total Students" value="213" />
+            <StatCard title="Students Registered" value="850" />
             <StatCard title="Verification Pending" value="234" />
           </div>
         </div>
@@ -468,7 +468,10 @@ const CoordinatorDashboard = () => {
               <h3 className="lg:text-lg text-[16px] font-semibold text-gray-900">
                 Milestones Completion
               </h3>
-              <Link to="/milestones-completion" className="underline text-[#009EB2] text-lg">
+              <Link
+                to="/milestones-completion"
+                className="underline text-[#008421] text-lg"
+              >
                 <small>View All</small>
               </Link>
             </div>
@@ -499,7 +502,7 @@ const CoordinatorDashboard = () => {
                     <div>
                       <div className="flex flex-nowrap gap-1 w-full items-center">
                         <div
-                          className="bg-[#4D57EE] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center cursor-pointer p-[6px]"
+                          className="bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center cursor-pointer p-[6px]"
                           onClick={() => handleViewClick(item)}
                         >
                           <img
@@ -509,7 +512,7 @@ const CoordinatorDashboard = () => {
                           />
                         </div>
                         <div
-                          className={`bg-[#4D57EE] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px]
+                          className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px]
     ${
       item.status === "in route"
         ? "opacity-50 cursor-not-allowed"
@@ -598,7 +601,7 @@ const CoordinatorDashboard = () => {
                             <div
                               className={`bg-[#F1F1F1] border border-[#D4D4D4] rounded-r-[5px] w-9 h-8 flex items-center justify-center p-[8px]
                                 ${
-                                item.status === "in route"
+                                  item.status === "in route"
                                     ? "opacity-50 cursor-not-allowed"
                                     : "cursor-pointer"
                                 }`}
@@ -629,7 +632,7 @@ const CoordinatorDashboard = () => {
           onSubmit={handlePopupSubmit} // ✅ MUST be here
         />
       )}
-            {/* ✅ Success / Rating Popup */}
+      {/* ✅ Success / Rating Popup */}
       {isSuccessModalOpen && (
         <SubmitRatingPopup
           isOpen={isSuccessModalOpen} // ✅ Add this line

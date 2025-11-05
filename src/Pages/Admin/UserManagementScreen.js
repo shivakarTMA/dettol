@@ -93,7 +93,7 @@ const UserManagementScreen = () => {
       <div className="">
         <div className="mb-3 flex">
           <button
-            className="px-4 py-2 rounded-lg bg-[#4D57EE] text-white flex gap-1 items-center"
+            className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
             onClick={() => {
               setEditingOption(null);
               formik.resetForm();

@@ -40,7 +40,7 @@ const CategoryListScreen = () => {
       name_en: "",
       name_hi: "",
       position: "",
-      status:"ACTIVE",
+      status: "ACTIVE",
     },
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
@@ -71,13 +71,12 @@ const CategoryListScreen = () => {
     },
   });
 
-
   return (
     <div>
       <div className="">
         <div className="mb-3 flex">
           <button
-            className="px-4 py-2 rounded-lg bg-[#4D57EE] text-white flex gap-1 items-center"
+            className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
             onClick={() => {
               setEditingOption(null);
               formik.resetForm();
@@ -96,39 +95,45 @@ const CategoryListScreen = () => {
                   <tr>
                     <th className="px-3 py-3 min-w-[100px]">ID</th>
                     <th className="px-3 py-3 min-w-[120px]">Name (English)</th>
-                    <th className="px-3 py-3 min-w-[120px]">
-                      Name (Hindi)
-                    </th>
-                    <th className="px-3 py-3 min-w-[120px]">
-                      Position
-                    </th>
+                    <th className="px-3 py-3 min-w-[120px]">Name (Hindi)</th>
+                    <th className="px-3 py-3 min-w-[120px]">Position</th>
                     <th className="px-3 py-3 min-w-[120px]">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {categories.map((item, index) => (
-                    <tr key={index} className="border-t">
-                      <td className="px-3 py-3">{item?.id}</td>
-                      <td className="px-3 py-3">{item?.name_en}</td>
-                      <td className="px-3 py-3">{item?.name_hi}</td>
-                      <td className="px-3 py-3">
-                        {item.position}
-                      </td>
-                      <td className="px-3 py-3">
-                        <div className="flex gap-2">
-                          <div
-                            className="cursor-pointer w-5"
-                            onClick={() => {
-                              setEditingOption(item?.id);
-                              setShowModal(true);
-                            }}
-                          >
-                            <img src={editIcon} alt="view" className="w-full" />
-                          </div>
-                        </div>
+                  {categories.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="px-3 py-3 text-center">
+                        No data available
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    categories.map((item, index) => (
+                      <tr key={index} className="border-t">
+                        <td className="px-3 py-3">{item?.id}</td>
+                        <td className="px-3 py-3">{item?.name_en}</td>
+                        <td className="px-3 py-3">{item?.name_hi}</td>
+                        <td className="px-3 py-3">{item.position}</td>
+                        <td className="px-3 py-3">
+                          <div className="flex gap-2">
+                            <div
+                              className="cursor-pointer w-5"
+                              onClick={() => {
+                                setEditingOption(item?.id);
+                                setShowModal(true);
+                              }}
+                            >
+                              <img
+                                src={editIcon}
+                                alt="view"
+                                className="w-full"
+                              />
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

@@ -21,7 +21,7 @@
   .sidebar--menu--list {
     overflow: auto;
     height: calc(100vh - 78px);
-    padding-bottom: 30px;
+    padding-bottom: 80px;
   }
 
   .menu--head {
@@ -39,7 +39,7 @@
     transition: 0.3s;
     &:hover {
       color: #000;
-      background-color: #0072CE1A;
+      background-color: #0084211A;
     }
     .menu--icon {
         margin-right: 10px;
@@ -50,7 +50,7 @@
   }
   .nav-link.active {
     color: #000;
-    background-color: #0072CE1A;
+    background-color: #0084211A;
     font-weight: 600;
   }
 }
@@ -94,8 +94,10 @@
 }
 .sidebar.activetoggle .sidebar--menu--list {
     padding: 5px;
+    padding-bottom: 80px;
      @media (max-width: 1200px) {
      padding: 0px;
+      padding-bottom: 80px;
     }
     
 }

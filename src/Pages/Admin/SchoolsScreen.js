@@ -22,15 +22,13 @@ const validationSchema = Yup.object().shape({
 const SchoolsScreen = () => {
   const [schools, setSchools] = useState([]);
   const [showModal, setShowModal] = useState(false);
+
   const [editingOption, setEditingOption] = useState(null);
+  
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-
-  // Edit & Delete states
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedSchool, setSelectedSchool] = useState(null);
 
   const fetchSchoolList = async (currentPage = page) => {
     try {
@@ -133,31 +131,43 @@ const SchoolsScreen = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {schools.map((item, index) => (
-                    <tr key={index} className="border-t">
-                      <td className="px-3 py-3">{item.name_en}</td>
-                      <td className="px-3 py-3">{item.city_en}</td>
-                      <td className="px-3 py-3 text-center">
-                        {item.student_enrolled}
-                      </td>
-                      <td className="px-3 py-3 text-center">
-                        {item.student_registered}
-                      </td>
-                      <td className="px-3 py-3">
-                        <div className="flex gap-2">
-                          <div
-                            className="cursor-pointer w-5"
-                            onClick={() => {
-                              setEditingOption(item?.id);
-                              setShowModal(true);
-                            }}
-                          >
-                            <img src={editIcon} alt="view" className="w-full" />
-                          </div>
-                        </div>
+                  {schools.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="px-3 py-3 text-center">
+                        No data available
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    schools.map((item, index) => (
+                      <tr key={index} className="border-t">
+                        <td className="px-3 py-3">{item.name_en}</td>
+                        <td className="px-3 py-3">{item.city_en}</td>
+                        <td className="px-3 py-3 text-center">
+                          {item.student_enrolled}
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          {item.student_registered}
+                        </td>
+                        <td className="px-3 py-3">
+                          <div className="flex gap-2">
+                            <div
+                              className="cursor-pointer w-5"
+                              onClick={() => {
+                                setEditingOption(item?.id);
+                                setShowModal(true);
+                              }}
+                            >
+                              <img
+                                src={editIcon}
+                                alt="view"
+                                className="w-full"
+                              />
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

@@ -1,142 +1,113 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import Select from "react-select";
 import { customStyles } from "../Helper/helper";
 import { toast } from "react-toastify";
+import { authAxios } from "../Config/config";
+import { MdImage } from "react-icons/md";
 
-// Validation schema using Yup
-const validationSchema = Yup.object().shape({
-  Name_en: Yup.string().required("Name English is required"),
-  Name_in: Yup.string().required("Name Hindi is required"),
-  Mobile_No: Yup.string()
-    .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
-    .required("Mobile number is required"),
-  gender_en: Yup.string().required("Gender English is required"),
-  gender_in: Yup.string().required("Gender Hindi is required"),
-  Age: Yup.number()
-    .min(3, "Age must be at least 3")
-    .required("Age is required"),
-  Class: Yup.string().required("Class is required"),
-  Section: Yup.string().required("Section is required"),
-  address_en: Yup.string().required("Address English is required"),
-  address_in: Yup.string().required("Address Hindi is required"),
-  district_en: Yup.string().required("District English is required"),
-  district_in: Yup.string().required("District Hindi is required"),
-  city_en: Yup.string().required("City English is required"),
-  city_in: Yup.string().required("City Hindi is required"),
-
-  pincode: Yup.number().required("Pincode is required"),
-  card_no: Yup.string()
-    .matches(/^\d{4}-\d{4}-\d{4}-\d{4}$/, "Enter valid card number")
-    .required("Card No. is required"),
-  school_id: Yup.string().required("School Name is required"),
-});
-
-const schoolList = [
-  {
-    value: "Kendriya Vidyalaya No. 1 AFS Gorakhpur",
-    label: "Kendriya Vidyalaya No. 1 AFS Gorakhpur",
-  },
-  {
-    value: "Jawahar Navodaya Vidyalaya, Jungle Agahi, Peepiganj",
-    label: "Jawahar Navodaya Vidyalaya, Jungle Agahi, Peepiganj",
-  },
-  {
-    value: "Government Jubilee Inter College, Buxipur",
-    label: "Government Jubilee Inter College, Buxipur",
-  },
-  {
-    value: "Kendriya Vidyalaya – FCI Campus Gorakhpur",
-    label: "Kendriya Vidyalaya – FCI Campus Gorakhpur",
-  },
-  { value: "Air Force School Gorakhpur", label: "Air Force School Gorakhpur" },
-  {
-    value: "Army Public School, Kunraghat, Gorakhpur",
-    label: "Army Public School, Kunraghat, Gorakhpur",
-  },
-  {
-    value: "Government School – Bhilora, Varanasi Road, Nausar",
-    label: "Government School – Bhilora, Varanasi Road, Nausar",
-  },
-  {
-    value: "Prathmik Vidyalaya Raipur, Dhudhara",
-    label: "Prathmik Vidyalaya Raipur, Dhudhara",
-  },
-  {
-    value: "Gauri Manglpur Government School, Chanda",
-    label: "Gauri Manglpur Government School, Chanda",
-  },
-  {
-    value: "Bhaluwa Primary School, Pachowree",
-    label: "Bhaluwa Primary School, Pachowree",
-  },
-];
 
 const statusOption = [
   {
-    value: "Active",
+    value: "ACTIVE",
     label: "Active",
   },
   {
-    value: "Inactive",
+    value: "INACTIVE",
     label: "Inactive",
   },
 ];
 
-const EditStudentModal = ({ onClose, student }) => {
-  console.log(student, "student");
-  const initialValues = {
-    Name_en: "Arjun Verma",
-    Name_in: "अर्जुन वर्मा",
-    Mobile_No: "9798654321",
-    gender_en: "Male",
-    gender_in: "पुरुष",
-    Age: 10,
-    Class: 4,
-    Section: "C",
-    address_en: "72, Jungle Agahi, Near Peepiganj Chowk",
-    address_in: "72, जंगल अगही, पीपलगंज चौक के पास",
-    district_en: "Deoria",
-    district_in: "देवरिया",
-    city_en: "Gorakhpur",
-    city_in: "गोरखपुर",
-    pincode: "273165",
-    card_no: "4458-6623-9123-7765",
-    school_id: "Kendriya Vidyalaya No. 1 AFS Gorakhpur",
-    status: "Active",
-  };
-  const formik = useFormik({
-    initialValues: initialValues,
-    enableReinitialize: true, // important to update form when student changes
-    validationSchema,
-    onSubmit: (values) => {
-      console.log(values);
-      onClose();
-      toast.success("Updated successfully!");
-    },
-  });
+const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
+  console.log(editingOption,'editingOption')
 
-  // Custom Card No formatting: 1234-5678-9012-3456
-  const handleCardNoChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ""); // remove non-digits
-    value = value.match(/.{1,4}/g)?.join("-") || "";
-    formik.setFieldValue("Card_No", value);
+  const [schoolList, setSchoolList] = useState([]);
+
+  const fetchSchoolList = async () => {
+    try {
+      const res = await authAxios().get("/school/fetch/all");
+
+      let data = res.data?.data || [];
+      console.log(data, "data");
+      setSchoolList(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch all staff");
+    }
   };
+
+  useEffect(() => {
+    fetchSchoolList();
+  }, []);
+
+
+  useEffect(() => {
+    if (!editingOption) return;
+
+    const fetchStaffById = async (id) => {
+      try {
+        const res = await authAxios().get(`/student/${id}`);
+        const data = res.data?.data || res.data || null;
+        console.log(data, "data");
+
+        if (data) {
+          formik.setValues({
+            profile_pic: data?.profile_pic || "",
+            name_en: data.name_en || "",
+            parent_name_en: data.parent_name_en || "",
+            parent_name_hi: data.parent_name_hi || "",
+            name_hi: data.name_hi || "",
+            mobile: data.mobile || "",
+            gender_en: data.gender_en || "",
+            gender_hi: data.gender_hi || "",
+            age: data.age || null,
+            class_name: data.class_name || null,
+            section: data.section || "",
+            address_en: data.address_en || "",
+            address_hi: data.address_hi || "",
+            district_en: data.district_en || "",
+            district_hi: data.district_hi || "",
+            city_en: data.city_en || "",
+            city_hi: data.city_hi || "",
+            pincode: data.pincode || "",
+            card_no: data.card_no || "",
+            school_id: data.school_id || null,
+            status: data.status || "ACTIVE",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch module details");
+      }
+    };
+
+    fetchStaffById(editingOption);
+  }, [editingOption]);
 
   return (
     <>
       <div
         className="fixed inset-0 bg-black bg-opacity-50 z-40"
-        onClick={onClose}
+        onClick={() => {
+          formik.resetForm();
+          setShowModal(false);
+        }}
       ></div>
       <div className="fixed inset-0 flex justify-center items-start pt-10 pb-5 z-50 overflow-auto w-full max-w-[1000px] mx-auto custom--overflow">
         <div className="flex flex-col relative w-[95%] mx-auto">
           <div className="bg-white rounded-[20px]">
             <div className="flex gap-2 items-center justify-between lg:py-3 py-2 lg:px-5 px-3 border-b border-b-[#D4D4D4]">
-              <h3 className="text-lg font-semibold">Edit Student</h3>
-              <button className="text-2xl" onClick={onClose} aria-label="Close">
+              <h3 className="text-lg font-semibold">
+                {editingOption ? "Edit Student" : "Create Student"}
+              </h3>
+              <button
+                className="text-2xl"
+                onClick={() => {
+                  formik.resetForm();
+                  setShowModal(false);
+                }}
+                aria-label="Close"
+              >
                 <IoMdClose />
               </button>
             </div>
@@ -145,19 +116,41 @@ const EditStudentModal = ({ onClose, student }) => {
               <div className="grid lg:grid-cols-4 grid-cols-1 gap-3 lg:pb-5 pb-2 lg:pt-5 pt-2 lg:px-5 px-3">
                 <div>
                   <label className="mb-2 block font-[500]">
+                    Profile Image<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="file"
+                    name="profile_pic"
+                    accept="image/*"
+                    onChange={(event) => {
+                      formik.setFieldValue(
+                        "profile_pic",
+                        event.currentTarget.files[0]
+                      );
+                    }}
+                    className="custom--input w-full"
+                  />
+                  {formik.touched.profile_pic && formik.errors.profile_pic && (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.profile_pic}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-2 block font-[500]">
                     Name (English)<span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    name="Name_en"
-                    value={formik.values.Name_en || ""}
+                    name="name_en"
+                    value={formik.values.name_en || ""}
                     onChange={formik.handleChange}
                     placeholder="Name (English)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.Name_en && formik.errors.Name_en && (
+                  {formik.touched.name_en && formik.errors.name_en && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.Name_en}
+                      {formik.errors.name_en}
                     </div>
                   )}
                 </div>
@@ -168,15 +161,15 @@ const EditStudentModal = ({ onClose, student }) => {
                   </label>
                   <input
                     type="text"
-                    name="Name_in"
-                    value={formik.values.Name_in || ""}
+                    name="name_hi"
+                    value={formik.values.name_hi || ""}
                     onChange={formik.handleChange}
                     placeholder="Name (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.Name && formik.errors.Name_in && (
+                  {formik.touched.name_hi && formik.errors.name_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.Name_in}
+                      {formik.errors.name_hi}
                     </div>
                   )}
                 </div>
@@ -187,16 +180,16 @@ const EditStudentModal = ({ onClose, student }) => {
                   </label>
                   <input
                     type="text"
-                    name="Mobile_No"
-                    value={formik.values.Mobile_No || ""}
+                    name="mobile"
+                    value={formik.values.mobile || ""}
                     onChange={formik.handleChange}
                     placeholder="Mobile No"
                     className="custom--input w-full"
                     maxLength={10}
                   />
-                  {formik.touched.Mobile_No && formik.errors.Mobile_No && (
+                  {formik.touched.mobile && formik.errors.mobile && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.Mobile_No}
+                      {formik.errors.mobile}
                     </div>
                   )}
                 </div>
@@ -210,7 +203,7 @@ const EditStudentModal = ({ onClose, student }) => {
                     name="gender_en"
                     value={formik.values.gender_en || ""}
                     onChange={formik.handleChange}
-                    placeholder="gender_en"
+                    placeholder="Gender (English)"
                     className="custom--input w-full"
                   />
                   {formik.touched.gender_en && formik.errors.gender_en && (
@@ -225,15 +218,15 @@ const EditStudentModal = ({ onClose, student }) => {
                   </label>
                   <input
                     type="text"
-                    name="gender_in"
-                    value={formik.values.gender_in || ""}
+                    name="gender_hi"
+                    value={formik.values.gender_hi || ""}
                     onChange={formik.handleChange}
-                    placeholder="gender_in"
+                    placeholder="Gender (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.gender_in && formik.errors.gender_in && (
+                  {formik.touched.gender_hi && formik.errors.gender_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.gender_in}
+                      {formik.errors.gender_hi}
                     </div>
                   )}
                 </div>
@@ -244,15 +237,15 @@ const EditStudentModal = ({ onClose, student }) => {
                   </label>
                   <input
                     type="number"
-                    name="Age"
-                    value={formik.values.Age || ""}
+                    name="age"
+                    value={formik.values.age || ""}
                     onChange={formik.handleChange}
                     placeholder="Age"
                     className="custom--input w-full"
                   />
-                  {formik.touched.Age && formik.errors.Age && (
+                  {formik.touched.age && formik.errors.age && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.Age}
+                      {formik.errors.age}
                     </div>
                   )}
                 </div>
@@ -263,15 +256,15 @@ const EditStudentModal = ({ onClose, student }) => {
                   </label>
                   <input
                     type="number"
-                    name="Class"
-                    value={formik.values.Class || ""}
+                    name="class_name"
+                    value={formik.values.class_name || ""}
                     onChange={formik.handleChange}
                     placeholder="Class"
                     className="custom--input w-full"
                   />
-                  {formik.touched.Class && formik.errors.Class && (
+                  {formik.touched.class_name && formik.errors.class_name && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.Class}
+                      {formik.errors.class_name}
                     </div>
                   )}
                 </div>
@@ -281,15 +274,51 @@ const EditStudentModal = ({ onClose, student }) => {
                   </label>
                   <input
                     type="text"
-                    name="Section"
-                    value={formik.values.Section || ""}
+                    name="section"
+                    value={formik.values.section || ""}
                     onChange={formik.handleChange}
                     placeholder="Section"
                     className="custom--input w-full"
                   />
-                  {formik.touched.Section && formik.errors.Section && (
+                  {formik.touched.section && formik.errors.section && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.Section}
+                      {formik.errors.section}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-2 block font-[500]">
+                    Parent Name (English)<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="parent_name_en"
+                    value={formik.values.parent_name_en || ""}
+                    onChange={formik.handleChange}
+                    placeholder="Parent Name (English)"
+                    className="custom--input w-full"
+                  />
+                  {formik.touched.parent_name_en && formik.errors.parent_name_en && (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.parent_name_en}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-2 block font-[500]">
+                    Parent Name (Hindi)<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="parent_name_hi"
+                    value={formik.values.parent_name_hi || ""}
+                    onChange={formik.handleChange}
+                    placeholder="Parent Name (Hindi)"
+                    className="custom--input w-full"
+                  />
+                  {formik.touched.parent_name_hi && formik.errors.parent_name_hi && (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.parent_name_hi}
                     </div>
                   )}
                 </div>
@@ -319,15 +348,15 @@ const EditStudentModal = ({ onClose, student }) => {
                   </label>
                   <textarea
                     rows={2}
-                    name="address_in"
-                    value={formik.values.address_in || ""}
+                    name="address_hi"
+                    value={formik.values.address_hi || ""}
                     onChange={formik.handleChange}
                     placeholder="Address Hindi"
                     className="custom--input w-full"
                   />
-                  {formik.touched.address_in && formik.errors.address_in && (
+                  {formik.touched.address_hi && formik.errors.address_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.address_in}
+                      {formik.errors.address_hi}
                     </div>
                   )}
                 </div>
@@ -353,19 +382,19 @@ const EditStudentModal = ({ onClose, student }) => {
 
                 <div>
                   <label className="mb-2 block font-[500]">
-                    District (English)<span className="text-red-500">*</span>
+                    District (Hindi)<span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    name="district_in"
-                    value={formik.values.district_in || ""}
+                    name="district_hi"
+                    value={formik.values.district_hi || ""}
                     onChange={formik.handleChange}
-                    placeholder="District (English)"
+                    placeholder="District (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.district_in && formik.errors.district_in && (
+                  {formik.touched.district_hi && formik.errors.district_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.district_in}
+                      {formik.errors.district_hi}
                     </div>
                   )}
                 </div>
@@ -395,15 +424,15 @@ const EditStudentModal = ({ onClose, student }) => {
                   </label>
                   <input
                     type="text"
-                    name="city_en"
-                    value={formik.values.city_en || ""}
+                    name="city_hi"
+                    value={formik.values.city_hi || ""}
                     onChange={formik.handleChange}
                     placeholder="City (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.city_en && formik.errors.city_en && (
+                  {formik.touched.city_hi && formik.errors.city_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.city_en}
+                      {formik.errors.city_hi}
                     </div>
                   )}
                 </div>
@@ -435,10 +464,10 @@ const EditStudentModal = ({ onClose, student }) => {
                     type="text"
                     name="card_no"
                     value={formik.values.card_no || ""}
-                    onChange={handleCardNoChange} // custom formatting
-                    placeholder="1234-5678-9012-3456"
+                    onChange={formik.handleChange}
+                    placeholder="Card No."
                     className="custom--input w-full"
-                    maxLength={19}
+                    maxLength={16}
                   />
                   {formik.touched.card_no && formik.errors.card_no && (
                     <div className="text-red-500 text-sm">
@@ -452,19 +481,28 @@ const EditStudentModal = ({ onClose, student }) => {
                     School Name<span className="text-red-500">*</span>
                   </label>
                   <Select
-                    value={schoolList.find(
-                      (option) => option.value === formik.values.school_id
-                    )} // ✅ React Select expects the full object, not just the value
-                    onChange={(option) =>
+                    value={
+                      schoolList
+                        .map((cat) => ({ value: cat.id, label: cat.name_en }))
+                        .find(
+                          (option) => option.value === formik.values.school_id
+                        ) || null
+                    }
+                    onChange={(selectedOption) => {
                       formik.setFieldValue(
                         "school_id",
-                        option ? option.value : ""
-                      )
-                    } // ✅ Handles both select & clear
-                    options={schoolList}
+                        selectedOption ? selectedOption.value : ""
+                      );
+                    }}
+                    options={schoolList.map((cat) => ({
+                      value: cat.id,
+                      label: cat.name_en,
+                    }))}
                     placeholder="School Name"
                     styles={customStyles}
                   />
+
+
                   {formik.touched.school_id && formik.errors.school_id && (
                     <div className="text-red-500 text-sm">
                       {formik.errors.school_id}
@@ -497,14 +535,17 @@ const EditStudentModal = ({ onClose, student }) => {
               <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={() => {
+                    formik.resetForm();
+                    setShowModal(false);
+                  }}
                   className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#4D57EE] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
+                  className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
                 >
                   Save
                 </button>
