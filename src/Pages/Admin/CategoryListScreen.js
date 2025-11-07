@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { PiClipboardText } from "react-icons/pi";
+import { formatCapitalText } from "../../Helper/helper";
+import Tooltip from "../../Components/Common/Tooltip";
 
 const validationSchema = Yup.object().shape({
   name_en: Yup.string().required("Name English is required"),
@@ -97,6 +99,7 @@ const CategoryListScreen = () => {
                     <th className="px-3 py-3 min-w-[120px]">Name (English)</th>
                     <th className="px-3 py-3 min-w-[120px]">Name (Hindi)</th>
                     <th className="px-3 py-3 min-w-[120px]">Position</th>
+                    <th className="px-3 py-3 min-w-[120px]">Status</th>
                     <th className="px-3 py-3 min-w-[120px]">Action</th>
                   </tr>
                 </thead>
@@ -113,22 +116,39 @@ const CategoryListScreen = () => {
                         <td className="px-3 py-3">{item?.id}</td>
                         <td className="px-3 py-3">{item?.name_en}</td>
                         <td className="px-3 py-3">{item?.name_hi}</td>
-                        <td className="px-3 py-3">{item.position}</td>
+                        <td className="px-3 py-3">{item?.position}</td>
+                        <td className="px-3 py-3">
+                          <span
+                            className={`block w-fit px-3 py-1 rounded-full capitalize ${
+                              item.status === "ACTIVE"
+                                ? "bg-green-200"
+                                : "bg-gray-200"
+                            }`}
+                          >
+                            {formatCapitalText(item.status)}
+                          </span>
+                        </td>
                         <td className="px-3 py-3">
                           <div className="flex gap-2">
-                            <div
-                              className="cursor-pointer w-5"
-                              onClick={() => {
-                                setEditingOption(item?.id);
-                                setShowModal(true);
-                              }}
+                            <Tooltip
+                              id={`tooltip-edit-${item.id}`}
+                              content="Edit Category"
+                              place="left"
                             >
-                              <img
-                                src={editIcon}
-                                alt="view"
-                                className="w-full"
-                              />
-                            </div>
+                              <div
+                                className="cursor-pointer w-5"
+                                onClick={() => {
+                                  setEditingOption(item?.id);
+                                  setShowModal(true);
+                                }}
+                              >
+                                <img
+                                  src={editIcon}
+                                  alt="view"
+                                  className="w-full"
+                                />
+                              </div>
+                            </Tooltip>
                           </div>
                         </td>
                       </tr>

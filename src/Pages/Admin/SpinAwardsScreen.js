@@ -3,6 +3,7 @@ import editIcon from "../../Assests/Images/icons/edit.svg";
 import Pagination from "../../Components/Common/Pagination";
 import { FaPlus } from "react-icons/fa";
 import EditSpinAwardsModal from "../../Components/EditSpinAwardsModal";
+import Tooltip from "../../Components/Common/Tooltip";
 
 const taskList = [
   {
@@ -137,12 +138,22 @@ const SpinAwardsScreen = () => {
                           </span>
                       </td>
                       <td className="px-3 py-3">
-                        <div
-                          className="cursor-pointer w-6"
-                          onClick={() => handleEdit(item)}
+                        <Tooltip
+                          id={`tooltip-edit-${item.id}`}
+                          content="Edit Spin Reward"
+                          place="left"
                         >
-                          <img src={editIcon} alt="view" className="w-full" />
-                        </div>
+                          <div
+                            className="cursor-pointer w-5"
+                            // onClick={() => {
+                            //   setEditingOption(item?.id);
+                            //   setShowModal(true);
+                            // }}
+                            onClick={() => handleEdit(item)}
+                          >
+                            <img src={editIcon} alt="view" className="w-full" />
+                          </div>
+                        </Tooltip>
                       </td>
                     </tr>
                   ))}

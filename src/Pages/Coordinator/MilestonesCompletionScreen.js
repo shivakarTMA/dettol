@@ -3,6 +3,7 @@ import viewIcon from "../../Assests/Images/icons/view.svg";
 import shippingIcon from "../../Assests/Images/icons/shipping.svg";
 import MilestonePopup from "../../Components/MilestonePopup";
 import SubmitRatingPopup from "../../Components/SubmitRatingPopup";
+import Tooltip from "../../Components/Common/Tooltip";
 
 const milestoneDetailsSample = {
   studentName: "Name of Student",
@@ -40,12 +41,11 @@ const milestoneDetailsSample = {
 };
 
 const MilestonesCompletionScreen = () => {
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-  console.log(isModalOpen,'isModalOpen')
+  console.log(isModalOpen, "isModalOpen");
 
   const milestonesSummary = [
     {
@@ -210,19 +210,32 @@ const MilestonesCompletionScreen = () => {
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex flex-nowrap w-full items-center">
-                        <div
-                          className="bg-[#F1F1F1] border border-[#D4D4D4] rounded-l-[5px] w-9 h-8 flex items-center justify-center cursor-pointer p-[6px]"
-                          onClick={() => handleViewClick(item)}
+                        <Tooltip
+                          id={`tooltip-edit-${item.id}`}
+                          content="View Milestones"
+                          place="left"
                         >
-                          <img src={viewIcon} alt="view" className="w-full" />
-                        </div>
-                        <div className="bg-[#F1F1F1] border border-[#D4D4D4] rounded-r-[5px] w-9 h-8 flex items-center justify-center p-[8px]">
-                          <img
-                            src={shippingIcon}
-                            alt="shipping"
-                            className="w-full"
-                          />
-                        </div>
+                          <div
+                            className="bg-[#F1F1F1] border border-[#D4D4D4] rounded-l-[5px] w-9 h-8 flex items-center justify-center cursor-pointer p-[6px]"
+                            onClick={() => handleViewClick(item)}
+                          >
+                            <img src={viewIcon} alt="view" className="w-full" />
+                          </div>
+                        </Tooltip>
+
+                        <Tooltip
+                          id={`tooltip-edit-${item.id}`}
+                          content="In Route"
+                          place="left"
+                        >
+                          <div className="bg-[#F1F1F1] border border-[#D4D4D4] rounded-r-[5px] w-9 h-8 flex items-center cursor-pointer justify-center p-[8px]">
+                            <img
+                              src={shippingIcon}
+                              alt="view"
+                              className="w-full"
+                            />
+                          </div>
+                        </Tooltip>
                       </div>
                     </td>
                   </tr>

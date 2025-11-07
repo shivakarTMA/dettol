@@ -10,6 +10,8 @@ import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { PiStudentLight } from "react-icons/pi";
+import { formatCapitalText } from "../../Helper/helper";
+import Tooltip from "../../Components/Common/Tooltip";
 
 const validationSchema = Yup.object().shape({
   profile_pic: Yup.mixed()
@@ -278,7 +280,7 @@ const StudentsScreen = () => {
     setPage(1);
   };
 
-  console.log(paginatedStudents,'paginatedStudents')
+  console.log(paginatedStudents, "paginatedStudents");
 
   return (
     <div>
@@ -395,7 +397,9 @@ const StudentsScreen = () => {
                     <td className="px-3 py-3">{item.name_en}</td>
                     <td className="px-3 py-3">{item.gender_en}</td>
                     <td className="px-3 py-3">{item.school_name}</td>
-                    <td className="px-3 py-3">{String(item.age).padStart(2, "0")}</td>
+                    <td className="px-3 py-3">
+                      {String(item.age).padStart(2, "0")}
+                    </td>
                     <td className="px-3 py-3">{item.district_en}</td>
                     <td className="px-3 py-3">
                       <span
@@ -405,19 +409,25 @@ const StudentsScreen = () => {
                             : "bg-gray-200"
                         }`}
                       >
-                        {item.status}
+                        {formatCapitalText(item.status)}
                       </span>
                     </td>
                     <td className="px-3 py-3">
-                      <img
-                        src={editIcon}
-                        alt="edit"
-                        className="w-5 cursor-pointer"
-                        onClick={() => {
-                          setEditingOption(item.id);
-                          setShowModal(true);
-                        }}
-                      />
+                      <Tooltip
+                        id={`tooltip-edit-${item.id}`}
+                        content="Edit Student"
+                        place="left"
+                      >
+                        <div
+                          className="cursor-pointer w-5"
+                          onClick={() => {
+                            setEditingOption(item?.id);
+                            setShowModal(true);
+                          }}
+                        >
+                          <img src={editIcon} alt="view" className="w-full" />
+                        </div>
+                      </Tooltip>
                     </td>
                   </tr>
                 ))

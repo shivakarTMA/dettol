@@ -4,6 +4,7 @@ import EditLearnModuleModal from "../../Components/EditLearnModuleModal";
 import { MdImage } from "react-icons/md";
 import { FaFilePdf } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import Tooltip from "../../Components/Common/Tooltip";
 
 const LearnModuleListScreen = () => {
   const [learnModule, setLearnModule] = useState([
@@ -90,8 +91,12 @@ const LearnModuleListScreen = () => {
                     <th className="px-3 py-3 min-w-[100px]">ID</th>
                     <th className="px-3 py-3 min-w-[120px]">File English</th>
                     <th className="px-3 py-3 min-w-[120px]">File HIndi</th>
-                    <th className="px-3 py-3 min-w-[120px] text-center">File English</th>
-                    <th className="px-3 py-3 min-w-[120px] text-center">File Hindi</th>
+                    <th className="px-3 py-3 min-w-[120px] text-center">
+                      File English
+                    </th>
+                    <th className="px-3 py-3 min-w-[120px] text-center">
+                      File Hindi
+                    </th>
                     <th className="px-3 py-3 min-w-[120px]">Action</th>
                   </tr>
                 </thead>
@@ -112,7 +117,7 @@ const LearnModuleListScreen = () => {
                             {item?.File_en_url.endsWith(".pdf") ? (
                               <FaFilePdf className="text-xl mx-auto" />
                             ) : (
-                              <MdImage className="text-xl mx-auto"  />
+                              <MdImage className="text-xl mx-auto" />
                             )}
                           </Link>
                         ) : (
@@ -139,12 +144,26 @@ const LearnModuleListScreen = () => {
                       </td>
                       <td className="px-3 py-3">
                         <div className="flex gap-2">
-                          <div
-                            className="cursor-pointer w-5"
-                            onClick={() => handleEdit(item)}
+                          <Tooltip
+                            id={`tooltip-edit-${item.id}`}
+                            content="Edit Learn Module"
+                            place="left"
                           >
-                            <img src={editIcon} alt="view" className="w-full" />
-                          </div>
+                            <div
+                              className="cursor-pointer w-5"
+                              // onClick={() => {
+                              //   setEditingOption(item?.id);
+                              //   setShowModal(true);
+                              // }}
+                              onClick={() => handleEdit(item)}
+                            >
+                              <img
+                                src={editIcon}
+                                alt="view"
+                                className="w-full"
+                              />
+                            </div>
+                          </Tooltip>
                         </div>
                       </td>
                     </tr>

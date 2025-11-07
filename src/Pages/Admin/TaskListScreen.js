@@ -8,7 +8,8 @@ import { authAxios } from "../../Config/config";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Select from "react-select";
-import { customStyles } from "../../Helper/helper";
+import { customStyles, formatCapitalText } from "../../Helper/helper";
+import Tooltip from "../../Components/Common/Tooltip";
 
 const validationSchema = Yup.object().shape({
   category_id: Yup.string().required("Category is required"),
@@ -153,28 +154,56 @@ const TaskListScreen = () => {
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[100px]">Category Name</th>
-                    <th className="px-3 py-3 min-w-[150px]">Title</th>
-                    <th className="px-3 py-3 min-w-[150px]">Loyalty Points</th>
-                    <th className="px-3 py-3 min-w-[120px]">Action</th>
+                    <th className="px-3 py-3 min-w-[150px]">Category Name</th>
+                    <th className="px-3 py-3 min-w-[170px]">Title</th>
+                    <th className="px-3 py-3 min-w-[150px] text-center">
+                      Loyalty Points
+                    </th>
+                    <th className="px-3 py-3 min-w-[110px]">Status</th>
+                    <th className="px-3 py-3 min-w-[100px] text-center">
+                      Position
+                    </th>
+                    <th className="px-3 py-3 min-w-[70px]">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {taskList.map((item, index) => (
                     <tr key={index} className="border-t">
-                      <td className="px-3 py-3">{item.category_name}</td>
-                      <td className="px-3 py-3">{item.title_en}</td>
-                      <td className="px-3 py-3">{item.loyalty_points}</td>
+                      <td className="px-3 py-3">{item?.category_name}</td>
+                      <td className="px-3 py-3">{item?.title_en}</td>
+                      <td className="px-3 py-3 text-center">
+                        {item?.loyalty_points}
+                      </td>
                       <td className="px-3 py-3">
-                        <div
-                          className="cursor-pointer w-6"
-                          onClick={() => {
-                            setEditingOption(item?.id);
-                            setShowModal(true);
-                          }}
+                        <span
+                          className={`block w-fit px-3 py-1 rounded-full capitalize ${
+                            item?.status === "ACTIVE"
+                              ? "bg-green-200"
+                              : "bg-gray-200"
+                          }`}
                         >
-                          <img src={editIcon} alt="view" className="w-full" />
-                        </div>
+                          {formatCapitalText(item?.status)}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3 text-center">
+                        {item?.position}
+                      </td>
+                      <td className="px-3 py-3">
+                        <Tooltip
+                          id={`tooltip-edit-${item.id}`}
+                          content="Edit Task"
+                          place="left"
+                        >
+                          <div
+                            className="cursor-pointer w-5"
+                            onClick={() => {
+                              setEditingOption(item?.id);
+                              setShowModal(true);
+                            }}
+                          >
+                            <img src={editIcon} alt="view" className="w-full" />
+                          </div>
+                        </Tooltip>
                       </td>
                     </tr>
                   ))}

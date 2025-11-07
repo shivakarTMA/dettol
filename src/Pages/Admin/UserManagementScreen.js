@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { authAxios } from "../../Config/config";
+import Tooltip from "../../Components/Common/Tooltip";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name English is required"),
@@ -133,30 +134,43 @@ const UserManagementScreen = () => {
                         <td className="px-3 py-3">{item.report_to}</td>
                         <td className="px-3 py-3">
                           <div className="flex gap-2">
-                            <div
-                              className="cursor-pointer w-5"
-                              onClick={() => {
-                                setEditingOption(item?.id);
-                                setShowModal(true);
-                              }}
+                            <Tooltip
+                              id={`tooltip-edit-${item.id}`}
+                              content="Edit User"
+                              place="left"
                             >
-                              <img
-                                src={editIcon}
-                                alt="view"
-                                className="w-full"
-                              />
-                            </div>
+                              <div
+                                className="cursor-pointer w-5"
+                                onClick={() => {
+                                  setEditingOption(item?.id);
+                                  setShowModal(true);
+                                }}
+                              >
+                                <img
+                                  src={editIcon}
+                                  alt="view"
+                                  className="w-full"
+                                />
+                              </div>
+                            </Tooltip>
+
+                            <Tooltip
+                              id={`tooltip-edit-${item.id}`}
+                              content="Delete User"
+                              place="left"
+                            >
+                              <div
+                                className="cursor-pointer w-5"
+                                onClick={() => handleDelete(item.id)}
+                              >
+                                <img
+                                  src={deleteIcon}
+                                  alt="view"
+                                  className="w-full"
+                                />
+                              </div>
+                            </Tooltip>
                             {/* Delete Icon */}
-                            <div
-                              className="cursor-pointer w-5"
-                              onClick={() => handleDelete(item.id)}
-                            >
-                              <img
-                                src={deleteIcon}
-                                alt="Delete"
-                                className="w-full"
-                              />
-                            </div>
                           </div>
                         </td>
                       </tr>

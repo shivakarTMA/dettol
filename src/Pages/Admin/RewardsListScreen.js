@@ -7,6 +7,7 @@ import { authAxios } from "../../Config/config";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Pagination from "../../Components/Common/Pagination";
+import Tooltip from "../../Components/Common/Tooltip";
 
 const validationSchema = Yup.object({
   image_url: Yup.mixed()
@@ -170,7 +171,11 @@ const RewardsListScreen = () => {
                         <td className="px-3 py-3">{item?.content}</td>
                         <td className="px-3 py-3">{item?.points_required}</td>
                         <td className="px-3 py-3">
-                          <div className="flex gap-2">
+                          <Tooltip
+                            id={`tooltip-edit-${item.id}`}
+                            content="Edit Milestone"
+                            place="left"
+                          >
                             <div
                               className="cursor-pointer w-5"
                               onClick={() => {
@@ -184,7 +189,7 @@ const RewardsListScreen = () => {
                                 className="w-full"
                               />
                             </div>
-                          </div>
+                          </Tooltip>
                         </td>
                       </tr>
                     ))
