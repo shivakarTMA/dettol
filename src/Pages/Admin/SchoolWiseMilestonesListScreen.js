@@ -1,89 +1,50 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { customStyles } from "../../Helper/helper";
-import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { authAxios } from "../../Config/config";
 
 const milestoneOptions = [
-  { value: "milestone1", label: "Milestone 1" },
-  { value: "milestone2", label: "Milestone 2" },
-  { value: "milestone3", label: "Milestone 3" },
+  { value: "Milestone 1", label: "Milestone 1" },
+  { value: "Milestone 2", label: "Milestone 2" },
+  { value: "Milestone 3", label: "Milestone 3" },
+  { value: "Milestone 4", label: "Milestone 4" },
+  { value: "Milestone 5", label: "Milestone 5" },
+  { value: "Milestone 6", label: "Milestone 6" },
+  { value: "Milestone 7", label: "Milestone 7" },
+  { value: "Milestone 8", label: "Milestone 8" },
+  { value: "Milestone 9", label: "Milestone 9" },
+  { value: "Milestone 10", label: "Milestone 10" },
+  { value: "Milestone 11", label: "Milestone 11" },
+  { value: "Milestone 12", label: "Milestone 12" },
 ];
 
-const SchoolWiseMilestonesListScreen = () => { 
-
-  const [selectedMilestone, setSelectedMilestone] = useState({ value: "milestone1", label: "Milestone 1" });
-  const [schoolWiseMilestones, setSchoolWiseMilestones] = useState([
-    {
-      id: 1,
-      name: "LN Public School",
-      total: 52,
-      male: 32,
-      female: 20,
-      milestone: "milestone1",
-    },
-    {
-      id: 2,
-      name: "Dewan Public School",
-      total: 60,
-      male: 38,
-      female: 22,
-      milestone: "milestone2",
-    },
-    {
-      id: 3,
-      name: "Miniland Convent School",
-      total: 48,
-      male: 30,
-      female: 18,
-      milestone: "milestone3",
-    },
-    {
-      id: 4,
-      name: "Little Flower Public School",
-      total: 50,
-      male: 25,
-      female: 25,
-      milestone: "milestone3",
-    },
-    {
-      id: 5,
-      name: "LN Public School",
-      total: 52,
-      male: 32,
-      female: 20,
-      milestone: "milestone2",
-    },
-    {
-      id: 6,
-      name: "Dewan Public School",
-      total: 60,
-      male: 38,
-      female: 22,
-      milestone: "milestone1",
-    },
-    {
-      id: 7,
-      name: "Miniland Convent School",
-      total: 48,
-      male: 30,
-      female: 18,
-      milestone: "milestone1",
-    },
-    {
-      id: 8,
-      name: "Little Flower Public School",
-      total: 50,
-      male: 25,
-      female: 25,
-      milestone: "milestone1",
-    },
-  ]);
-
-
-  // ✅ Filter data
-  const filteredData = schoolWiseMilestones.filter(
-    (item) => item.milestone === selectedMilestone.value
+const SchoolWiseMilestonesListScreen = () => {
+  const [selectedMilestone, setSelectedMilestone] = useState(
+    milestoneOptions[0]
   );
+  const [schoolWiseMilestones, setSchoolWiseMilestones] = useState([]);
+
+  const fetchSchoolMilestonesList = async (
+    milestone_name = selectedMilestone.value
+  ) => {
+    try {
+      // Pass the selected milestone_name as a query parameter
+      const res = await authAxios().get(
+        `/dashboard/school/milestone/list?milestone_name=${milestone_name}`
+      );
+
+      let data = res.data?.data || [];
+      setSchoolWiseMilestones(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch milestone");
+    }
+  };
+
+  useEffect(() => {
+    fetchSchoolMilestonesList(selectedMilestone.value);
+  }, [selectedMilestone]);
 
   return (
     <div>
@@ -104,19 +65,27 @@ const SchoolWiseMilestonesListScreen = () => {
                 <thead className="bg-[#F1F1F1]">
                   <tr>
                     <th className="px-3 py-3 min-w-[170px]">School Name</th>
-                    <th className="px-3 py-3 min-w-[120px]">Total Students</th>
-                    <th className="px-3 py-3">Male</th>
-                    <th className="px-3 py-3">Female</th>
+                    <th className="px-3 py-3 min-w-[120px] text-center">
+                      Total Students
+                    </th>
+                    <th className="px-3 py-3 text-center">Male</th>
+                    <th className="px-3 py-3 text-center">Female</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredData.length > 0 ? (
-                    filteredData.map((item) => (
-                      <tr key={item.id} className="border-t">
-                        <td className="px-3 py-3">{item.name}</td>
-                        <td className="px-3 py-3">{item.total}</td>
-                        <td className="px-3 py-3">{item.male}</td>
-                        <td className="px-3 py-3">{item.female}</td>
+                  {schoolWiseMilestones.length > 0 ? (
+                    schoolWiseMilestones.map((item, index) => (
+                      <tr key={index} className="border-t">
+                        <td className="px-3 py-3">{item?.school_name}</td>
+                        <td className="px-3 py-3 text-center">
+                          {item?.total_student_count}
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          {item?.male_count}
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          {item?.female_count}
+                        </td>
                       </tr>
                     ))
                   ) : (

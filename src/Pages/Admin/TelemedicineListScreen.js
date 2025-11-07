@@ -5,6 +5,7 @@ import searchIcon from "../../Assests/Images/icons/search.svg";
 import { toast } from "react-toastify";
 import Pagination from "../../Components/Common/Pagination";
 import { authAxios } from "../../Config/config";
+import Tooltip from "../../Components/Common/Tooltip";
 
 const TelemedicineListScreen = () => {
   const [telemedicine, setTelemedicine] = useState([]);
@@ -13,7 +14,7 @@ const TelemedicineListScreen = () => {
   const [cardSearch, setCardSearch] = useState("");
   const [cardError, setCardError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedStudentId, setSelectedStudentId] = useState('');
+  const [selectedStudentId, setSelectedStudentId] = useState("");
 
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
@@ -103,23 +104,34 @@ const TelemedicineListScreen = () => {
     }
   };
   const handleCardSearchChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
+    let value = e.target.value.replace(/[^0-9-]/g, ""); // allow only digits & dashes
+    let numericValue = value.replace(/-/g, ""); // remove dashes for processing
+
+    // Format automatically as xxxx-xxxx-xxxx-xxxx
+    if (numericValue.length > 0) {
+      value = numericValue
+        .substring(0, 16)
+        .replace(/(\d{4})(?=\d)/g, "$1-")
+        .slice(0, 19); // ensure format limit
+    }
+
     setCardSearch(value);
 
-    if (!value) {
+    // Clear or validate
+    if (!numericValue) {
       setCardError("");
       fetchTelemedicineList(1, "");
       return;
     }
 
-    if (value.length !== 16) {
+    if (numericValue.length !== 16) {
       setCardError("Please enter 16 digits");
     } else {
       setCardError("");
-      fetchTelemedicineList(1, value);
+      fetchTelemedicineList(1, numericValue); // pass plain digits to backend
     }
   };
-
+  console.log(telemedicine, "telemedicine");
 
   return (
     <div>
@@ -152,7 +164,7 @@ const TelemedicineListScreen = () => {
                 placeholder="Search by card number"
                 value={cardSearch}
                 onChange={handleCardSearchChange}
-                maxLength={16}
+                maxLength={19}
                 className="pr-2 pl-[35px] py-2 rounded-full w-full"
               />
             </div>
@@ -180,14 +192,14 @@ const TelemedicineListScreen = () => {
                   <th className="px-3 py-3 min-w-[120px] text-center">
                     Total Calls Done
                   </th>
-                  <th className="px-3 py-3 min-w-[80px]">Action</th>
+                  <th className="px-3 py-3 min-w-[80px] text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {telemedicine.length > 0 ? (
                   telemedicine.map((item, index) => (
                     <tr key={index} className="border-t">
-                      <td className="px-3 py-3">{item?.id}</td>
+                      <td className="px-3 py-3">{item?.name_en}</td>
                       <td className="px-3 py-3">{item?.parent_name_en}</td>
                       <td className="px-3 py-3">{item?.gender_en}</td>
                       <td className="px-3 py-3">{item?.district_en}</td>
@@ -198,22 +210,26 @@ const TelemedicineListScreen = () => {
                         {formatCardNumber(item?.card_no)}
                       </td>
                       <td className="px-3 py-3 text-center">
-                        {item.total_calls_done > 3
-                          ? "limit exceeded"
-                          : item?.total_calls_done}
+                        {item?.total_calls_done}
                       </td>
-                      <td className="px-3 py-3">
-                        <div className="flex gap-2">
-                          <div
-                            className={`cursor-pointer w-5 ${
-                              item.total_calls_done > 3
-                                ? "opacity-50 pointer-events-none"
-                                : ""
-                            }`}
-                            onClick={() => openModal(item?.id)}
+                      <td className="px-3 py-3 text-center">
+                        <div className="flex justify-center">
+                          <Tooltip
+                            id={`tooltip-edit-${item.id}`}
+                            content={`${item.total_calls_done > 3 ? 'Limit Exceeded' : 'Mark Call'}`}
+                            place="left"
                           >
-                            <TbPhoneDone className="text-xl" />
-                          </div>
+                            <div
+                              className={`cursor-pointer w-5 ${
+                                item.total_calls_done > 3
+                                  ? "text-red-500 pointer-events-none"
+                                  : ""
+                              }`}
+                              onClick={() => openModal(item?.id)}
+                            >
+                              <TbPhoneDone className="text-xl" />
+                            </div>
+                          </Tooltip>
                         </div>
                       </td>
                     </tr>

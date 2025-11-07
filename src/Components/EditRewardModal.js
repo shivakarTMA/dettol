@@ -119,7 +119,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                     name="milestone_name"
                     value={formik.values.milestone_name || ""}
                     onChange={formik.handleChange}
-                    placeholder="Reward Name"
+                    placeholder="Milestone Name"
                     className="custom--input w-full"
                   />
                   {formik.touched.milestone_name &&
@@ -138,7 +138,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                     name="name_en"
                     value={formik.values.name_en || ""}
                     onChange={formik.handleChange}
-                    placeholder="Reward Name"
+                    placeholder="Reward Name (English)"
                     className="custom--input w-full"
                   />
                   {formik.touched.name_en && formik.errors.name_en && (
@@ -156,7 +156,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                     name="name_hi"
                     value={formik.values.name_hi || ""}
                     onChange={formik.handleChange}
-                    placeholder="Reward Name"
+                    placeholder="Reward Name (Hindi)"
                     className="custom--input w-full"
                   />
                   {formik.touched.name_hi && formik.errors.name_hi && (
@@ -174,7 +174,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                     name="description_en"
                     value={formik.values.description_en || ""}
                     onChange={formik.handleChange}
-                    placeholder="Reward Description"
+                    placeholder="Reward Description (English)"
                     className="custom--input w-full"
                   />
                   {formik.touched.description_en &&
@@ -193,7 +193,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                     name="description_hi"
                     value={formik.values.description_hi || ""}
                     onChange={formik.handleChange}
-                    placeholder="Reward Description"
+                    placeholder="Reward Description (Hindi)"
                     className="custom--input w-full"
                   />
                   {formik.touched.description_hi &&
@@ -212,7 +212,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                     name="content"
                     value={formik.values.content || ""}
                     onChange={formik.handleChange}
-                    placeholder="City (English)"
+                    placeholder="Reward Contents"
                     className="custom--input w-full"
                   />
                   {formik.touched.content && formik.errors.content && (
@@ -230,7 +230,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                     name="points_required"
                     value={formik.values.points_required || ""}
                     onChange={formik.handleChange}
-                    placeholder="City (English)"
+                    placeholder="Points"
                     className="custom--input w-full"
                   />
                   {formik.touched.points_required &&
@@ -249,7 +249,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                     name="position"
                     value={formik.values.position || ""}
                     onChange={formik.handleChange}
-                    placeholder="City (English)"
+                    placeholder="Position"
                     className="custom--input w-full"
                   />
                   {formik.touched.position && formik.errors.position && (

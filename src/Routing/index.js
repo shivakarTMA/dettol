@@ -92,6 +92,14 @@ export default function Routing() {
                 </PrivateRoute>
               }
             />
+             <Route
+              path="/milestones-completion"
+              element={
+                <PrivateRoute>
+                  <MilestonesCompletionScreen />
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/task-category"
               element={

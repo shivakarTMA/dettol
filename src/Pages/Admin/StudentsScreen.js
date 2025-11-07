@@ -15,7 +15,7 @@ const validationSchema = Yup.object().shape({
   profile_pic: Yup.mixed()
     .required("Profile Image is required")
     .test("fileType", "Only image files are allowed", (value) => {
-      if (typeof value === "string") return true; // when editing existing image (URL)
+      if (typeof value === "string") return true;
       return value && value instanceof File;
     }),
   name_en: Yup.string().required("Name English is required"),
@@ -38,7 +38,6 @@ const validationSchema = Yup.object().shape({
   district_hi: Yup.string().required("District Hindi is required"),
   city_en: Yup.string().required("City English is required"),
   city_hi: Yup.string().required("City Hindi is required"),
-
   pincode: Yup.number().required("Pincode is required"),
   card_no: Yup.string().required("Card No. is required"),
   school_id: Yup.string().required("School Name is required"),
@@ -47,40 +46,32 @@ const validationSchema = Yup.object().shape({
 const StudentsScreen = () => {
   const [showModal, setShowModal] = useState(false);
   const [students, setStudents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [editingOption, setEditingOption] = useState(null);
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-
-  // Filter states
-  const [filters, setFilters] = useState({
-    Gender: null,
-    School: null,
-    Age: null,
-    Status: null,
-  });
-
-  const [tempFilters, setTempFilters] = useState(filters);
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [cardSearch, setCardSearch] = useState("");
+  const [cardError, setCardError] = useState("");
 
-  const fetchStudentList = async (currentPage = page) => {
+  // Filters
+  const [filters, setFilters] = useState({
+    gender_en: null,
+    school_id: null,
+    age: null,
+    status: null,
+  });
+  const [tempFilters, setTempFilters] = useState(filters);
+
+  // 🧠 Fetch all students once
+  const fetchStudentList = async () => {
     try {
-      const res = await authAxios().get("/student/fetch/all", {
-        params: {
-          page: currentPage,
-          limit: rowsPerPage,
-        },
-      });
-
-      let data = res.data?.data || [];
+      const res = await authAxios().get("/student/fetch/all");
+      const data = res.data?.data || [];
       setStudents(data);
-      setPage(res.data?.currentPage || 1);
-      setTotalPages(res.data?.totalPage || 1);
-      setTotalCount(res.data?.totalCount || data.length);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch reward");
+      toast.error("Failed to fetch students");
     }
   };
 
@@ -179,205 +170,289 @@ const StudentsScreen = () => {
     },
   });
 
+  // 🧠 Filter logic (case-insensitive)
+  const filteredStudents = students.filter((student) => {
+    const genderMatch = filters.gender_en
+      ? student.gender_en?.toLowerCase() ===
+        filters.gender_en.value?.toLowerCase()
+      : true;
+
+    const schoolMatch = filters.school_id
+      ? String(student.school_id) === String(filters.school_id.value)
+      : true;
+
+    const ageMatch = filters.age
+      ? Number(student.age) === Number(filters.age.value)
+      : true;
+
+    const statusMatch = filters.status
+      ? student.status?.toLowerCase() === filters.status.value?.toLowerCase()
+      : true;
+
+    const searchMatch = searchTerm
+      ? student.name_en?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.mobile?.toString().includes(searchTerm)
+      : true;
+
+    // ✅ Card number search
+    const cardMatch = cardSearch
+      ? student.card_no
+          ?.toString()
+          .replace(/-/g, "")
+          .includes(cardSearch.replace(/-/g, ""))
+      : true;
+
+    return (
+      genderMatch &&
+      schoolMatch &&
+      ageMatch &&
+      statusMatch &&
+      searchMatch &&
+      cardMatch
+    );
+  });
+
+  // 🧮 Pagination logic on filtered data
+  const totalFilteredPages =
+    Math.ceil(filteredStudents.length / rowsPerPage) || 1;
+  const startIndex = (page - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const paginatedStudents = filteredStudents.slice(startIndex, endIndex);
+
+  // 🔄 Auto reset to page 1 if data shrinks
   useEffect(() => {
-    if (showFilterModal) {
-      setTempFilters(filters);
+    if (page > totalFilteredPages) {
+      setPage(1);
     }
-  }, [showFilterModal]);
+  }, [filteredStudents.length]);
 
-  const handleTempFilterChange = (field, selectedOption) => {
-    setTempFilters((prev) => ({
-      ...prev,
-      [field]: selectedOption,
-    }));
-  };
-
+  // 🧩 Handle Filter Apply
   const applyFilters = () => {
     setFilters(tempFilters);
+    setPage(1);
     setShowFilterModal(false);
   };
 
+  // 🧩 Clear individual filter
   const clearFilter = (field) => {
     const newFilters = { ...filters, [field]: null };
     setFilters(newFilters);
     setTempFilters(newFilters);
+    setPage(1);
   };
 
-  // Filtered student data
-  const filteredStudents = students.filter((student) => {
-    const genderMatch = filters.Gender
-      ? student.Gender === filters.Gender.value
-      : true;
-    const schoolMatch = filters.School
-      ? student.school_id === filters.School.value
-      : true;
-    const ageMatch = filters.Age ? student.Age === filters.Age.value : true;
-    const statusMatch = filters.Status
-      ? student.Status === filters.Status.value
-      : true;
-    return genderMatch && schoolMatch && ageMatch && statusMatch;
-  });
+  const formatCardNumber = (cardNo) => {
+    const str = cardNo?.toString().padStart(16, "0");
+    return `${str.slice(0, 4)}-${str.slice(4, 8)}-${str.slice(
+      8,
+      12
+    )}-${str.slice(12, 16)}`;
+  };
+
+  const handleCardSearchChange = (e) => {
+    let value = e.target.value.replace(/[^0-9-]/g, ""); // allow only digits & dashes
+    let numericValue = value.replace(/-/g, ""); // remove dashes for comparison
+
+    // Auto-format as xxxx-xxxx-xxxx-xxxx
+    if (numericValue.length > 0) {
+      value = numericValue
+        .substring(0, 16)
+        .replace(/(\d{4})(?=\d)/g, "$1-")
+        .slice(0, 19);
+    }
+
+    setCardSearch(value);
+
+    if (!numericValue) {
+      setCardError("");
+      return;
+    }
+
+    if (numericValue.length !== 16) {
+      setCardError("Please enter 16 digits");
+    } else {
+      setCardError("");
+    }
+
+    // Always reset to first page
+    setPage(1);
+  };
+
+  console.log(paginatedStudents,'paginatedStudents')
 
   return (
     <div>
-      <div className="">
-        <div className="flex justify-between items-center flex-wrap gap-3 mb-5">
-          <div className="relative">
-            <div className="flex gap-2 items-center">
-              <button
-                className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
-                onClick={() => {
-                  setEditingOption(null);
-                  formik.resetForm();
-                  setShowModal(true);
-                }}
-              >
-                <PiStudentLight className="text-xl" />
-                <span>Create student</span>
-              </button>
-              <button
-                onClick={() => setShowFilterModal(true)}
-                className="w-[34px] h-[30px] bg-white text-black rounded-[5px] flex items-center justify-center gap-2 min-h-[30px] border-[#D4D4D4] border-[2px]"
-              >
-                <HiOutlineAdjustmentsHorizontal className="text-lg" />
-              </button>
-              <span className="text-md">Filters</span>
-            </div>
-            {showFilterModal && (
-              <FilterStudentPanel
-                filters={tempFilters}
-                handleFilterChange={handleTempFilterChange}
-                onClose={() => setShowFilterModal(false)}
-                onApply={applyFilters}
-                students={students}
-              />
+      <div className="flex justify-between items-center flex-wrap gap-3 mb-5">
+        <div className="relative">
+          <div className="flex gap-2 items-center">
+            <button
+              className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
+              onClick={() => {
+                setEditingOption(null);
+                setShowModal(true);
+              }}
+            >
+              <PiStudentLight className="text-xl" />
+              <span>Create student</span>
+            </button>
+            <button
+              onClick={() => setShowFilterModal(true)}
+              className="w-[34px] h-[30px] bg-white text-black rounded-[5px] flex items-center justify-center border-[#D4D4D4] border-[2px]"
+            >
+              <HiOutlineAdjustmentsHorizontal className="text-lg" />
+            </button>
+            <span className="text-md">Filters</span>
+          </div>
+
+          {showFilterModal && (
+            <FilterStudentPanel
+              filters={tempFilters}
+              handleFilterChange={(field, value) =>
+                setTempFilters((prev) => ({ ...prev, [field]: value }))
+              }
+              onApply={applyFilters}
+              onClose={() => setShowFilterModal(false)}
+            />
+          )}
+        </div>
+
+        <div className="flex gap-3 flex-1 justify-end">
+          <div className="relative w-full max-w-[250px]">
+            <img src={searchIcon} className="absolute top-[13px] left-[15px]" />
+            <input
+              type="text"
+              className="pr-2 pl-[35px] py-2 rounded-full w-full"
+              placeholder="Search by card number"
+              value={cardSearch}
+              onChange={handleCardSearchChange}
+              maxLength={19}
+            />
+            {cardError && (
+              <span className="text-red-500 text-sm mt-1">{cardError}</span>
             )}
           </div>
-          <div className="flex gap-3 flex-1 justify-end">
-            <div className="relative w-full max-w-[250px]">
-              <img
-                src={searchIcon}
-                className="absolute top-[13px] left-[15px]"
-              />
-              <input
-                type="text"
-                placeholder="Search"
-                className="pr-2 pl-[35px] py-2 rounded-full w-full"
-              />
-            </div>
+          <div className="relative w-full max-w-[250px]">
+            <img src={searchIcon} className="absolute top-[13px] left-[15px]" />
+            <input
+              type="text"
+              placeholder="Search by name or mobile"
+              className="pr-2 pl-[35px] py-2 rounded-full w-full"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
+            />
           </div>
         </div>
-        {Object.values(filters).some((value) => value) && (
-          <div className="flex gap-2 mb-5">
-            {Object.entries(filters).map(([key, value]) =>
-              value ? (
-                <div
-                  key={key}
-                  className="flex items-center bg-[#0072CE] text-white px-3 py-1 rounded-full text-sm"
+      </div>
+
+      {/* Active Filter Chips */}
+      {Object.values(filters).some((v) => v) && (
+        <div className="flex gap-2 mb-5 flex-wrap">
+          {Object.entries(filters).map(([key, value]) =>
+            value ? (
+              <div
+                key={key}
+                className="flex items-center bg-[#0072CE] text-white px-3 py-1 rounded-full text-sm"
+              >
+                {value.label}
+                <button
+                  onClick={() => clearFilter(key)}
+                  className="ml-2 text-white"
                 >
-                  {value.label}
-                  <button
-                    onClick={() => clearFilter(key)}
-                    className="ml-2 text-white"
-                  >
-                    ×
-                  </button>
-                </div>
-              ) : null
-            )}
-          </div>
-        )}
-
-        <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
-          <div className="rounded-[10px] overflow-hidden">
-            <div className="relative overflow-x-auto ">
-              <table className="min-w-full text-sm text-left">
-                <thead className="bg-[#F1F1F1]">
-                  <tr>
-                    <th className="px-3 py-3 min-w-[150px]">Student Name</th>
-                    <th className="px-3 py-3 min-w-[120px]">Gender</th>
-                    <th className="px-3 py-3 min-w-[120px] ">School Name</th>
-                    <th className="px-3 py-3 min-w-[80px]">Age</th>
-                    <th className="px-3 py-3 min-w-[120px]">District</th>
-                    <th className="px-3 py-3 min-w-[120px] ">Last Logged in</th>
-                    <th className="px-3 py-3 min-w-[120px]">Status</th>
-                    <th className="px-3 py-3 min-w-[120px]">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredStudents?.length > 0 ? (
-                    filteredStudents.map((item, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item.name_en}</td>
-                        <td className="px-3 py-3">{item.gender_en}</td>
-                        <td className="px-3 py-3">{item.school_name}</td>
-                        <td className="px-3 py-3">
-                          {String(item.age).padStart(2, "0")}
-                        </td>
-                        <td className="px-3 py-3">{item.district_en}</td>
-                        <td className="px-3 py-3">2025-10-01</td>
-                        <td className="px-3 py-3">
-                          <span
-                            className={` block w-fit px-3 py-1 rounded-full capitalize ${
-                              item.status === "ACTIVE" ? "bg-green-200" : ""
-                            } ${item.status === "INACTIVE" ? "bg-gray-200" : ""}
-                            `}
-                          >
-                            {item.status}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3">
-                          <div className="flex gap-2">
-                            <div
-                              className="cursor-pointer w-5"
-                              onClick={() => {
-                                setEditingOption(item?.id);
-                                setShowModal(true);
-                              }}
-                            >
-                              <img
-                                src={editIcon}
-                                alt="view"
-                                className="w-full"
-                              />
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td className="text-center pt-2" colSpan={9}>
-                        No data available
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                  ×
+                </button>
+              </div>
+            ) : null
+          )}
         </div>
+      )}
 
+      {/* Table */}
+      <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
+        <div className="relative overflow-x-auto">
+          <table className="min-w-full text-sm text-left">
+            <thead className="bg-[#F1F1F1]">
+              <tr>
+                <th className="px-3 py-3 min-w-[170px]">Card No.</th>
+                <th className="px-3 py-3 min-w-[120px]">Student Name</th>
+                <th className="px-3 py-3 min-w-[90px]">Gender</th>
+                <th className="px-3 py-3 min-w-[110px]">School</th>
+                <th className="px-3 py-3 min-w-[50px]">Age</th>
+                <th className="px-3 py-3 min-w-[90px]">District</th>
+                <th className="px-3 py-3 min-w-[80px]">Status</th>
+                <th className="px-3 py-3 min-w-[70px]">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedStudents.length > 0 ? (
+                paginatedStudents.map((item, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="px-3 py-3">
+                      {formatCardNumber(item.card_no)}
+                    </td>
+                    <td className="px-3 py-3">{item.name_en}</td>
+                    <td className="px-3 py-3">{item.gender_en}</td>
+                    <td className="px-3 py-3">{item.school_name}</td>
+                    <td className="px-3 py-3">{String(item.age).padStart(2, "0")}</td>
+                    <td className="px-3 py-3">{item.district_en}</td>
+                    <td className="px-3 py-3">
+                      <span
+                        className={`block w-fit px-3 py-1 rounded-full capitalize ${
+                          item.status === "ACTIVE"
+                            ? "bg-green-200"
+                            : "bg-gray-200"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <img
+                        src={editIcon}
+                        alt="edit"
+                        className="w-5 cursor-pointer"
+                        onClick={() => {
+                          setEditingOption(item.id);
+                          setShowModal(true);
+                        }}
+                      />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8} className="text-center py-3">
+                    No data available
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ✅ Pagination visible when >1 page */}
+      {totalFilteredPages > 1 && (
         <Pagination
           page={page}
-          totalPages={totalPages}
+          totalPages={totalFilteredPages}
           rowsPerPage={rowsPerPage}
-          totalCount={totalCount}
-          currentDataLength={students.length}
-          onPageChange={(newPage) => {
-            setPage(newPage);
-          }}
+          totalCount={filteredStudents.length}
+          currentDataLength={paginatedStudents.length}
+          onPageChange={(newPage) => setPage(newPage)}
         />
+      )}
 
-        {/* Edit Modal */}
-        {showModal && (
-          <EditStudentModal
-            setShowModal={setShowModal}
-            editingOption={editingOption}
-            formik={formik}
-          />
-        )}
-      </div>
+      {/* Edit Modal */}
+      {showModal && (
+        <EditStudentModal
+          setShowModal={setShowModal}
+          editingOption={editingOption}
+          formik={formik}
+        />
+      )}
     </div>
   );
 };

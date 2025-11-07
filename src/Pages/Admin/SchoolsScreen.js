@@ -22,20 +22,20 @@ const validationSchema = Yup.object().shape({
 const SchoolsScreen = () => {
   const [schools, setSchools] = useState([]);
   const [showModal, setShowModal] = useState(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   const [editingOption, setEditingOption] = useState(null);
-  
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  const fetchSchoolList = async (currentPage = page) => {
+  const fetchSchoolList = async (search = searchTerm, currentPage = page) => {
     try {
       const res = await authAxios().get("/school/fetch/all", {
         params: {
           page: currentPage,
           limit: rowsPerPage,
+          ...(search ? { search } : {}),
         },
       });
 
@@ -46,13 +46,22 @@ const SchoolsScreen = () => {
       setTotalCount(res.data?.totalCount || data.length);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch staff");
+      toast.error("Failed to fetch school");
     }
   };
 
   useEffect(() => {
     fetchSchoolList();
   }, []);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      setPage(1);
+      fetchSchoolList(searchTerm, 1);
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
 
   const formik = useFormik({
     initialValues: {
@@ -109,6 +118,8 @@ const SchoolsScreen = () => {
                 type="text"
                 placeholder="Search"
                 className="pr-2 pl-[35px] py-2 rounded-full w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
@@ -182,7 +193,7 @@ const SchoolsScreen = () => {
           currentDataLength={schools.length}
           onPageChange={(newPage) => {
             setPage(newPage);
-            fetchSchoolList(newPage);
+            fetchSchoolList(searchTerm, newPage);
           }}
         />
 

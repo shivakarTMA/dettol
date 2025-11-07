@@ -78,18 +78,31 @@ const CoordinatorDashboard = () => {
 
   // Function to generate pipeline data based on selected filter
   const generatePipelineData = (filter, from, to) => {
-    const base = { shipped: 12, delivered: 24, delayed: 5, inRoute: 10 };
+    const base = {
+      SHIPPED: 12,
+      DELIVERED: 24,
+      DELAYED: 5,
+      IN_ROUTE: 10,
+      REJECT: 5,
+    };
     if (filter === "today")
-      return { shipped: 3, delivered: 8, delayed: 1, inRoute: 2 };
+      return { SHIPPED: 3, DELIVERED: 5, DELAYED: 1, IN_ROUTE: 2, REJECT: 3 };
     if (filter === "monthToDate")
-      return { shipped: 45, delivered: 89, delayed: 15, inRoute: 32 };
+      return {
+        SHIPPED: 45,
+        DELIVERED: 89,
+        DELAYED: 15,
+        IN_ROUTE: 32,
+        REJECT: 7,
+      };
     if (filter === "custom" && from && to) {
       const days = Math.max(1, Math.floor((to - from) / (1000 * 60 * 60 * 24)));
       return {
-        shipped: days * 2,
-        delivered: days * 3,
-        delayed: days,
-        inRoute: days * 1.5,
+        SHIPPED: days * 2,
+        DELIVERED: days * 3,
+        DELAYED: days,
+        IN_ROUTE: days * 1.5,
+        REJECT: 7,
       };
     }
     return base;
@@ -189,7 +202,7 @@ const CoordinatorDashboard = () => {
       type: "pie",
       backgroundColor: "transparent",
       height: "60%",
-      spacing: [10, 10, 10, 10],
+      spacing: [20, 20, 20, 20],
       style: { maxWidth: "100%", margin: "auto" },
     },
     title: { text: "" },
@@ -211,10 +224,11 @@ const CoordinatorDashboard = () => {
       {
         name: "Status",
         data: [
-          { name: "Shipped", y: pipelineData.shipped, color: "#009A27" },
-          { name: "In route", y: pipelineData.inRoute, color: "#B8F5C7" },
-          { name: "Delayed", y: pipelineData.delayed, color: "#008421" },
-          { name: "Delivered", y: pipelineData.delivered, color: "#B8F5C7" },
+          { name: "Shipped", y: pipelineData.SHIPPED, color: "#FBC02D" },
+          { name: "In route", y: pipelineData.IN_ROUTE, color: "#FB8C00" },
+          { name: "Delivered", y: pipelineData.DELIVERED, color: "#7DE281" },
+          { name: "Delayed", y: pipelineData.DELAYED, color: "#808080" },
+          { name: "Reject", y: pipelineData.REJECT, color: "#E53935" },
         ],
       },
     ],
@@ -276,7 +290,7 @@ const CoordinatorDashboard = () => {
       name: "Student 1",
       school: "LN PUBLIC SCHOOL",
       reward: "Milestone 1",
-      status: "shipped",
+      status: "SHIPPED",
       address: "Garh road, Gorakhpur",
       details: milestoneDetailsSample,
     },
@@ -300,7 +314,7 @@ const CoordinatorDashboard = () => {
       name: "Student 4",
       school: "LITTLE FLOWER PUBLIC SCHOOL",
       reward: "Milestone 2 + 3 dettol soap",
-      status: "shipped",
+      status: "SHIPPED",
       address: "Garh road, Gorakhpur",
       details: milestoneDetailsSample,
     },
@@ -486,10 +500,10 @@ const CoordinatorDashboard = () => {
                     <div>
                       <span
                         className={` text-sm block w-fit px-3 py-1 rounded-full capitalize ${
-                          item.status === "shipped"
+                          item.status === "SHIPPED"
                             ? "bg-[#F9F2EB] text-[#C78100]"
                             : ""
-                        } ${item.status === "delivered" ? "bg-green-200" : ""}
+                        } ${item.status === "DELIVERED" ? "bg-green-200" : ""}
                             ${
                               item.status === "in route"
                                 ? "bg-[#EBF9F1] text-[#1F9254]"
@@ -571,11 +585,11 @@ const CoordinatorDashboard = () => {
                         <td className="px-3 py-3">
                           <span
                             className={` block w-fit px-3 py-1 rounded-full capitalize ${
-                              item.status === "shipped"
+                              item.status === "SHIPPED"
                                 ? "bg-[#F9F2EB] text-[#C78100]"
                                 : ""
                             } ${
-                              item.status === "delivered" ? "bg-green-200" : ""
+                              item.status === "DELIVERED" ? "bg-green-200" : ""
                             }
                             ${
                               item.status === "in route"

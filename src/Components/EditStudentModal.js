@@ -130,9 +130,9 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                     }}
                     className="custom--input w-full"
                   />
-                  {formik.touched.profile_pic && formik.errors.profile_pic && (
+                  {formik.touched?.profile_pic && formik.errors?.profile_pic && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.profile_pic}
+                      {formik.errors?.profile_pic}
                     </div>
                   )}
                 </div>
@@ -143,14 +143,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="name_en"
-                    value={formik.values.name_en || ""}
+                    value={formik.values?.name_en || ""}
                     onChange={formik.handleChange}
                     placeholder="Name (English)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.name_en && formik.errors.name_en && (
+                  {formik.touched?.name_en && formik.errors?.name_en && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.name_en}
+                      {formik.errors?.name_en}
                     </div>
                   )}
                 </div>
@@ -162,14 +162,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="name_hi"
-                    value={formik.values.name_hi || ""}
+                    value={formik.values?.name_hi || ""}
                     onChange={formik.handleChange}
                     placeholder="Name (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.name_hi && formik.errors.name_hi && (
+                  {formik.touched?.name_hi && formik.errors?.name_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.name_hi}
+                      {formik.errors?.name_hi}
                     </div>
                   )}
                 </div>
@@ -181,15 +181,15 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="mobile"
-                    value={formik.values.mobile || ""}
+                    value={formik.values?.mobile || ""}
                     onChange={formik.handleChange}
                     placeholder="Mobile No"
                     className="custom--input w-full"
                     maxLength={10}
                   />
-                  {formik.touched.mobile && formik.errors.mobile && (
+                  {formik.touched?.mobile && formik.errors?.mobile && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.mobile}
+                      {formik.errors?.mobile}
                     </div>
                   )}
                 </div>
@@ -201,14 +201,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="gender_en"
-                    value={formik.values.gender_en || ""}
+                    value={formik.values?.gender_en || ""}
                     onChange={formik.handleChange}
                     placeholder="Gender (English)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.gender_en && formik.errors.gender_en && (
+                  {formik.touched?.gender_en && formik.errors?.gender_en && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.gender_en}
+                      {formik.errors?.gender_en}
                     </div>
                   )}
                 </div>
@@ -219,14 +219,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="gender_hi"
-                    value={formik.values.gender_hi || ""}
+                    value={formik.values?.gender_hi || ""}
                     onChange={formik.handleChange}
                     placeholder="Gender (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.gender_hi && formik.errors.gender_hi && (
+                  {formik.touched?.gender_hi && formik.errors?.gender_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.gender_hi}
+                      {formik.errors?.gender_hi}
                     </div>
                   )}
                 </div>
@@ -238,14 +238,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="number"
                     name="age"
-                    value={formik.values.age || ""}
+                    value={formik.values?.age || ""}
                     onChange={formik.handleChange}
                     placeholder="Age"
                     className="custom--input w-full"
                   />
-                  {formik.touched.age && formik.errors.age && (
+                  {formik.touched?.age && formik.errors?.age && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.age}
+                      {formik.errors?.age}
                     </div>
                   )}
                 </div>
@@ -257,14 +257,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="number"
                     name="class_name"
-                    value={formik.values.class_name || ""}
+                    value={formik.values?.class_name || ""}
                     onChange={formik.handleChange}
                     placeholder="Class"
                     className="custom--input w-full"
                   />
-                  {formik.touched.class_name && formik.errors.class_name && (
+                  {formik.touched?.class_name && formik.errors?.class_name && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.class_name}
+                      {formik.errors?.class_name}
                     </div>
                   )}
                 </div>
@@ -275,14 +275,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="section"
-                    value={formik.values.section || ""}
+                    value={formik.values?.section || ""}
                     onChange={formik.handleChange}
                     placeholder="Section"
                     className="custom--input w-full"
                   />
-                  {formik.touched.section && formik.errors.section && (
+                  {formik.touched?.section && formik.errors?.section && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.section}
+                      {formik.errors?.section}
                     </div>
                   )}
                 </div>
@@ -293,14 +293,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="parent_name_en"
-                    value={formik.values.parent_name_en || ""}
+                    value={formik.values?.parent_name_en || ""}
                     onChange={formik.handleChange}
                     placeholder="Parent Name (English)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.parent_name_en && formik.errors.parent_name_en && (
+                  {formik.touched?.parent_name_en && formik.errors?.parent_name_en && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.parent_name_en}
+                      {formik.errors?.parent_name_en}
                     </div>
                   )}
                 </div>
@@ -311,14 +311,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="parent_name_hi"
-                    value={formik.values.parent_name_hi || ""}
+                    value={formik.values?.parent_name_hi || ""}
                     onChange={formik.handleChange}
                     placeholder="Parent Name (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.parent_name_hi && formik.errors.parent_name_hi && (
+                  {formik.touched?.parent_name_hi && formik.errors?.parent_name_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.parent_name_hi}
+                      {formik.errors?.parent_name_hi}
                     </div>
                   )}
                 </div>
@@ -330,14 +330,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <textarea
                     rows={2}
                     name="address_en"
-                    value={formik.values.address_en || ""}
+                    value={formik.values?.address_en || ""}
                     onChange={formik.handleChange}
                     placeholder="address_en"
                     className="custom--input w-full"
                   />
-                  {formik.touched.address_en && formik.errors.address_en && (
+                  {formik.touched?.address_en && formik.errors?.address_en && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.address_en}
+                      {formik.errors?.address_en}
                     </div>
                   )}
                 </div>
@@ -349,14 +349,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <textarea
                     rows={2}
                     name="address_hi"
-                    value={formik.values.address_hi || ""}
+                    value={formik.values?.address_hi || ""}
                     onChange={formik.handleChange}
                     placeholder="Address Hindi"
                     className="custom--input w-full"
                   />
-                  {formik.touched.address_hi && formik.errors.address_hi && (
+                  {formik.touched?.address_hi && formik.errors?.address_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.address_hi}
+                      {formik.errors?.address_hi}
                     </div>
                   )}
                 </div>
@@ -368,14 +368,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="district_en"
-                    value={formik.values.district_en || ""}
+                    value={formik.values?.district_en || ""}
                     onChange={formik.handleChange}
                     placeholder="District (English)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.district_en && formik.errors.district_en && (
+                  {formik.touched?.district_en && formik.errors?.district_en && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.district_en}
+                      {formik.errors?.district_en}
                     </div>
                   )}
                 </div>
@@ -387,14 +387,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="district_hi"
-                    value={formik.values.district_hi || ""}
+                    value={formik.values?.district_hi || ""}
                     onChange={formik.handleChange}
                     placeholder="District (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.district_hi && formik.errors.district_hi && (
+                  {formik.touched?.district_hi && formik.errors?.district_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.district_hi}
+                      {formik.errors?.district_hi}
                     </div>
                   )}
                 </div>
@@ -406,14 +406,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="city_en"
-                    value={formik.values.city_en || ""}
+                    value={formik.values?.city_en || ""}
                     onChange={formik.handleChange}
                     placeholder="City (English)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.city_en && formik.errors.city_en && (
+                  {formik.touched?.city_en && formik.errors?.city_en && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.city_en}
+                      {formik.errors?.city_en}
                     </div>
                   )}
                 </div>
@@ -425,14 +425,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="city_hi"
-                    value={formik.values.city_hi || ""}
+                    value={formik.values?.city_hi || ""}
                     onChange={formik.handleChange}
                     placeholder="City (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.city_hi && formik.errors.city_hi && (
+                  {formik.touched?.city_hi && formik.errors?.city_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.city_hi}
+                      {formik.errors?.city_hi}
                     </div>
                   )}
                 </div>
@@ -444,14 +444,14 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="number"
                     name="pincode"
-                    value={formik.values.pincode || ""}
+                    value={formik.values?.pincode || ""}
                     onChange={formik.handleChange}
                     placeholder="pincode"
                     className="custom--input w-full"
                   />
-                  {formik.touched.pincode && formik.errors.pincode && (
+                  {formik.touched?.pincode && formik.errors?.pincode && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.pincode}
+                      {formik.errors?.pincode}
                     </div>
                   )}
                 </div>
@@ -463,15 +463,15 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <input
                     type="text"
                     name="card_no"
-                    value={formik.values.card_no || ""}
+                    value={formik.values?.card_no || ""}
                     onChange={formik.handleChange}
                     placeholder="Card No."
                     className="custom--input w-full"
                     maxLength={16}
                   />
-                  {formik.touched.card_no && formik.errors.card_no && (
+                  {formik.touched?.card_no && formik.errors?.card_no && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.card_no}
+                      {formik.errors?.card_no}
                     </div>
                   )}
                 </div>
@@ -485,7 +485,7 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                       schoolList
                         .map((cat) => ({ value: cat.id, label: cat.name_en }))
                         .find(
-                          (option) => option.value === formik.values.school_id
+                          (option) => option.value === formik.values?.school_id
                         ) || null
                     }
                     onChange={(selectedOption) => {
@@ -503,9 +503,9 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   />
 
 
-                  {formik.touched.school_id && formik.errors.school_id && (
+                  {formik.touched?.school_id && formik.errors?.school_id && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.school_id}
+                      {formik.errors?.school_id}
                     </div>
                   )}
                 </div>
@@ -515,7 +515,7 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   </label>
                   <Select
                     value={statusOption.find(
-                      (option) => option.value === formik.values.status
+                      (option) => option.value === formik.values?.status
                     )} // ✅ React Select expects the full object, not just the value
                     onChange={(option) =>
                       formik.setFieldValue("status", option ? option.value : "")
@@ -524,9 +524,9 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                     placeholder="School Name"
                     styles={customStyles}
                   />
-                  {formik.touched.status && formik.errors.status && (
+                  {formik.touched?.status && formik.errors?.status && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.status}
+                      {formik.errors?.status}
                     </div>
                   )}
                 </div>

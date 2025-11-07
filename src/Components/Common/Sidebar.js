@@ -100,6 +100,19 @@ const toggleMenu = (menuKey) => {
               <span className="nav-text">Student Management</span>
             </Link>
             <Link
+              to="/milestones-completion"
+              className={`nav-link mb-2 ${
+                location.pathname === "/milestones-completion" ? "active" : ""
+              }`}
+            >
+              <img
+                src={milestoneIcon}
+                alt="milestoneIcon"
+                className="menu--icon"
+              />
+              <span className="nav-text">Milestones Completion</span>
+            </Link>
+            <Link
               to="/task-category"
               className={`nav-link mb-2 ${
                 location.pathname === "/task-category" ? "active" : ""

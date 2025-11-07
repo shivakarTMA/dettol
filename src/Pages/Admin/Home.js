@@ -10,6 +10,9 @@ import viewIcon from "../../Assests/Images/icons/view.svg";
 import MilestonePopup from "../../Components/MilestonePopup";
 import { LuCalendar } from "react-icons/lu";
 import SchoolDashboardTables from "../../Components/SchoolDashboardTables";
+import RatingBar from "../../Components/Common/RatingBar";
+import { toast } from "react-toastify";
+import { authAxios } from "../../Config/config";
 
 // Options for period dropdown
 const periodOptions = [
@@ -19,50 +22,10 @@ const periodOptions = [
   { value: "custom", label: "Custom Date" },
 ];
 
-const milestoneDetailsSample = {
-  studentName: "Name of Student",
-  phone: "+91 9876543210",
-  address: "110, Gandhi nagar, Gorakhpur, Uttar Pradesh, 123456",
-  milestoneTitle: "Milestone 3",
-  verificationPending: true,
-  tasks: [
-    {
-      id: 1,
-      text: "Wash hands with soap for at least 20 seconds",
-      completed: true,
-      action: null,
-    },
-    {
-      id: 2,
-      text: "Use tissues for blowing nose and dispose properly",
-      completed: true,
-      action: null,
-    },
-    {
-      id: 3,
-      text: "Avoid sharing spoon/plate while eating food with classmates",
-      completed: true,
-      action: null,
-    },
-    {
-      id: 4,
-      text: "Use personal water bottle instead of drinking fountains",
-      completed: false,
-      action: null,
-    },
-    {
-      id: 5,
-      text: "Wipe down shared computer keyboards before use",
-      completed: false,
-      action: null,
-    },
-  ],
-};
-
 const AdminDashboard = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [quickLinks, setQuickLinks] = useState([]);
   const [pipelineFilter, setPipelineFilter] = useState({
-    value: "last7days",
+    value: "last_7_days",
     label: "Last 7 days",
   });
 
@@ -86,14 +49,21 @@ const AdminDashboard = () => {
   // Custom dates for both filters
   const [pipelineCustomFrom, setPipelineCustomFrom] = useState(null);
   const [pipelineCustomTo, setPipelineCustomTo] = useState(null);
+  const [pipelineData, setPipelineData] = useState({
+    SHIPPED: 0,
+    DELIVERED: 0,
+    DELAYED: 0,
+    IN_ROUTE: 0,
+    REJECT: 0,
+  });
   const [verificationCustomFrom, setVerificationCustomFrom] = useState(null);
   const [verificationCustomTo, setVerificationCustomTo] = useState(null);
 
   // Dropdown filter options
   const filterOptions = [
     { value: "today", label: "Today" },
-    { value: "last7days", label: "Last 7 days" },
-    { value: "monthToDate", label: "Month till date" },
+    { value: "last_7_days", label: "Last 7 days" },
+    { value: "month_till_date", label: "Month till date" },
     { value: "custom", label: "Custom Date" },
   ];
 
@@ -103,32 +73,32 @@ const AdminDashboard = () => {
       name: "Kshitiz Bali",
       inPreparation: 9,
       inTransit: 13,
-      delivered: 42,
-      delayed: 5,
+      DELIVERED: 42,
+      DELAYED: 5,
       date: "2025-10-31",
     },
     {
       name: "Shivakar Sharma",
       inPreparation: 18,
       inTransit: 24,
-      delivered: 25,
-      delayed: 6,
+      DELIVERED: 25,
+      DELAYED: 6,
       date: "2025-10-30",
     },
     {
       name: "Puneet Yadav",
       inPreparation: 14,
       inTransit: 12,
-      delivered: 34,
-      delayed: 4,
+      DELIVERED: 34,
+      DELAYED: 4,
       date: "2025-10-29",
     },
     {
       name: "Ajeet Singh",
       inPreparation: 35,
       inTransit: 12,
-      delivered: 23,
-      delayed: 2,
+      DELIVERED: 23,
+      DELAYED: 2,
       date: "2025-10-28",
     },
   ];
@@ -170,25 +140,6 @@ const AdminDashboard = () => {
   const filteredCodinatorPerformanceData = useMemo(() => {
     return activeStudentsData[selectedPeriod.value] || [];
   }, [selectedPeriod, activeStudentsData]);
-
-  // Function to generate pipeline data based on selected filter
-  const generatePipelineData = (filter, from, to) => {
-    const base = { shipped: 12, delivered: 24, delayed: 5, inRoute: 10 };
-    if (filter === "today")
-      return { shipped: 3, delivered: 8, delayed: 1, inRoute: 2 };
-    if (filter === "monthToDate")
-      return { shipped: 45, delivered: 89, delayed: 15, inRoute: 32 };
-    if (filter === "custom" && from && to) {
-      const days = Math.max(1, Math.floor((to - from) / (1000 * 60 * 60 * 24)));
-      return {
-        shipped: days * 2,
-        delivered: days * 3,
-        delayed: days,
-        inRoute: days * 1.5,
-      };
-    }
-    return base;
-  };
 
   // Function to generate verification data and dynamic date labels based on filter
   const generateVerificationData = (filter, from, to) => {
@@ -257,15 +208,96 @@ const AdminDashboard = () => {
     return { categories, data };
   };
 
-  // Memoized pipeline and verification data
-  const pipelineData = useMemo(
-    () =>
-      generatePipelineData(
-        pipelineFilter.value,
-        pipelineCustomFrom,
+  // ✅ Fetch pipeline data from API
+  const fetchPipelineData = async () => {
+    try {
+      let url = "/dashboard/reward/pipeline";
+
+      // Add query params based on selected filter
+      if (pipelineFilter.value === "today") {
+        url += "?dateFilter=today";
+      } else if (pipelineFilter.value === "last_7_days") {
+        url += "?dateFilter=last_7_days";
+      } else if (pipelineFilter.value === "month_till_date") {
+        url += "?dateFilter=month_till_date";
+      } else if (
+        pipelineFilter.value === "custom" &&
+        pipelineCustomFrom &&
         pipelineCustomTo
-      ),
-    [pipelineFilter, pipelineCustomFrom, pipelineCustomTo]
+      ) {
+        const startDate = pipelineCustomFrom.toISOString().split("T")[0];
+
+        // Backend expects endDate to be exclusive — add one day
+        const endDateObj = new Date(pipelineCustomTo);
+        endDateObj.setDate(endDateObj.getDate() + 1);
+        const endDate = endDateObj.toISOString().split("T")[0];
+
+        url += `?startDate=${startDate}&endDate=${endDate}`;
+      } else {
+        return; // Don’t fetch if custom dates not chosen
+      }
+
+      const res = await authAxios().get(url);
+      const data = res.data?.data || {};
+
+      setPipelineData({
+        SHIPPED: data.SHIPPED || 0,
+        DELIVERED: data.DELIVERED || 0,
+        DELAYED: data.DELAYED || 0,
+        IN_ROUTE: data.IN_ROUTE || 0,
+        REJECT: data.REJECT || 0,
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch pipeline data");
+    }
+  };
+
+  // 🔁 Fetch when filter or custom dates change
+  useEffect(() => {
+    fetchPipelineData();
+  }, [pipelineFilter, pipelineCustomFrom, pipelineCustomTo]);
+
+  // Pie Chart Configuration
+  const pieChartOptions = useMemo(
+    () => ({
+      chart: {
+        type: "pie",
+        backgroundColor: "transparent",
+        height: "60%",
+        spacing: [20, 20, 20, 20],
+        style: { maxWidth: "100%", margin: "auto" },
+      },
+      title: { text: "" },
+      credits: { enabled: false },
+      tooltip: { pointFormat: "<b>{point.y}</b>" },
+      // tooltip: { pointFormat: "<b>{point.y}</b> ({point.percentage:.1f}%)" },
+      plotOptions: {
+        pie: {
+          innerSize: "40%",
+          size: "80%",
+          dataLabels: {
+            enabled: true,
+            format: "{point.name}: {point.y}",
+            style: { fontSize: "14px", color: "#333" },
+          },
+          showInLegend: false,
+        },
+      },
+      series: [
+        {
+          name: "Status",
+          data: [
+            { name: "Shipped", y: pipelineData.SHIPPED, color: "#FBC02D" },
+            { name: "In route", y: pipelineData.IN_ROUTE, color: "#FB8C00" },
+            { name: "Delivered", y: pipelineData.DELIVERED, color: "#7DE281" },
+            { name: "Delayed", y: pipelineData.DELAYED, color: "#808080" },
+            { name: "Reject", y: pipelineData.REJECT, color: "#E53935" },
+          ],
+        },
+      ],
+    }),
+    [pipelineData]
   );
 
   const { categories, data: verificationData } = useMemo(
@@ -277,43 +309,6 @@ const AdminDashboard = () => {
       ),
     [verificationFilter, verificationCustomFrom, verificationCustomTo]
   );
-
-  // Pie Chart Configuration
-  const pieChartOptions = {
-    chart: {
-      type: "pie",
-      backgroundColor: "transparent",
-      height: "60%",
-      spacing: [10, 10, 10, 10],
-      style: { maxWidth: "100%", margin: "auto" },
-    },
-    title: { text: "" },
-    credits: { enabled: false },
-    tooltip: { pointFormat: "<b>{point.y}</b> ({point.percentage:.1f}%)" },
-    plotOptions: {
-      pie: {
-        innerSize: "40%",
-        size: "80%",
-        dataLabels: {
-          enabled: true,
-          format: "{point.name}: {point.y}",
-          style: { fontSize: "14px", color: "#333" },
-        },
-        showInLegend: false,
-      },
-    },
-    series: [
-      {
-        name: "Status",
-        data: [
-          { name: "Shipped", y: pipelineData.shipped, color: "#009A27" },
-          { name: "In route", y: pipelineData.inRoute, color: "#B8F5C7" },
-          { name: "Delayed", y: pipelineData.delayed, color: "#008421" },
-          { name: "Delivered", y: pipelineData.delivered, color: "#B8F5C7" },
-        ],
-      },
-    ],
-  };
 
   // Line Chart Configuration with dynamic categories
   const lineChartOptions = {
@@ -366,33 +361,6 @@ const AdminDashboard = () => {
     ],
   };
 
-  const schoolwiseFeedBack = [
-    {
-      name: "LN PUBLIC SCHOOL",
-      totalStudent: 146,
-      feedback_submitted: 162,
-      average_rating: 4.2,
-    },
-    {
-      name: "MINILAND CONVENT SCHOOL",
-      totalStudent: 163,
-      feedback_submitted: 152,
-      average_rating: 4.6,
-    },
-    {
-      name: "DEWAN PUBLIC SCHOOL",
-      totalStudent: 251,
-      feedback_submitted: 186,
-      average_rating: 4.0,
-    },
-    {
-      name: "LITTLE FLOWER PUBLIC SCHOOL",
-      totalStudent: 143,
-      feedback_submitted: 128,
-      average_rating: 3.9,
-    },
-  ];
-
   const StatCard = ({ title, value }) => (
     <div className="bg-white rounded-[10px] border border-[#D4D4D4] overflow-hidden">
       <div className="text-sm text-black mb-2 font-[500] border-b border-b-[#D4D4D4] bg-[#F1F1F1] px-3 py-2">
@@ -404,6 +372,24 @@ const AdminDashboard = () => {
     </div>
   );
 
+  const fetchQuickLinks = async () => {
+    try {
+      const res = await authAxios().get("/dashboard/quick/report");
+
+      let data = res.data?.data || [];
+      setQuickLinks(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch quick links");
+    }
+  };
+
+  useEffect(() => {
+    fetchQuickLinks();
+  }, []);
+
+  console.log(pipelineData, "pipelineData");
+
   return (
     <>
       <div>
@@ -411,13 +397,33 @@ const AdminDashboard = () => {
           <h2 className="lg:text-xl text-lg font-bold text-black lg:mb-3 mb-2">
             Quick Reports
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 ">
-            <StatCard title="Schools Assigned" value="09" />
-            <StatCard title="Students Registered" value="850" />
-            <StatCard title="Students Enrolled" value="1250" />
-            <StatCard title="Active Students" value="213" />
-            <StatCard title="Verification Pending" value="234" />
-            <StatCard title="Rewards Delivered" value="125" />
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2 ">
+            <StatCard
+              title="Schools Assigned"
+              value={quickLinks?.schools_assigned_count}
+            />
+            <StatCard
+              title="Students Registered"
+              value={quickLinks?.student_registered_count}
+            />
+            <StatCard
+              title="Students Enrolled"
+              value={quickLinks?.student_enrolled_count}
+            />
+            <StatCard
+              title="Verification Pending"
+              value={quickLinks?.verification_pending_count}
+            />
+          </div>
+        </div>
+
+        <div className="custom--shodow bg-white lg:p-4 p-2 rounded-[10px] mb-3">
+          <h2 className="lg:text-xl text-lg font-bold text-black lg:mb-3 mb-2">
+            Feedback
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 ">
+            <RatingBar title="Student Feedback" rating={4.5} />
+            <RatingBar title="Employee Feedback" rating={4.5} />
           </div>
         </div>
 
@@ -447,10 +453,21 @@ const AdminDashboard = () => {
                     </span>
                     <DatePicker
                       selected={pipelineCustomFrom}
-                      onChange={setPipelineCustomFrom}
-                      dateFormat="yyyy-MM-dd"
+                      onChange={(date) => {
+                        setPipelineCustomFrom(date);
+                        // If end date is before new start date, clear or adjust it
+                        if (
+                          pipelineCustomTo &&
+                          date &&
+                          pipelineCustomTo < date
+                        ) {
+                          setPipelineCustomTo(null);
+                        }
+                      }}
+                      dateFormat="dd-MM-yyyy"
                       className="input--icon"
                       placeholderText="From Date"
+                      maxDate={new Date()}
                     />
                   </div>
                 </div>
@@ -462,9 +479,12 @@ const AdminDashboard = () => {
                     <DatePicker
                       selected={pipelineCustomTo}
                       onChange={setPipelineCustomTo}
-                      dateFormat="yyyy-MM-dd"
+                      dateFormat="dd-MM-yyyy"
                       className="input--icon"
                       placeholderText="To Date"
+                      minDate={pipelineCustomFrom || null} // cannot select before start
+                      maxDate={new Date()} // cannot select future
+                      disabled={!pipelineCustomFrom} // disable until start date chosen
                     />
                   </div>
                 </div>
@@ -503,7 +523,7 @@ const AdminDashboard = () => {
                     <DatePicker
                       selected={verificationCustomFrom}
                       onChange={setVerificationCustomFrom}
-                      dateFormat="yyyy-MM-dd"
+                      dateFormat="dd-MM-yyyy"
                       className="input--icon"
                       placeholderText="From Date"
                     />
@@ -517,7 +537,7 @@ const AdminDashboard = () => {
                     <DatePicker
                       selected={verificationCustomTo}
                       onChange={setVerificationCustomTo}
-                      dateFormat="yyyy-MM-dd"
+                      dateFormat="dd-MM-yyyy"
                       className="input--icon"
                       placeholderText="To Date"
                     />
@@ -543,7 +563,10 @@ const AdminDashboard = () => {
               <h3 className="lg:text-lg text-[16px] font-semibold text-gray-900">
                 Co-ordinator Performance
               </h3>
-              <Link to="/cordinator-performance" className="underline text-[#008421] text-lg">
+              <Link
+                to="/cordinator-performance"
+                className="underline text-[#008421] text-lg"
+              >
                 <small>View All</small>
               </Link>
             </div>
@@ -608,60 +631,8 @@ const AdminDashboard = () => {
                         <td className="px-3 py-3">{item.name}</td>
                         <td className="px-3 py-3">{item.inPreparation}</td>
                         <td className="px-3 py-3">{item.inTransit}</td>
-                        <td className="px-3 py-3">{item.delivered}</td>
-                        <td className="px-3 py-3">{item.delayed}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-3">
-          <div className="bg-white custom--shodow rounded-[10px] lg:p-4 p-2">
-            <div className="flex justify-between items-center mb-3 flex-wrap">
-              <h3 className="lg:text-lg text-[16px] font-semibold text-gray-900">
-                Schoolwise Feedback
-              </h3>
-              <Link
-                to="/schoolwise-feedback"
-                className="underline text-[#008421] text-lg"
-              >
-                <small>View All</small>
-              </Link>
-            </div>
-            <div className="rounded-[10px] overflow-hidden">
-              <div className="relative overflow-x-auto ">
-                <table className="min-w-full text-sm text-left">
-                  <thead className="bg-[#F1F1F1]">
-                    <tr>
-                      <th className="px-3 py-3 min-w-[170px]">School Name</th>
-                      <th className="px-3 py-3 min-w-[120px] text-center">
-                        Total Students
-                      </th>
-                      <th className="px-3 py-3 min-w-[120px] text-center">
-                        Feedback Submitted
-                      </th>
-                      <th className="px-3 py-3 min-w-[120px] text-center">
-                        Average Rating Submitted
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {schoolwiseFeedBack.map((item, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item.name}</td>
-                        <td className="px-3 py-3 text-center">
-                          {item.totalStudent}
-                        </td>
-                        <td className="px-3 py-3 text-center">
-                          {item.feedback_submitted}
-                        </td>
-                        <td className="px-3 py-3 text-center">
-                          {item.average_rating}
-                        </td>
+                        <td className="px-3 py-3">{item.DELIVERED}</td>
+                        <td className="px-3 py-3">{item.DELAYED}</td>
                       </tr>
                     ))}
                   </tbody>

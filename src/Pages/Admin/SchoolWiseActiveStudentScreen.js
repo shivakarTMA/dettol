@@ -4,77 +4,23 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { customStyles } from "../../Helper/helper";
 import { LuCalendar } from "react-icons/lu";
-// Options for period dropdown
+import { toast } from "react-toastify";
+import { authAxios } from "../../Config/config";
+
 const periodOptions = [
   { value: "today", label: "Today" },
-  { value: "last7days", label: "Last 7 days" },
-  { value: "monthToDate", label: "Month till date" },
+  { value: "last_7_days", label: "Last 7 days" },
+  { value: "month_till_date", label: "Month till date" },
   { value: "custom", label: "Custom Date" },
 ];
 
 const SchoolWiseActiveStudentScreen = () => {
-  // State to store selected period filter option
-  const [selectedPeriod, setSelectedPeriod] = useState({
-    value: "last7days",
-    label: "Last 7 days",
-  });
-
-  // State to toggle custom date selection fields
+  const [activeStudentsData, setActiveStudentsData] = useState([]);
+  const [selectedPeriod, setSelectedPeriod] = useState(periodOptions[1]);
   const [showCustomDate, setShowCustomDate] = useState(false);
 
-  // States for from and to dates
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
-
-  const allActiveStudentsData = [
-    {
-      id: 1,
-      name: "LN Public School",
-      enrolled: 20,
-      registered: 15,
-      active: 10,
-      date: "2025-10-31",
-    },
-    {
-      id: 2,
-      name: "Dewan Public School",
-      enrolled: 25,
-      registered: 20,
-      active: 18,
-      date: "2025-10-30",
-    },
-    {
-      id: 3,
-      name: "Miniland Convent School",
-      enrolled: 15,
-      registered: 12,
-      active: 10,
-      date: "2025-10-29",
-    },
-    {
-      id: 4,
-      name: "Little Flower Public School",
-      enrolled: 18,
-      registered: 14,
-      active: 12,
-      date: "2025-10-28",
-    },
-  ];
-
-  // State for active students data categorized by time period
-  const [activeStudentsData, setActiveStudentsData] = useState({
-    today: allActiveStudentsData.filter(
-      (d) => d.date === new Date().toISOString().split("T")[0]
-    ),
-    last7days: allActiveStudentsData.filter((d) => {
-      const diff = (new Date() - new Date(d.date)) / (1000 * 60 * 60 * 24);
-      return diff >= 0 && diff < 7;
-    }),
-    monthToDate: allActiveStudentsData.filter(
-      (d) => new Date(d.date).getMonth() === new Date().getMonth()
-    ),
-    custom: [],
-  });
 
   // Handle period dropdown selection change
   const handlePeriodChange = (selected) => {
@@ -82,22 +28,60 @@ const SchoolWiseActiveStudentScreen = () => {
     setShowCustomDate(selected.value === "custom");
   };
 
-  // Automatically update custom filtered data when fromDate or toDate changes
-  useEffect(() => {
-    if (showCustomDate && fromDate && toDate) {
-      const filtered = allActiveStudentsData.filter((row) => {
-        const rowDate = new Date(row.date);
-        return rowDate >= fromDate && rowDate <= toDate;
-      });
-      setActiveStudentsData((prev) => ({ ...prev, custom: filtered }));
-      setSelectedPeriod({ value: "custom", label: "Custom Date" });
-    }
-  }, [fromDate, toDate, showCustomDate]);
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
-  // Memoized filtered active students data
-  const filteredActiveStudentsData = useMemo(() => {
-    return activeStudentsData[selectedPeriod.value] || [];
-  }, [selectedPeriod, activeStudentsData]);
+  const fetchSchoolActiveStudentList = async () => {
+    try {
+      let params = {};
+
+      if (selectedPeriod) {
+        if (selectedPeriod.value === "custom") {
+          if (fromDate && toDate) {
+            const startDate = formatDate(fromDate);
+            const endDate = formatDate(toDate);
+
+            params = {
+              ...params,
+              dateFilter: "custom",
+              startDate,
+              endDate,
+            };
+          } else {
+            return;
+          }
+        } else {
+          // Use pre-defined date filters like 'today', 'last_7_days', 'month_till_date'
+          params = { dateFilter: selectedPeriod.value };
+        }
+      }
+
+      // Fetch data with the parameters
+      const res = await authAxios().get(
+        "/dashboard/school/active/student/list",
+        { params }
+      );
+
+      let data = res.data?.data || [];
+      setActiveStudentsData(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch active students.");
+    }
+  };
+
+  useEffect(() => {
+    if (selectedPeriod?.value === "custom") {
+      // wait until both dates selected
+      if (fromDate && toDate) fetchSchoolActiveStudentList();
+    } else {
+      fetchSchoolActiveStudentList();
+    }
+  }, [selectedPeriod, fromDate, toDate]);
 
   return (
     <div>
@@ -119,10 +103,16 @@ const SchoolWiseActiveStudentScreen = () => {
               </span>
               <DatePicker
                 selected={fromDate}
-                onChange={setFromDate}
-                dateFormat="yyyy-MM-dd"
+                onChange={(date) => {
+                  setFromDate(date);
+                  if (fromDate && date && fromDate < date) {
+                    setToDate(null);
+                  }
+                }}
+                dateFormat="dd-MM-yyyy"
                 className="input--icon"
                 placeholderText="From Date"
+                maxDate={new Date()}
               />
             </div>
             <div className="custom--date relative">
@@ -133,8 +123,11 @@ const SchoolWiseActiveStudentScreen = () => {
                 selected={toDate}
                 onChange={setToDate}
                 placeholderText="To Date"
-                dateFormat="yyyy-MM-dd"
+                dateFormat="dd-MM-yyyy"
                 className="input--icon"
+                minDate={fromDate || null} // cannot select before start
+                maxDate={new Date()} // cannot select future
+                disabled={!fromDate} // disable until start date chosen
               />
             </div>
           </div>
@@ -144,34 +137,43 @@ const SchoolWiseActiveStudentScreen = () => {
         <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
           <div className="rounded-[10px] overflow-hidden">
             <div className="relative overflow-x-auto ">
-              {filteredActiveStudentsData.length > 0 ? (
-                <table className="min-w-full text-sm text-left">
-                  <thead className="bg-[#F1F1F1]">
-                    <tr>
-                      <th className="px-3 py-3 min-w-[170px]">School Name</th>
-                      <th className="px-3 py-3 min-w-[100px]">St. Enrolled</th>
-                      <th className="px-3 py-3 min-w-[120px]">
-                        St. Registered
-                      </th>
-                      <th className="px-3 py-3 min-w-[100px]">Active St.</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredActiveStudentsData.map((row, idx) => (
-                      <tr key={idx} className="border-t">
-                        <td className="px-3 py-3">{row.name}</td>
-                        <td className="px-3 py-3">{row.enrolled}</td>
-                        <td className="px-3 py-3">{row.registered}</td>
-                        <td className="px-3 py-3">{row.active}</td>
+              <table className="min-w-full text-sm text-left">
+                <thead className="bg-[#F1F1F1]">
+                  <tr>
+                    <th className="px-3 py-3 min-w-[170px]">School Name</th>
+                    <th className="px-3 py-3 min-w-[100px]">St. Enrolled</th>
+                    <th className="px-3 py-3 min-w-[120px]">St. Registered</th>
+                    <th className="px-3 py-3 min-w-[100px]">Active St.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeStudentsData.length > 0 ? (
+                    activeStudentsData.map((item, index) => (
+                      <tr key={index} className="border-t">
+                        <td className="px-3 py-3">{item?.school_name}</td>
+                        <td className="px-3 py-3">
+                          {item?.enrolled_student_count}
+                        </td>
+                        <td className="px-3 py-3">
+                          {item?.student_registered_count}
+                        </td>
+                        <td className="px-3 py-3">
+                          {item?.total_active_student_count}
+                        </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500 text-center py-6">
-                  No data available for the selected date range.
-                </p>
-              )}
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="text-center py-3 text-gray-500"
+                      >
+                        No data available for the selected date range.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
