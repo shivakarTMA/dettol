@@ -7,13 +7,10 @@ import rejectIcon from "../Assests/Images/icons/reject.svg";
 import { toast } from "react-toastify";
 
 export default function MilestonePopup({
-  isOpen,
   setIsModalOpen,
   milestone,
   onSubmit,
 }) {
-  console.log(setIsModalOpen, "setIsModalOpen");
-
   const [tasks, setTasks] = useState([]);
 
   // ✅ Initialize tasks
@@ -22,8 +19,7 @@ export default function MilestonePopup({
       setTasks(
         milestone.tasks.map((task) => ({
           ...task,
-          completed: task.completed ?? null, // default null if undefined
-          reason: task.reason || "",
+          completed: task.completed ?? null,
         }))
       );
     }
@@ -32,22 +28,13 @@ export default function MilestonePopup({
   // ✅ Approve (checked)
   const handleCheckTask = (id) => {
     setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: true, reason: "" } : t))
+      prev.map((t) => (t.id === id ? { ...t, completed: true } : t))
     );
   };
 
   const handleRejectTask = (id) => {
     setTasks((prev) =>
-      prev.map((t) =>
-        t.id === id ? { ...t, completed: false, reason: "" } : t
-      )
-    );
-  };
-
-  // ✅ Handle reason text
-  const handleReasonChange = (id, value) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, reason: value } : t))
+      prev.map((t) => (t.id === id ? { ...t, completed: false } : t))
     );
   };
 
@@ -67,7 +54,6 @@ export default function MilestonePopup({
       milestone.tasks.map((task) => ({
         ...task,
         completed: null,
-        reason: "",
       }))
     );
 
@@ -123,8 +109,11 @@ export default function MilestonePopup({
                   <span className="text-black font-[500]">Tasks</span>
                 </div>
               </div>
-              {tasks.map(({ id, text, completed, reason }) => (
-                <div key={id} className="border-b border-[#D4D4D4] py-3 px-2 last:border-b-0">
+              {tasks.map(({ id, text, completed }) => (
+                <div
+                  key={id}
+                  className="border-b border-[#D4D4D4] py-3 px-2 last:border-b-0"
+                >
                   <div className="flex justify-between items-center gap-2">
                     <div className="text-black md:text-md text-sm flex-1">
                       {text}
@@ -164,16 +153,6 @@ export default function MilestonePopup({
                       </button>
                     </div>
                   </div>
-
-                  {/* ✅ Show reason box only when rejected */}
-                  {completed === false && (
-                    <textarea
-                      value={reason}
-                      onChange={(e) => handleReasonChange(id, e.target.value)}
-                      placeholder="Enter reason for rejection..."
-                      className="w-full border border-gray-300 rounded-md p-2 text-sm mt-2"
-                    />
-                  )}
                 </div>
               ))}
             </div>

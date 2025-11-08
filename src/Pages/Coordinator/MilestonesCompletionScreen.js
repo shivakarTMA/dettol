@@ -4,6 +4,7 @@ import shippingIcon from "../../Assests/Images/icons/shipping.svg";
 import MilestonePopup from "../../Components/MilestonePopup";
 import SubmitRatingPopup from "../../Components/SubmitRatingPopup";
 import Tooltip from "../../Components/Common/Tooltip";
+import SubmitRemarksPopup from "../../Components/SubmitRemarksPopup";
 
 const milestoneDetailsSample = {
   studentName: "Name of Student",
@@ -44,6 +45,7 @@ const MilestonesCompletionScreen = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isRemarkssModalOpen, setIsRemarksModalOpen] = useState(false);
 
   console.log(isModalOpen, "isModalOpen");
 
@@ -90,16 +92,31 @@ const MilestonesCompletionScreen = () => {
 
   const handlePopupSubmit = (tasks) => {
     console.log("📦 Received in parent:", tasks);
-    const allCompleted = tasks.every((task) => task.completed === true);
-    console.log(allCompleted, "allCompleted");
-    if (allCompleted) {
-      setIsSuccessModalOpen(true);
-    }
+    // const allCompleted = tasks.every((task) => task.completed === true);
+    // console.log(allCompleted, "allCompleted");
+    // if (allCompleted) {
+    //   setIsSuccessModalOpen(true);
+    // }
+
+    setIsModalOpen(false);
+    // Open Remarks popup
+    setIsRemarksModalOpen(true);
+  };
+
+  const handleRemarksSubmit = () => {
+    // Close Remarks popup
+    setIsRemarksModalOpen(false);
+
+    // Open Success popup
+    setIsSuccessModalOpen(true);
+
+    // Ensure Milestone popup stays closed
+    setIsModalOpen(false);
   };
 
   return (
     <>
-      <div className="bg-white custom--shodow rounded-[10px] p-2">
+      <div className="bg-white custom--shodow rounded-[10px] p-3">
         {/* Mobile */}
         <div className="sm:hidden block space-y-2">
           {milestonesSummary.map((item, index) => (
@@ -255,11 +272,20 @@ const MilestonesCompletionScreen = () => {
         />
       )}
 
+      {isRemarkssModalOpen && (
+        <SubmitRemarksPopup
+          isOpen={isRemarkssModalOpen} // ✅ Add this line
+          onClose={() => setIsRemarksModalOpen(false)}
+          onSubmit={handleRemarksSubmit}
+        />
+      )}
+
       {/* ✅ Success / Rating Popup */}
       {isSuccessModalOpen && (
         <SubmitRatingPopup
           isOpen={isSuccessModalOpen} // ✅ Add this line
           onClose={() => setIsSuccessModalOpen(false)}
+           
         />
       )}
     </>

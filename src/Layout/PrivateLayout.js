@@ -30,6 +30,8 @@ export default function PrivateLayout({ children }) {
     "/active-students": "School Wise Active Students",
     "/milestones-completion": "Milestones Completion",
     "/cordinator-performance": "Co-ordinator Performance",
+    "/tickets": "Tickets",
+    "/tickets-list": "My Tickets",
   };
 
   const pageTitle = pageTitles[location.pathname] || "Page";

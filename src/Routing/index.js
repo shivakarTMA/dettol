@@ -27,6 +27,8 @@ import SchoolwiseFeedbackListScreen from "../Pages/Admin/SchoolwiseFeedbackListS
 import MilestonesCompletionScreen from "../Pages/Coordinator/MilestonesCompletionScreen";
 import CordinatorPerformanceListScreen from "../Pages/Admin/CordinatorPerformanceListScreen";
 import UserManagementScreen from "../Pages/Admin/UserManagementScreen";
+import TicketsScreen from "../Pages/Admin/TicketsScreen";
+import TicketsCodinatorScreen from "../Pages/Coordinator/TicketsCodinatorScreen";
 
 export default function Routing() {
   const { accessToken, userType } = useSelector((state) => state.auth);
@@ -73,6 +75,14 @@ export default function Routing() {
               element={
                 <PrivateRoute>
                   <UserManagementScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/tickets"
+              element={
+                <PrivateRoute>
+                  <TicketsScreen />
                 </PrivateRoute>
               }
             />
@@ -182,6 +192,14 @@ export default function Routing() {
               element={
                 <PrivateRoute>
                   <MilestonesCompletionScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/tickets-list"
+              element={
+                <PrivateRoute>
+                  <TicketsCodinatorScreen />
                 </PrivateRoute>
               }
             />

@@ -13,6 +13,7 @@ import telemedicineIcon from "../../Assests/Images/sidebar/telemedicine.svg";
 import feedbackIcon from "../../Assests/Images/sidebar/feedback.svg";
 import reportsIcon from "../../Assests/Images/sidebar/reports.svg";
 import userIcon from "../../Assests/Images/sidebar/usermanagement.svg";
+import ticketIcon from "../../Assests/Images/sidebar/ticket.svg";
 import { useSelector } from "react-redux";
 import { FaAngleDown, FaCircle } from "react-icons/fa";
 
@@ -297,6 +298,19 @@ const toggleMenu = (menuKey) => {
               />
               <span className="nav-text">User Management</span>
             </Link>
+            <Link
+              to="/tickets"
+              className={`nav-link mb-2 ${
+                location.pathname === "/tickets" ? "active" : ""
+              }`}
+            >
+              <img
+                src={ticketIcon}
+                alt="userIcon"
+                className="menu--icon"
+              />
+              <span className="nav-text">Tickets</span>
+            </Link>
           </>
         )}
 
@@ -453,6 +467,20 @@ const toggleMenu = (menuKey) => {
                 </Link>
               </div>
             )}
+
+            <Link
+              to="/tickets-list"
+              className={`nav-link mb-2 ${
+                location.pathname === "/tickets-list" ? "active" : ""
+              }`}
+            >
+              <img
+                src={ticketIcon}
+                alt="userIcon"
+                className="menu--icon"
+              />
+              <span className="nav-text">Tickets</span>
+            </Link>
           </>
         )}
 
