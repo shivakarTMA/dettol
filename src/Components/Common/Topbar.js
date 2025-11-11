@@ -1,11 +1,12 @@
 import React from "react";
 import logoutIcon from "../../Assests/Images/icons/logout.svg";
 import ToggleMenu from "../../Assests/Images/icons/togglemenu.svg";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../Redux/Reducers/authSlice";
 
 const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -34,6 +35,7 @@ const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
           {/* Right Section */}
           <div className="top--bar--menu flex items-center gap-3">
             <div className="flex gap-2 items-center">
+              <p className="text-sm md:block hidden">{user?.name}</p>
               <div className="flex bg-[var(--primarycolor)] rounded-full items-center justify-center cursor-pointer gap-2 py-2 px-4" onClick={handleLogout}>
                 <img src={logoutIcon} className="brightness-0 invert-[1]" />
                 <span className="text-white text-sm">Logout</span>

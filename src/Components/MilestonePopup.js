@@ -6,9 +6,44 @@ import checkIcon from "../Assests/Images/icons/check.svg";
 import rejectIcon from "../Assests/Images/icons/reject.svg";
 import { toast } from "react-toastify";
 
+const milestoneDetailsSample = {
+  studentName: "Ansh Yadav",
+  phone: "+91 9876543210",
+  address: "110, Gandhi nagar, Gorakhpur, Uttar Pradesh, 123456",
+  milestoneTitle: "Milestone 3",
+  verificationPending: true,
+  tasks: [
+    {
+      id: 1,
+      text: "Wash hands with soap for at least 20 seconds",
+      completed: null,
+    },
+    {
+      id: 2,
+      text: "Use tissues for blowing nose and dispose properly",
+      completed: null,
+    },
+    {
+      id: 3,
+      text: "Avoid sharing spoon/plate while eating food with classmates",
+      completed: null,
+    },
+    {
+      id: 4,
+      text: "Use personal water bottle instead of drinking fountains",
+      completed: null,
+    },
+    {
+      id: 5,
+      text: "Wipe down shared computer keyboards before use",
+      completed: null,
+    },
+  ],
+};
+
 export default function MilestonePopup({
   setIsModalOpen,
-  milestone,
+  milestone = milestoneDetailsSample,
   onSubmit,
 }) {
   const [tasks, setTasks] = useState([]);
@@ -17,7 +52,7 @@ export default function MilestonePopup({
   useEffect(() => {
     if (milestone) {
       setTasks(
-        milestone.tasks.map((task) => ({
+        milestone?.tasks.map((task) => ({
           ...task,
           completed: task.completed ?? null,
         }))
@@ -51,7 +86,7 @@ export default function MilestonePopup({
 
     // ✅ Reset all tasks
     setTasks(
-      milestone.tasks.map((task) => ({
+      milestone?.tasks.map((task) => ({
         ...task,
         completed: null,
       }))
@@ -81,26 +116,28 @@ export default function MilestonePopup({
             </button>
 
             <h2 className="text-xl font-semibold mb-3">
-              {milestone.studentName}
+              {milestoneDetailsSample?.studentName}
             </h2>
             <p className="text-black flex items-center gap-2 mb-3">
               <img src={phoneIcon} className="w-4" alt="phone" />{" "}
-              {milestone.phone}
+              {milestoneDetailsSample?.phone}
             </p>
             <p className="text-black flex items-center gap-2 mb-4">
               <img src={locationIcon} className="w-4" alt="location" />{" "}
-              {milestone.address}
+              {milestoneDetailsSample?.address}
             </p>
           </div>
 
           <div className="lg:p-5 p-3 pt-3">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-lg">{milestone.milestoneTitle}</h3>
+              <h3 className="font-bold text-lg">
+                {milestoneDetailsSample?.milestoneTitle}
+              </h3>
               <button
                 onClick={handleSubmit}
                 className="bg-[#008421] text-white px-4 py-1 rounded"
               >
-                Verify
+                Submit
               </button>
             </div>
             <div>
@@ -109,7 +146,7 @@ export default function MilestonePopup({
                   <span className="text-black font-[500]">Tasks</span>
                 </div>
               </div>
-              {tasks.map(({ id, text, completed }) => (
+              {tasks?.map(({ id, text, completed }) => (
                 <div
                   key={id}
                   className="border-b border-[#D4D4D4] py-3 px-2 last:border-b-0"

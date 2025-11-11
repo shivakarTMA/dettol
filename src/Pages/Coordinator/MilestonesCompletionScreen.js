@@ -1,88 +1,50 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import viewIcon from "../../Assests/Images/icons/view.svg";
 import shippingIcon from "../../Assests/Images/icons/shipping.svg";
 import MilestonePopup from "../../Components/MilestonePopup";
 import SubmitRatingPopup from "../../Components/SubmitRatingPopup";
 import Tooltip from "../../Components/Common/Tooltip";
 import SubmitRemarksPopup from "../../Components/SubmitRemarksPopup";
-
-const milestoneDetailsSample = {
-  studentName: "Name of Student",
-  phone: "+91 9876543210",
-  address: "110, Gandhi nagar, Gorakhpur, Uttar Pradesh, 123456",
-  milestoneTitle: "Milestone 3",
-  verificationPending: true,
-  tasks: [
-    {
-      id: 1,
-      text: "Wash hands with soap for at least 20 seconds",
-      completed: null,
-    },
-    {
-      id: 2,
-      text: "Use tissues for blowing nose and dispose properly",
-      completed: null,
-    },
-    {
-      id: 3,
-      text: "Avoid sharing spoon/plate while eating food with classmates",
-      completed: null,
-    },
-    {
-      id: 4,
-      text: "Use personal water bottle instead of drinking fountains",
-      completed: null,
-    },
-    {
-      id: 5,
-      text: "Wipe down shared computer keyboards before use",
-      completed: null,
-    },
-  ],
-};
+import { authAxios } from "../../Config/config";
+import { toast } from "react-toastify";
+import { formatStatus } from "../../Helper/helper";
+import Pagination from "../../Components/Common/Pagination";
 
 const MilestonesCompletionScreen = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isRemarkssModalOpen, setIsRemarksModalOpen] = useState(false);
+  const [milestoneList, setMilestonesList] = useState([]);
 
-  console.log(isModalOpen, "isModalOpen");
+  const [page, setPage] = useState(1);
+  const [rowsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const milestonesSummary = [
-    {
-      name: "Student 1",
-      school: "LN PUBLIC SCHOOL",
-      reward: "Milestone 1",
-      status: "shipped",
-      address: "Garh road, Gorakhpur",
-      details: milestoneDetailsSample,
-    },
-    {
-      name: "Student 2",
-      school: "MINILAND CONVENT SCHOOL",
-      reward: "Milestone 3 + 1 Dettol soap",
-      status: "in route",
-      address: "Garh road, Gorakhpur",
-      details: milestoneDetailsSample,
-    },
-    {
-      name: "Student 3",
-      school: "DEWAN PUBLIC SCHOOL",
-      reward: "Milestone 2",
-      status: "in route",
-      address: "Garh road, Gorakhpur",
-      details: milestoneDetailsSample,
-    },
-    {
-      name: "Student 4",
-      school: "LITTLE FLOWER PUBLIC SCHOOL",
-      reward: "Milestone 2 + 3 Dettol soap",
-      status: "shipped",
-      address: "Garh road, Gorakhpur",
-      details: milestoneDetailsSample,
-    },
-  ];
+  const fetchMilestonesList = async (currentPage = page) => {
+    try {
+      const res = await authAxios().get("/myreward/list", {
+        params: {
+          page: currentPage,
+          limit: rowsPerPage,
+        },
+      });
+
+      let data = res.data?.data || [];
+      setMilestonesList(data);
+      setPage(res.data?.currentPage || 1);
+      setTotalPages(res.data?.totalPage || 1);
+      setTotalCount(res.data?.totalCount || data.length);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch myreward");
+    }
+  };
+
+  useEffect(() => {
+    fetchMilestonesList();
+  }, []);
 
   // ✅ Opens the milestone popup
   const handleViewClick = (milestone) => {
@@ -114,12 +76,23 @@ const MilestonesCompletionScreen = () => {
     setIsModalOpen(false);
   };
 
+  const handleShippingClick = async (item) => {
+    try {
+      const res = await authAxios().put(`/myreward/${item}`);
+      toast.success("Status updated to In Route successfully!");
+      fetchMilestonesList();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update milestone status");
+    }
+  };
+
   return (
     <>
       <div className="bg-white custom--shodow rounded-[10px] p-3">
         {/* Mobile */}
         <div className="sm:hidden block space-y-2">
-          {milestonesSummary.map((item, index) => (
+          {milestoneList.map((item, index) => (
             <div
               key={index}
               className="border border-[#D4D4D4] p-[10px] rounded-[10px]"
@@ -127,18 +100,34 @@ const MilestonesCompletionScreen = () => {
               <div className="flex gap-2 items-start justify-between">
                 <div>
                   <span
-                    className={` text-sm block w-fit px-3 py-1 rounded-full capitalize ${
-                      item.status === "shipped"
-                        ? "bg-[#F9F2EB] text-[#C78100]"
+                    className={` text-sm block w-fit px-3 py-1 rounded-full capitalize 
+                        ${
+                          item?.status === "SHIPPED"
+                            ? "bg-[#FFFBEE] text-[#FFC107]"
+                            : ""
+                        } ${
+                      item?.status === "IN_ROUTE"
+                        ? "bg-[#FFFAF2] text-[#FFA500]"
                         : ""
-                    } ${item.status === "delivered" ? "bg-green-200" : ""}
-                            ${
-                              item.status === "in route"
-                                ? "bg-[#EBF9F1] text-[#1F9254]"
-                                : ""
-                            }`}
+                    }
+                        ${
+                          item?.status === "DELAYED"
+                            ? "bg-[#E6F3FF] text-[#087FFE]"
+                            : ""
+                        }
+                        ${
+                          item?.status === "DELIVERED"
+                            ? "bg-[#F2FFF5] text-[#008421]"
+                            : ""
+                        }
+                        ${
+                          item?.status === "REJECT"
+                            ? "bg-[#FFECEE] text-[#DC3545]"
+                            : ""
+                        }
+                        `}
                   >
-                    {item.status}
+                    {formatStatus(item?.status)}
                   </span>
                 </div>
                 <div>
@@ -156,10 +145,16 @@ const MilestonesCompletionScreen = () => {
                     <div
                       className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px]
                         ${
-                          item.status === "in route"
-                            ? "opacity-50 cursor-not-allowed"
+                          [
+                            "IN_ROUTE",
+                            "DELIVERED",
+                            "DELAYED",
+                            "REJECT",
+                          ].includes(item?.status)
+                            ? "opacity-50 cursor-not-allowed pointer-events-none"
                             : "cursor-pointer"
                         }`}
+                      onClick={() => handleShippingClick(item?.id)}
                     >
                       <img
                         src={shippingIcon}
@@ -173,15 +168,18 @@ const MilestonesCompletionScreen = () => {
 
               <div className="mt-2">
                 <h2 className="text-black font-semibold text-lg">
-                  {item.name}
+                  {item?.student_name}
                 </h2>
-                <h3 className="text-black text-sm">{item.school}</h3>
+                <h3 className="text-black text-sm">{item?.school_name}</h3>
 
-                <p className="text-[#6F6F6F] text-sm">{item.address}</p>
+                <p className="text-[#6F6F6F] text-sm">
+                  {item?.student_address}
+                </p>
 
                 <div className="bg-[#EAEAEA] rounded-[5px] p-[8px] mt-2">
                   <p className="text-black text-sm">
-                    <span className="font-[500]">Reward</span> : {item.reward}
+                    <span className="font-[500]">Reward</span> :{" "}
+                    {item?.milestone_name}
                   </p>
                 </div>
               </div>
@@ -204,64 +202,116 @@ const MilestonesCompletionScreen = () => {
                 </tr>
               </thead>
               <tbody>
-                {milestonesSummary.map((item, index) => (
-                  <tr key={index} className="border-t">
-                    <td className="px-3 py-3">{item.name}</td>
-                    <td className="px-3 py-3">{item.school}</td>
-                    <td className="px-3 py-3">{item.address}</td>
-                    <td className="px-3 py-3">{item.reward}</td>
-                    <td className="px-3 py-3">
-                      <span
-                        className={`block w-fit px-3 py-1 rounded-full capitalize ${
-                          item.status === "shipped"
-                            ? "bg-[#F9F2EB] text-[#C78100]"
+                {milestoneList.length > 0 ? (
+                  milestoneList.map((item, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="px-3 py-3">{item?.student_name}</td>
+                      <td className="px-3 py-3">{item?.school_name}</td>
+                      <td className="px-3 py-3">{item?.student_address}</td>
+                      <td className="px-3 py-3">{item?.milestone_name}</td>
+                      <td className="px-3 py-3">
+                        <span
+                          className={`block w-fit px-3 py-1 rounded-full capitalize 
+                          ${
+                            item?.status === "SHIPPED"
+                              ? "bg-[#FFFBEE] text-[#FFC107]"
+                              : ""
+                          } ${
+                            item?.status === "IN_ROUTE"
+                              ? "bg-[#FFFAF2] text-[#FFA500]"
+                              : ""
+                          }
+                        ${
+                          item?.status === "DELAYED"
+                            ? "bg-[#E6F3FF] text-[#087FFE]"
                             : ""
-                        } ${
-                          item.status === "in route"
-                            ? "bg-[#EBF9F1] text-[#1F9254]"
+                        }
+                        ${
+                          item?.status === "DELIVERED"
+                            ? "bg-[#F2FFF5] text-[#008421]"
                             : ""
-                        }`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3">
-                      <div className="flex flex-nowrap w-full items-center">
-                        <Tooltip
-                          id={`tooltip-edit-${item.id}`}
-                          content="View Milestones"
-                          place="left"
+                        }
+                        ${
+                          item?.status === "REJECT"
+                            ? "bg-[#FFECEE] text-[#DC3545]"
+                            : ""
+                        }
+                        `}
                         >
-                          <div
-                            className="bg-[#F1F1F1] border border-[#D4D4D4] rounded-l-[5px] w-9 h-8 flex items-center justify-center cursor-pointer p-[6px]"
-                            onClick={() => handleViewClick(item)}
+                          {formatStatus(item?.status)}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <div className="flex flex-nowrap w-full items-center">
+                          <Tooltip
+                            id={`tooltip-edit-${item.id}`}
+                            content="View Milestones"
+                            place="left"
                           >
-                            <img src={viewIcon} alt="view" className="w-full" />
-                          </div>
-                        </Tooltip>
+                            <div
+                              className="bg-[#F1F1F1] border border-[#D4D4D4] rounded-l-[5px] w-9 h-8 flex items-center justify-center cursor-pointer p-[6px]"
+                              onClick={() => handleViewClick(item)}
+                            >
+                              <img
+                                src={viewIcon}
+                                alt="view"
+                                className="w-full"
+                              />
+                            </div>
+                          </Tooltip>
 
-                        <Tooltip
-                          id={`tooltip-edit-${item.id}`}
-                          content="In Route"
-                          place="left"
-                        >
-                          <div className="bg-[#F1F1F1] border border-[#D4D4D4] rounded-r-[5px] w-9 h-8 flex items-center cursor-pointer justify-center p-[8px]">
-                            <img
-                              src={shippingIcon}
-                              alt="view"
-                              className="w-full"
-                            />
-                          </div>
-                        </Tooltip>
-                      </div>
+                          <Tooltip
+                            id={`tooltip-edit-${item.id}`}
+                            content="In Route"
+                            place="left"
+                          >
+                            <div
+                              className={`bg-[#F1F1F1] border border-[#D4D4D4] rounded-r-[5px] w-9 h-8 flex items-center justify-center p-[8px] ${
+                                [
+                                  "IN_ROUTE",
+                                  "DELIVERED",
+                                  "DELAYED",
+                                  "REJECT",
+                                ].includes(item?.status)
+                                  ? "opacity-50 cursor-not-allowed pointer-events-none"
+                                  : "cursor-pointer"
+                              }`}
+                              onClick={() => handleShippingClick(item?.id)}
+                            >
+                              <img
+                                src={shippingIcon}
+                                alt="view"
+                                className="w-full"
+                              />
+                            </div>
+                          </Tooltip>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="text-center py-4">
+                      No data found
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        rowsPerPage={rowsPerPage}
+        totalCount={totalCount}
+        currentDataLength={milestoneList.length}
+        onPageChange={(newPage) => {
+          setPage(newPage);
+          fetchMilestonesList(newPage);
+        }}
+      />
 
       {isModalOpen && (
         <MilestonePopup
@@ -285,7 +335,6 @@ const MilestonesCompletionScreen = () => {
         <SubmitRatingPopup
           isOpen={isSuccessModalOpen} // ✅ Add this line
           onClose={() => setIsSuccessModalOpen(false)}
-           
         />
       )}
     </>

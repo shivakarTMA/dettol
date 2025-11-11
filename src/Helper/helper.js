@@ -74,3 +74,13 @@ export function formatCapitalText(status){
   if (!status) return '';
   return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 };
+
+export function formatStatus(status) {
+  if (!status) return '';
+
+  // Replace underscores with spaces, split into words
+  return status
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}

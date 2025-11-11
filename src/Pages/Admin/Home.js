@@ -105,43 +105,11 @@ const AdminDashboard = () => {
     },
   ];
 
-  // State for active students data categorized by time period
-  const [activeStudentsData, setActiveStudentsData] = useState({
-    today: codinatorPerformanceData.filter(
-      (d) => d.date === new Date().toISOString().split("T")[0]
-    ),
-    last7days: codinatorPerformanceData.filter((d) => {
-      const diff = (new Date() - new Date(d.date)) / (1000 * 60 * 60 * 24);
-      return diff >= 0 && diff < 7;
-    }),
-    monthToDate: codinatorPerformanceData.filter(
-      (d) => new Date(d.date).getMonth() === new Date().getMonth()
-    ),
-    custom: [],
-  });
-
   // Handle period dropdown selection change
   const handlePeriodChange = (selected) => {
     setSelectedPeriod(selected);
     setShowCustomDate(selected.value === "custom");
   };
-
-  // Automatically update custom filtered data when fromDate or toDate changes
-  useEffect(() => {
-    if (showCustomDate && fromDate && toDate) {
-      const filtered = codinatorPerformanceData.filter((row) => {
-        const rowDate = new Date(row.date);
-        return rowDate >= fromDate && rowDate <= toDate;
-      });
-      setActiveStudentsData((prev) => ({ ...prev, custom: filtered }));
-      setSelectedPeriod({ value: "custom", label: "Custom Date" });
-    }
-  }, [fromDate, toDate, showCustomDate]);
-
-  // Memoized filtered active students data
-  const filteredCodinatorPerformanceData = useMemo(() => {
-    return activeStudentsData[selectedPeriod.value] || [];
-  }, [selectedPeriod, activeStudentsData]);
 
   // Function to generate verification data and dynamic date labels based on filter
   const generateVerificationData = (filter, from, to) => {
@@ -290,11 +258,11 @@ const AdminDashboard = () => {
         {
           name: "Status",
           data: [
-            { name: "Shipped", y: pipelineData.SHIPPED, color: "#FBC02D" },
-            { name: "In route", y: pipelineData.IN_ROUTE, color: "#FB8C00" },
-            { name: "Delivered", y: pipelineData.DELIVERED, color: "#7DE281" },
-            { name: "Delayed", y: pipelineData.DELAYED, color: "#808080" },
-            { name: "Reject", y: pipelineData.REJECT, color: "#E53935" },
+            { name: "Shipped", y: pipelineData.SHIPPED, color: "#FFC107" },
+            { name: "In route", y: pipelineData.IN_ROUTE, color: "#FFA500" },
+            { name: "Delivered", y: pipelineData.DELIVERED, color: "#008421" },
+            { name: "Delayed", y: pipelineData.DELAYED, color: "#087FFE" },
+            { name: "Reject", y: pipelineData.REJECT, color: "#DC3545" },
           ],
         },
       ],
@@ -602,7 +570,7 @@ const AdminDashboard = () => {
               </Link>
             </div>
 
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex gap-2 md:flex-row flex-col items-start mb-4">
               <Select
                 value={selectedPeriod}
                 onChange={handlePeriodChange}
@@ -613,17 +581,28 @@ const AdminDashboard = () => {
 
               {/* Custom date picker fields shown conditionally */}
               {showCustomDate && (
-                <div className="flex items-center gap-3 w-[60%]">
+                <div className="flex items-center gap-2 lg:w-[60%] w-full">
                   <div className="custom--date relative">
                     <span className="absolute top-[50%] translate-y-[-50%] left-[15px] z-[1]">
                       <LuCalendar />
                     </span>
                     <DatePicker
                       selected={fromDate}
-                      onChange={setFromDate}
-                      dateFormat="yyyy-MM-dd"
+                      onChange={(date) => {
+                        setFromDate(date);
+                        // If end date is before new start date, clear or adjust it
+                        if (
+                          toDate &&
+                          date &&
+                          toDate < date
+                        ) {
+                          setToDate(null);
+                        }
+                      }}
+                      dateFormat="dd-MM-yyyy"
                       className="input--icon"
                       placeholderText="From Date"
+                      maxDate={new Date()}
                     />
                   </div>
                   <div className="custom--date relative">
@@ -634,8 +613,11 @@ const AdminDashboard = () => {
                       selected={toDate}
                       onChange={setToDate}
                       placeholderText="To Date"
-                      dateFormat="yyyy-MM-dd"
+                      dateFormat="dd-MM-yyyy"
                       className="input--icon"
+                      minDate={fromDate || null}
+                      maxDate={new Date()}
+                      disabled={!fromDate}
                     />
                   </div>
                 </div>
@@ -648,22 +630,22 @@ const AdminDashboard = () => {
                   <thead className="bg-[#F1F1F1]">
                     <tr>
                       <th className="px-3 py-3 min-w-[150px]">Name</th>
-                      <th className="px-3 py-3 min-w-[120px]">
+                      <th className="px-3 py-3 min-w-[120px] text-center">
                         In Preparation
                       </th>
-                      <th className="px-3 py-3 min-w-[120px]">In Transit</th>
-                      <th className="px-3 py-3 min-w-[120px]">Delivered</th>
-                      <th className="px-3 py-3 min-w-[120px]">Delayed</th>
+                      <th className="px-3 py-3 min-w-[120px] text-center">In Transit</th>
+                      <th className="px-3 py-3 min-w-[120px] text-center">Delivered</th>
+                      <th className="px-3 py-3 min-w-[120px] text-center">Delayed</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredCodinatorPerformanceData.map((item, index) => (
+                    {codinatorPerformanceData.map((item, index) => (
                       <tr key={index} className="border-t">
                         <td className="px-3 py-3">{item.name}</td>
-                        <td className="px-3 py-3">{item.inPreparation}</td>
-                        <td className="px-3 py-3">{item.inTransit}</td>
-                        <td className="px-3 py-3">{item.DELIVERED}</td>
-                        <td className="px-3 py-3">{item.DELAYED}</td>
+                        <td className="px-3 py-3 text-center">{item.inPreparation}</td>
+                        <td className="px-3 py-3 text-center">{item.inTransit}</td>
+                        <td className="px-3 py-3 text-center">{item.DELIVERED}</td>
+                        <td className="px-3 py-3 text-center">{item.DELAYED}</td>
                       </tr>
                     ))}
                   </tbody>

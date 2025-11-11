@@ -1,76 +1,64 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { IoMdClose } from "react-icons/io";
-import { useFormik, FieldArray } from "formik";
-import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { customStyles } from "../Helper/helper";
 import Select from "react-select";
 import { MdImage } from "react-icons/md";
 import { useSelector } from "react-redux";
-
-// Validation schema using Yup
-const validationSchema = Yup.object().shape({
-  Award_name_en: Yup.string().required("Award Name English is required"),
-  award_name_hi: Yup.string().required("Award Name Hindi is required"),
-  award_description_en: Yup.array()
-    .of(Yup.string().trim().required("Description (English) cannot be empty"))
-    .min(1, "At least one English description is required")
-    .required("Award description (English) is required"),
-
-  award_description_hi: Yup.array()
-    .of(Yup.string().trim().required("Description (Hindi) cannot be empty"))
-    .min(1, "At least one Hindi description is required")
-    .required("Award description (Hindi) is required"),
-  Order: Yup.string().required("Loyalty Points is required"),
-  Award_Image: Yup.mixed()
-    .required("Award image is required")
-    .test("fileType", "Unsupported file format", (value) => {
-      if (!value) return false;
-      return ["image/jpeg", "image/png", "image/jpg"].includes(value.type);
-    }),
-    Stop: Yup.string().required("Stop Points is required"),
-});
+import { authAxios } from "../Config/config";
 
 const StopOption = [
   {
-    value: true,
+    value: "YES",
     label: "Yes",
   },
   {
-    value: false,
+    value: "No",
     label: "No",
   },
 ];
 
-const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
+const statusOption = [
+  { value: "ACTIVE", label: "Active" },
+  { value: "INACTIVE", label: "Inactive" },
+];
+
+const EditSpinAwardsModal = ({ setShowModal, editingOption, formik }) => {
   const { userType } = useSelector((state) => state.auth);
-  const initialValues = {
-    Award_name_en: "Jackpot (1-Year Supply of Dettol Soaps)",
-    award_name_hi: "कचरा प्रबंधन पर स्वच्छता संदेश वाला पोस्टर बनाएं",
-    award_description_en: [
-      "Congratulations! You’ve hit the Jackpot!",
-      "You’ve won a 1-year supply of Dettol Soaps.",
-      "You’ll receive it along with your milestone rewards.",
-    ],
-    award_description_hi: [
-      "बधाई हो! आपने जैकपॉट जीता है!",
-      "आपको एक साल की डिटॉल साबुन की सप्लाई मिलेगी।",
-      "यह आपको आपके माइलस्टोन रिवॉर्ड्स के साथ दिया जाएगा।",
-    ],
-    Award_Image: "",
-    Order: 5,
-    Stop: true,
-  };
-  const formik = useFormik({
-    initialValues: initialValues,
-    enableReinitialize: true, // important to update form when student changes
-    validationSchema,
-    onSubmit: (values) => {
-      console.log(values,'values')
-      onClose();
-      toast.success("Updated successfully!");
-    },
-  });
+
+  useEffect(() => {
+    if (!editingOption) return;
+
+    const fetchSpinAwardById = async (id) => {
+      try {
+        const res = await authAxios().get(`/spinaward/${id}`);
+        const data = res.data?.data || res.data || null;
+        console.log(data, "data");
+
+        if (data) {
+          formik.setValues({
+            name_en: data.name_en || "",
+            description_en: Array.isArray(data.description_en)
+              ? data.description_en
+              : [],
+            name_hi: data.name_hi || "",
+            description_hi: Array.isArray(data.description_hi)
+              ? data.description_hi
+              : [],
+            image: data.image || "",
+            won: data.won || "",
+            position: data.position || null,
+            status: data.status || "ACTIVE",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch module details");
+      }
+    };
+
+    fetchSpinAwardById(editingOption);
+  }, [editingOption]);
 
   // Function to update instruction inputs manually
   const handleAwardChange = (field, index, value) => {
@@ -95,7 +83,10 @@ const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
     <>
       <div
         className="fixed inset-0 bg-black bg-opacity-50 z-40"
-        onClick={onClose}
+        onClick={() => {
+          formik.resetForm();
+          setShowModal(false);
+        }}
       ></div>
       <div className="fixed inset-0 flex justify-center items-start pt-10 pb-5 z-50 overflow-auto w-full max-w-[800px] mx-auto custom--overflow">
         <div className="flex flex-col relative w-[95%] mx-auto">
@@ -103,7 +94,14 @@ const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
             <div className="flex gap-2 items-center justify-between lg:py-3 py-2 lg:px-5 px-3 border-b border-b-[#D4D4D4]">
               <h3 className="text-lg font-semibold">Edit Spin Award</h3>
               {/* Close button */}
-              <button className="text-2xl" onClick={onClose} aria-label="Close">
+              <button
+                className="text-2xl"
+                onClick={() => {
+                  formik.resetForm();
+                  setShowModal(false);
+                }}
+                aria-label="Close"
+              >
                 <IoMdClose />
               </button>
             </div>
@@ -112,9 +110,9 @@ const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
               <div className="grid lg:grid-cols-2 grid-cols-1 gap-x-3 lg:gap-y-5 gap-y-4 lg:pb-5 pb-2 lg:pt-5 pt-2 lg:px-5 px-3">
                 <div className="lg:col-span-2 flex lg:flex-row flex-col lg:gap-5 gap-2">
                   <div className="border rounded-lg w-[110px] h-[110px] flex items-center justify-center">
-                    {formik.values.Award_Image ? (
+                    {formik.values.image ? (
                       <img
-                        src={URL.createObjectURL(formik.values.Award_Image)}
+                        src={formik.values.image}
                         alt="Award Preview"
                         className="w-full h-full object-cover rounded-md"
                       />
@@ -131,22 +129,21 @@ const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
                     </label>
                     <input
                       type="file"
-                      name="Award_Image"
+                      name="image"
                       accept="image/*"
                       onChange={(event) => {
                         formik.setFieldValue(
-                          "Award_Image",
+                          "image",
                           event.currentTarget.files[0]
                         );
                       }}
                       className="custom--input w-full"
                     />
-                    {formik.touched.Award_Image &&
-                      formik.errors.Award_Image && (
-                        <div className="text-red-500 text-sm">
-                          {formik.errors.Award_Image}
-                        </div>
-                      )}
+                    {formik.touched.image && formik.errors.image && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors.image}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div>
@@ -155,18 +152,17 @@ const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
                   </label>
                   <input
                     type="text"
-                    name="Award_name_en"
-                    value={formik.values.Award_name_en || ""}
+                    name="name_en"
+                    value={formik.values.name_en || ""}
                     onChange={formik.handleChange}
                     placeholder="Award Name English"
                     className="custom--input w-full"
                   />
-                  {formik.touched.Award_name_en &&
-                    formik.errors.Award_name_en && (
-                      <div className="text-red-500 text-sm">
-                        {formik.errors.Award_name_en}
-                      </div>
-                    )}
+                  {formik.touched.name_en && formik.errors.name_en && (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.name_en}
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -175,18 +171,17 @@ const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
                   </label>
                   <input
                     type="text"
-                    name="award_name_hi"
-                    value={formik.values.award_name_hi || ""}
+                    name="name_hi"
+                    value={formik.values.name_hi || ""}
                     onChange={formik.handleChange}
                     placeholder="Award Name English"
                     className="custom--input w-full"
                   />
-                  {formik.touched.award_name_hi &&
-                    formik.errors.award_name_hi && (
-                      <div className="text-red-500 text-sm">
-                        {formik.errors.award_name_hi}
-                      </div>
-                    )}
+                  {formik.touched.name_hi && formik.errors.name_hi && (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.name_hi}
+                    </div>
+                  )}
                 </div>
 
                 {/* Description English */}
@@ -194,50 +189,48 @@ const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
                   <label className="mb-2 block font-[500]">
                     Description (English)
                   </label>
-                  {formik.values.award_description_en.map(
-                    (instruction, index) => (
-                      <div key={index} className="flex mb-2">
-                        <input
-                          type="text"
-                          value={instruction}
-                          onChange={(e) =>
-                            handleAwardChange(
-                              "award_description_en",
-                              index,
-                              e.target.value
-                            )
-                          }
-                          className="custom--input w-full !rounded-r-[0px]"
-                          placeholder={`Instruction ${index + 1}`}
-                        />
-                        <button
-                          type="button"
-                          className="bg-red-500 font-bold rounded-r-[5px] px-3 text-white"
-                          onClick={() =>
-                            removeDescription("award_description_en", index)
-                          }
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    )
-                  )}
+                  {formik.values.description_en.map((instruction, index) => (
+                    <div key={index} className="flex mb-2">
+                      <input
+                        type="text"
+                        value={instruction}
+                        onChange={(e) =>
+                          handleAwardChange(
+                            "description_en",
+                            index,
+                            e.target.value
+                          )
+                        }
+                        className="custom--input w-full !rounded-r-[0px]"
+                        placeholder={`Instruction ${index + 1}`}
+                      />
+                      <button
+                        type="button"
+                        className="bg-red-500 font-bold rounded-r-[5px] px-3 text-white"
+                        onClick={() =>
+                          removeDescription("description_en", index)
+                        }
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
                   <button
                     type="button"
-                    onClick={() => addDescription("award_description_en")}
+                    onClick={() => addDescription("description_en")}
                     className="text-[#008421]"
                   >
                     + Add Description
                   </button>
 
-                  {formik.errors.award_description_en &&
-                    typeof formik.errors.award_description_en === "string" && (
+                  {formik.errors.description_en &&
+                    typeof formik.errors.description_en === "string" && (
                       <div className="text-red-500 text-sm mt-1">
-                        {formik.errors.award_description_en}
+                        {formik.errors.description_en}
                       </div>
                     )}
-                  {Array.isArray(formik.errors.award_description_en) &&
-                    formik.errors.award_description_en.map((err, idx) =>
+                  {Array.isArray(formik.errors.description_en) &&
+                    formik.errors.description_en.map((err, idx) =>
                       err ? (
                         <div key={idx} className="text-red-500 text-sm mt-1">
                           {`Description ${idx + 1}: ${err}`}
@@ -251,50 +244,48 @@ const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
                   <label className="mb-2 block font-[500]">
                     Description (Hindi)
                   </label>
-                  {formik.values.award_description_hi.map(
-                    (instruction, index) => (
-                      <div key={index} className="flex mb-2">
-                        <input
-                          type="text"
-                          value={instruction}
-                          onChange={(e) =>
-                            handleAwardChange(
-                              "award_description_hi",
-                              index,
-                              e.target.value
-                            )
-                          }
-                          className="custom--input w-full !rounded-r-[0px]"
-                          placeholder={`निर्देश ${index + 1}`}
-                        />
-                        <button
-                          type="button"
-                          className="bg-red-500 font-bold rounded-r-[5px] px-3 text-white"
-                          onClick={() =>
-                            removeDescription("award_description_hi", index)
-                          }
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    )
-                  )}
+                  {formik.values.description_hi.map((instruction, index) => (
+                    <div key={index} className="flex mb-2">
+                      <input
+                        type="text"
+                        value={instruction}
+                        onChange={(e) =>
+                          handleAwardChange(
+                            "description_hi",
+                            index,
+                            e.target.value
+                          )
+                        }
+                        className="custom--input w-full !rounded-r-[0px]"
+                        placeholder={`निर्देश ${index + 1}`}
+                      />
+                      <button
+                        type="button"
+                        className="bg-red-500 font-bold rounded-r-[5px] px-3 text-white"
+                        onClick={() =>
+                          removeDescription("description_hi", index)
+                        }
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
                   <button
                     type="button"
-                    onClick={() => addDescription("award_description_hi")}
+                    onClick={() => addDescription("description_hi")}
                     className="text-[#008421]"
                   >
                     + Add Description
                   </button>
 
-                  {formik.errors.award_description_hi &&
-                    typeof formik.errors.award_description_hi === "string" && (
+                  {formik.errors.description_hi &&
+                    typeof formik.errors.description_hi === "string" && (
                       <div className="text-red-500 text-sm mt-1">
-                        {formik.errors.award_description_hi}
+                        {formik.errors.description_hi}
                       </div>
                     )}
-                  {Array.isArray(formik.errors.award_description_hi) &&
-                    formik.errors.award_description_hi.map((err, idx) =>
+                  {Array.isArray(formik.errors.description_hi) &&
+                    formik.errors.description_hi.map((err, idx) =>
                       err ? (
                         <div key={idx} className="text-red-500 text-sm mt-1">
                           {`निर्देश ${idx + 1}: ${err}`}
@@ -304,60 +295,82 @@ const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
-                    Order<span className="text-red-500">*</span>
+                    Position<span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
-                    name="Order"
-                    value={formik.values.Order || ""}
+                    name="position"
+                    value={formik.values.position || ""}
                     onChange={formik.handleChange}
-                    placeholder="Order"
+                    placeholder="Position"
                     className="custom--input w-full"
                   />
-                  {formik.touched.Order && formik.errors.Order && (
+                  {formik.touched.position && formik.errors.position && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.Order}
+                      {formik.errors.position}
                     </div>
                   )}
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
-                    Stop<span className="text-red-500">*</span>
+                    Won<span className="text-red-500">*</span>
                   </label>
                   <Select
                     value={StopOption.find(
-                      (option) => option.value === formik.values.Stop
+                      (option) => option.value === formik.values.won
                     )} // ✅ React Select expects the full object, not just the value
                     onChange={(option) =>
-                      formik.setFieldValue("Stop", option ? option.value : "")
+                      formik.setFieldValue("won", option ? option.value : "")
                     } // ✅ Handles both select & clear
                     options={StopOption}
-                    placeholder="Stop"
+                    placeholder="Select Option"
                     styles={customStyles}
                   />
-                  {formik.touched.Stop && formik.errors.Stop && (
+                  {formik.touched.won && formik.errors.won && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.Stop}
+                      {formik.errors.won}
                     </div>
                   )}
                 </div>
+                {editingOption && (
+                  <div>
+                    <label className="mb-2 block font-[500]">Status</label>
+                    <Select
+                      value={statusOption.find(
+                        (option) => option.value === formik.values.status
+                      )}
+                      onChange={(option) =>
+                        formik.setFieldValue(
+                          "status",
+                          option ? option.value : ""
+                        )
+                      }
+                      options={statusOption}
+                      placeholder="Status"
+                      styles={customStyles}
+                    />
+                  </div>
+                )}
               </div>
               {userType === "ADMIN" && (
-              <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
-                >
-                  Save
-                </button>
-              </div>
+                <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      formik.resetForm();
+                      setShowModal(false);
+                    }}
+                    className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
+                  >
+                    Save
+                  </button>
+                </div>
               )}
             </form>
           </div>

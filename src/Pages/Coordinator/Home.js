@@ -236,11 +236,11 @@ const CoordinatorDashboard = () => {
         {
           name: "Status",
           data: [
-            { name: "Shipped", y: pipelineData.SHIPPED, color: "#FBC02D" },
-            { name: "In route", y: pipelineData.IN_ROUTE, color: "#FB8C00" },
-            { name: "Delivered", y: pipelineData.DELIVERED, color: "#7DE281" },
-            { name: "Delayed", y: pipelineData.DELAYED, color: "#808080" },
-            { name: "Reject", y: pipelineData.REJECT, color: "#E53935" },
+            { name: "Shipped", y: pipelineData.SHIPPED, color: "#FFC107" },
+            { name: "In route", y: pipelineData.IN_ROUTE, color: "#FFA500" },
+            { name: "Delivered", y: pipelineData.DELIVERED, color: "#008421" },
+            { name: "Delayed", y: pipelineData.DELAYED, color: "#087FFE" },
+            { name: "Reject", y: pipelineData.REJECT, color: "#DC3545" },
           ],
         },
       ],
