@@ -24,6 +24,8 @@ const periodOptions = [
 
 const AdminDashboard = () => {
   const [quickLinks, setQuickLinks] = useState([]);
+  const [studentFeedback, setStudentFeedback] = useState({});
+  const [staffFeedback, setStaffFeedback] = useState({});
   const [pipelineFilter, setPipelineFilter] = useState({
     value: "last_7_days",
     label: "Last 7 days",
@@ -384,11 +386,34 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchStudentFeedback = async () => {
+    try {
+      const res = await authAxios().get("/dashboard/student/feedback");
+
+      const data = res.data?.data || {}; // default to object
+      setStudentFeedback(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch student feedback");
+    }
+  };
+  const fetchStaffFeedback = async () => {
+    try {
+      const res = await authAxios().get("/dashboard/employee/feedback");
+
+      const data = res.data?.data || {}; // default to object
+      setStaffFeedback(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch staff feedback");
+    }
+  };
+
   useEffect(() => {
     fetchQuickLinks();
+    fetchStudentFeedback();
+    fetchStaffFeedback();
   }, []);
-
-  console.log(pipelineData, "pipelineData");
 
   return (
     <>
@@ -422,8 +447,14 @@ const AdminDashboard = () => {
             Feedback
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 ">
-            <RatingBar title="Student Feedback" rating={4.5} />
-            <RatingBar title="Employee Feedback" rating={4.5} />
+            <RatingBar
+              title="Student Feedback"
+              rating={Number(studentFeedback?.student_rating_average) || 0}
+            />
+            <RatingBar
+              title="Employee Feedback"
+              rating={Number(staffFeedback?.employee_rating_average) || 0}
+            />
           </div>
         </div>
 

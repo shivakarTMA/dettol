@@ -1,43 +1,41 @@
 import React, { useEffect, useState } from "react";
 import editIcon from "../../Assests/Images/icons/edit.svg";
-import viewIcon from "../../Assests/Images/icons/viewbox.svg";
-import EditCategoryModal from "../../Components/EditCategoryModal";
+import EditInventoryModal from "../../Components/EditInventoryModal";
 import { authAxios } from "../../Config/config";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { PiClipboardText } from "react-icons/pi";
 import { formatCapitalText } from "../../Helper/helper";
 import Tooltip from "../../Components/Common/Tooltip";
-import { useSelector } from "react-redux";
+import { MdOutlineInventory2 } from "react-icons/md";
 
 const validationSchema = Yup.object().shape({
-  name_en: Yup.string().required("Name English is required"),
-  name_hi: Yup.string().required("Name Hindi is required"),
-  position: Yup.string().required("Position is required"),
+  product_name: Yup.string().required("Product Name is required"),
+  total: Yup.string().required("Total Stock is required"),
+  allotted: Yup.string().required("Allotted Stock is required"),
 });
 
-const CategoryListScreen = () => {
-  const { userType } = useSelector((state) => state.auth);
+
+const InventoryListScreen = () => {
   const [showModal, setShowModal] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [inventoryList, setInventoryList] = useState([]);
 
   const [editingOption, setEditingOption] = useState(null);
 
-  const fetchCategoryList = async () => {
+  const fetchInventoryList = async () => {
     try {
-      const res = await authAxios().get("/category/fetch/all");
+      const res = await authAxios().get("/inventory/list");
 
       let data = res.data?.data || [];
-      setCategories(data);
+      setInventoryList(data);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch category");
+      toast.error("Failed to fetch inventory");
     }
   };
 
   useEffect(() => {
-    fetchCategoryList();
+    fetchInventoryList();
   }, []);
 
   const formik = useFormik({
@@ -55,16 +53,16 @@ const CategoryListScreen = () => {
 
         if (editingOption) {
           // Update
-          await authAxios().put(`/category/update/${editingOption}`, payload);
+          await authAxios().put(`/inventory/${editingOption}`, payload);
           toast.success("Updated Successfully");
         } else {
           // Create
-          await authAxios().post("/category/create", payload);
+          await authAxios().post("/inventory/store", payload);
           toast.success("Created Successfully");
         }
 
         // 🔄 Re-fetch after save
-        fetchCategoryList();
+        fetchInventoryList();
       } catch (err) {
         console.error(err);
         toast.error("Failed to save user");
@@ -88,8 +86,8 @@ const CategoryListScreen = () => {
               setShowModal(true);
             }}
           >
-            <PiClipboardText className="text-xl" />
-            <span>Create Category</span>
+            <MdOutlineInventory2 className="text-xl" />
+            <span>Add Inventory</span>
           </button>
         </div>
         <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
@@ -98,28 +96,28 @@ const CategoryListScreen = () => {
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[100px]">ID</th>
-                    <th className="px-3 py-3 min-w-[120px]">Name (English)</th>
-                    <th className="px-3 py-3 min-w-[120px]">Name (Hindi)</th>
-                    <th className="px-3 py-3 min-w-[120px]">Position</th>
+                    <th className="px-3 py-3 min-w-[120px]">Product Name</th>
+                    <th className="px-3 py-3 min-w-[120px]">Total Stock</th>
+                    <th className="px-3 py-3 min-w-[150px]">Available Stock</th>
+                    <th className="px-3 py-3 min-w-[120px]">Allotted Stock</th>
                     <th className="px-3 py-3 min-w-[120px]">Status</th>
                     <th className="px-3 py-3">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {categories.length === 0 ? (
+                  {inventoryList.length === 0 ? (
                     <tr>
                       <td colSpan="5" className="px-3 py-3 text-center">
                         No data available
                       </td>
                     </tr>
                   ) : (
-                    categories.map((item, index) => (
+                    inventoryList.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item?.id}</td>
-                        <td className="px-3 py-3">{item?.name_en}</td>
-                        <td className="px-3 py-3">{item?.name_hi}</td>
-                        <td className="px-3 py-3">{item?.position}</td>
+                        <td className="px-3 py-3">{item?.product_name}</td>
+                        <td className="px-3 py-3">{item?.total}</td>
+                        <td className="px-3 py-3">{item?.available}</td>
+                        <td className="px-3 py-3">{item?.allotted}</td>
                         <td className="px-3 py-3">
                           <span
                             className={`block w-fit px-3 py-1 rounded-full capitalize ${
@@ -135,7 +133,7 @@ const CategoryListScreen = () => {
                           <div className="flex gap-2">
                             <Tooltip
                               id={`tooltip-edit-${item.id}`}
-                              content={`${userType === "ADMIN" ? "Edit Category" : "View Category"}`}
+                              content="Edit Inventory"
                               place="left"
                             >
                               <div
@@ -146,7 +144,7 @@ const CategoryListScreen = () => {
                                 }}
                               >
                                 <img
-                                  src={userType === "ADMIN" ? editIcon : viewIcon}
+                                  src={editIcon}
                                   alt="view"
                                   className="w-full"
                                 />
@@ -165,7 +163,7 @@ const CategoryListScreen = () => {
 
         {/* Edit Modal */}
         {showModal && (
-          <EditCategoryModal
+          <EditInventoryModal
             setShowModal={setShowModal}
             editingOption={editingOption}
             formik={formik}
@@ -176,4 +174,4 @@ const CategoryListScreen = () => {
   );
 };
 
-export default CategoryListScreen;
+export default InventoryListScreen;

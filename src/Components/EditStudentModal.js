@@ -5,7 +5,7 @@ import { customStyles } from "../Helper/helper";
 import { toast } from "react-toastify";
 import { authAxios } from "../Config/config";
 import { MdImage } from "react-icons/md";
-
+import { useSelector } from "react-redux";
 
 const statusOption = [
   {
@@ -19,7 +19,7 @@ const statusOption = [
 ];
 
 const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
-  console.log(editingOption,'editingOption')
+  const { userType } = useSelector((state) => state.auth);
 
   const [schoolList, setSchoolList] = useState([]);
 
@@ -39,7 +39,6 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
   useEffect(() => {
     fetchSchoolList();
   }, []);
-
 
   useEffect(() => {
     if (!editingOption) return;
@@ -130,11 +129,12 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                     }}
                     className="custom--input w-full"
                   />
-                  {formik.touched?.profile_pic && formik.errors?.profile_pic && (
-                    <div className="text-red-500 text-sm">
-                      {formik.errors?.profile_pic}
-                    </div>
-                  )}
+                  {formik.touched?.profile_pic &&
+                    formik.errors?.profile_pic && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors?.profile_pic}
+                      </div>
+                    )}
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
@@ -298,11 +298,12 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                     placeholder="Parent Name (English)"
                     className="custom--input w-full"
                   />
-                  {formik.touched?.parent_name_en && formik.errors?.parent_name_en && (
-                    <div className="text-red-500 text-sm">
-                      {formik.errors?.parent_name_en}
-                    </div>
-                  )}
+                  {formik.touched?.parent_name_en &&
+                    formik.errors?.parent_name_en && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors?.parent_name_en}
+                      </div>
+                    )}
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
@@ -316,11 +317,12 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                     placeholder="Parent Name (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched?.parent_name_hi && formik.errors?.parent_name_hi && (
-                    <div className="text-red-500 text-sm">
-                      {formik.errors?.parent_name_hi}
-                    </div>
-                  )}
+                  {formik.touched?.parent_name_hi &&
+                    formik.errors?.parent_name_hi && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors?.parent_name_hi}
+                      </div>
+                    )}
                 </div>
 
                 <div className="lg:col-span-2">
@@ -373,11 +375,12 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                     placeholder="District (English)"
                     className="custom--input w-full"
                   />
-                  {formik.touched?.district_en && formik.errors?.district_en && (
-                    <div className="text-red-500 text-sm">
-                      {formik.errors?.district_en}
-                    </div>
-                  )}
+                  {formik.touched?.district_en &&
+                    formik.errors?.district_en && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors?.district_en}
+                      </div>
+                    )}
                 </div>
 
                 <div>
@@ -392,11 +395,12 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                     placeholder="District (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched?.district_hi && formik.errors?.district_hi && (
-                    <div className="text-red-500 text-sm">
-                      {formik.errors?.district_hi}
-                    </div>
-                  )}
+                  {formik.touched?.district_hi &&
+                    formik.errors?.district_hi && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors?.district_hi}
+                      </div>
+                    )}
                 </div>
 
                 <div>
@@ -502,7 +506,6 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                     styles={customStyles}
                   />
 
-
                   {formik.touched?.school_id && formik.errors?.school_id && (
                     <div className="text-red-500 text-sm">
                       {formik.errors?.school_id}
@@ -521,7 +524,7 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                       formik.setFieldValue("status", option ? option.value : "")
                     } // ✅ Handles both select & clear
                     options={statusOption}
-                    placeholder="School Name"
+                    placeholder="Status"
                     styles={customStyles}
                   />
                   {formik.touched?.status && formik.errors?.status && (
@@ -531,25 +534,26 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   )}
                 </div>
               </div>
-
-              <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    formik.resetForm();
-                    setShowModal(false);
-                  }}
-                  className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
-                >
-                  Save
-                </button>
-              </div>
+              {userType === "ADMIN" && (
+                <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      formik.resetForm();
+                      setShowModal(false);
+                    }}
+                    className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
+                  >
+                    Save
+                  </button>
+                </div>
+              )}
             </form>
           </div>
         </div>

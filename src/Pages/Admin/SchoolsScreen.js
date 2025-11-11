@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import searchIcon from "../../Assests/Images/icons/search.svg";
-import deleteIcon from "../../Assests/Images/icons/delete.svg";
 import editIcon from "../../Assests/Images/icons/edit.svg";
+import viewIcon from "../../Assests/Images/icons/viewbox.svg";
 import Pagination from "../../Components/Common/Pagination";
 import EditSchoolModal from "../../Components/EditSchoolModal";
 import { authAxios } from "../../Config/config";
@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Tooltip from "../../Components/Common/Tooltip";
+import { useSelector } from "react-redux";
 
 const validationSchema = Yup.object().shape({
   name_en: Yup.string().required("Name English is required"),
@@ -29,6 +30,8 @@ const SchoolsScreen = () => {
   const [rowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+
+  const { userType } = useSelector((state) => state.auth);
 
   const fetchSchoolList = async (search = searchTerm, currentPage = page) => {
     try {
@@ -139,7 +142,7 @@ const SchoolsScreen = () => {
                     <th className="px-3 py-3 min-w-[120px] text-center">
                       Students Registered
                     </th>
-                    <th className="px-3 py-3 min-w-[120px]">Action</th>
+                    <th className="px-3 py-3">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -164,18 +167,18 @@ const SchoolsScreen = () => {
                           <div className="flex gap-2">
                             <Tooltip
                               id={`tooltip-edit-${item.id}`}
-                              content="Edit School"
+                              content={`${userType === "ADMIN" ? "Edit School" : "View School"}`}
                               place="left"
                             >
                               <div
-                                className="cursor-pointer w-5"
+                                className="cursor-pointer w-8"
                                 onClick={() => {
                                   setEditingOption(item?.id);
                                   setShowModal(true);
                                 }}
                               >
                                 <img
-                                  src={editIcon}
+                                  src={userType === "ADMIN" ? editIcon : viewIcon}
                                   alt="view"
                                   className="w-full"
                                 />

@@ -83,7 +83,7 @@ const ReplyTicketModal = ({ setShowModal, editingOption, formik }) => {
       ></div>
 
       {/* Modal */}
-      <div className="fixed inset-0 flex justify-center items-start pt-10 pb-5 z-50 overflow-auto w-full max-w-[800px] mx-auto">
+      <div className="fixed inset-0 flex justify-center items-start pt-10 pb-5 z-50 overflow-auto w-full max-w-[800px] mx-auto custom--overflow">
         <div className="flex flex-col relative w-[95%] mx-auto">
           <div className="w-full bg-white rounded-[20px] shadow-lg">
             {/* Header */}
@@ -122,7 +122,7 @@ const ReplyTicketModal = ({ setShowModal, editingOption, formik }) => {
                       {getInitials(msg.sender)}
                     </div>
                     <div className="flex-1">
-                      <div className="flex lg:flex-row flex-col lg:gap-2 jg:justify-between lg:items-center">
+                      <div className="flex lg:flex-row flex-col lg:gap-2 lg:justify-between lg:items-center">
                         <p className="font-[500] lg:text-lg text-md">{msg.sender}</p>
                         <p className="text-xs text-gray-500">{msg.time}</p>
                       </div>

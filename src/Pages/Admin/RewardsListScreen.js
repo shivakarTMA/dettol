@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import editIcon from "../../Assests/Images/icons/edit.svg";
+import viewIcon from "../../Assests/Images/icons/viewbox.svg";
 import EditRewardModal from "../../Components/EditRewardModal";
 import { toast } from "react-toastify";
 import { PiMedalMilitary } from "react-icons/pi";
@@ -8,6 +9,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import Pagination from "../../Components/Common/Pagination";
 import Tooltip from "../../Components/Common/Tooltip";
+import { useSelector } from "react-redux";
 
 const validationSchema = Yup.object({
   image_url: Yup.mixed()
@@ -33,29 +35,25 @@ const validationSchema = Yup.object({
 });
 
 const RewardsListScreen = () => {
+  const { userType } = useSelector((state) => state.auth);
   const [showModal, setShowModal] = useState(false);
   const [rewardsList, setRewardsList] = useState([]);
 
   const [editingOption, setEditingOption] = useState(null);
-  const [page, setPage] = useState(1);
-  const [rowsPerPage] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  // const [page, setPage] = useState(1);
+  // const [rowsPerPage] = useState(10);
+  // const [totalPages, setTotalPages] = useState(1);
+  // const [totalCount, setTotalCount] = useState(0);
 
-  const fetchRewardsList = async (currentPage = page) => {
+  const fetchRewardsList = async () => {
     try {
-      const res = await authAxios().get("/reward/fetch/all", {
-        params: {
-          page: currentPage,
-          limit: rowsPerPage,
-        },
-      });
+      const res = await authAxios().get("/reward/fetch/all");
 
       let data = res.data?.data || [];
       setRewardsList(data);
-      setPage(res.data?.currentPage || 1);
-      setTotalPages(res.data?.totalPage || 1);
-      setTotalCount(res.data?.totalCount || data.length);
+      // setPage(res.data?.currentPage || 1);
+      // setTotalPages(res.data?.totalPage || 1);
+      // setTotalCount(res.data?.totalCount || data.length);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch reward");
@@ -142,7 +140,7 @@ const RewardsListScreen = () => {
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[100px]">Reward Image</th>
+                    {/* <th className="px-3 py-3 min-w-[100px]">Reward Image</th> */}
                     <th className="px-3 py-3 min-w-[120px]">Milestone Name</th>
                     <th className="px-3 py-3 min-w-[120px]">Reward Name</th>
                     <th className="px-3 py-3 min-w-[120px]">Reward Contents</th>
@@ -160,12 +158,12 @@ const RewardsListScreen = () => {
                   ) : (
                     rewardsList.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="px-3 py-3">
+                        {/* <td className="px-3 py-3">
                           <img
                             src={item?.image_url}
                             className="w-16 h-16 rounded-lg"
                           />
-                        </td>
+                        </td> */}
                         <td className="px-3 py-3">{item?.milestone_name}</td>
                         <td className="px-3 py-3">{item?.name_en}</td>
                         <td className="px-3 py-3">{item?.content}</td>
@@ -173,18 +171,18 @@ const RewardsListScreen = () => {
                         <td className="px-3 py-3">
                           <Tooltip
                             id={`tooltip-edit-${item.id}`}
-                            content="Edit Milestone"
+                            content={`${userType === "ADMIN" ? "Edit Milestone" : "View Milestone"}`}
                             place="left"
                           >
                             <div
-                              className="cursor-pointer w-5"
+                              className="cursor-pointer w-8"
                               onClick={() => {
                                 setEditingOption(item?.id);
                                 setShowModal(true);
                               }}
                             >
                               <img
-                                src={editIcon}
+                                src={userType === "ADMIN" ? editIcon : viewIcon}
                                 alt="view"
                                 className="w-full"
                               />
@@ -200,7 +198,7 @@ const RewardsListScreen = () => {
           </div>
         </div>
 
-        <Pagination
+        {/* <Pagination
           page={page}
           totalPages={totalPages}
           rowsPerPage={rowsPerPage}
@@ -210,7 +208,7 @@ const RewardsListScreen = () => {
             setPage(newPage);
             fetchRewardsList(newPage);
           }}
-        />
+        /> */}
 
         {/* Edit Modal */}
         {showModal && (

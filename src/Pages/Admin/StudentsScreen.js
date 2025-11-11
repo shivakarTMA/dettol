@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import searchIcon from "../../Assests/Images/icons/search.svg";
 import editIcon from "../../Assests/Images/icons/edit.svg";
+import viewIcon from "../../Assests/Images/icons/viewbox.svg";
 import Pagination from "../../Components/Common/Pagination";
 import FilterStudentPanel from "../../Components/FilterStudentPanel";
 import EditStudentModal from "../../Components/EditStudentModal";
@@ -12,6 +13,8 @@ import * as Yup from "yup";
 import { PiStudentLight } from "react-icons/pi";
 import { formatCapitalText } from "../../Helper/helper";
 import Tooltip from "../../Components/Common/Tooltip";
+import { useSelector } from "react-redux";
+
 
 const validationSchema = Yup.object().shape({
   profile_pic: Yup.mixed()
@@ -55,6 +58,8 @@ const StudentsScreen = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [cardSearch, setCardSearch] = useState("");
   const [cardError, setCardError] = useState("");
+
+  const { userType } = useSelector((state) => state.auth);
 
   // Filters
   const [filters, setFilters] = useState({
@@ -280,8 +285,6 @@ const StudentsScreen = () => {
     setPage(1);
   };
 
-  console.log(paginatedStudents, "paginatedStudents");
-
   return (
     <div>
       <div className="flex justify-between items-center flex-wrap gap-3 mb-5">
@@ -384,7 +387,7 @@ const StudentsScreen = () => {
                 <th className="px-3 py-3 min-w-[50px]">Age</th>
                 <th className="px-3 py-3 min-w-[90px]">District</th>
                 <th className="px-3 py-3 min-w-[80px]">Status</th>
-                <th className="px-3 py-3 min-w-[70px]">Action</th>
+                <th className="px-3 py-3">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -415,17 +418,17 @@ const StudentsScreen = () => {
                     <td className="px-3 py-3">
                       <Tooltip
                         id={`tooltip-edit-${item.id}`}
-                        content="Edit Student"
+                        content={`${userType === "ADMIN" ? "Edit Student" : "View Student"}`}
                         place="left"
                       >
                         <div
-                          className="cursor-pointer w-5"
+                          className="cursor-pointer w-8"
                           onClick={() => {
                             setEditingOption(item?.id);
                             setShowModal(true);
                           }}
                         >
-                          <img src={editIcon} alt="view" className="w-full" />
+                          <img src={userType === "ADMIN" ? editIcon : viewIcon} alt="view" className="w-full" />
                         </div>
                       </Tooltip>
                     </td>

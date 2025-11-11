@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import editIcon from "../../Assests/Images/icons/edit.svg";
-import viewIcon from "../../Assests/Images/icons/viewbox.svg";
-import EditCategoryModal from "../../Components/EditCategoryModal";
+import EditSchoolMappingModal from "../../Components/EditSchoolMappingModal";
 import { authAxios } from "../../Config/config";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { PiClipboardText } from "react-icons/pi";
-import { formatCapitalText } from "../../Helper/helper";
 import Tooltip from "../../Components/Common/Tooltip";
-import { useSelector } from "react-redux";
+import { IoAdd } from "react-icons/io5";
 
 const validationSchema = Yup.object().shape({
   name_en: Yup.string().required("Name English is required"),
@@ -17,37 +14,67 @@ const validationSchema = Yup.object().shape({
   position: Yup.string().required("Position is required"),
 });
 
-const CategoryListScreen = () => {
-  const { userType } = useSelector((state) => state.auth);
+const dummyStockData = [
+  {
+    id: 1,
+    CoordinatorName: "Avinash Malhotra",
+    DistrictAssigned: "Piprauli, Nagar Kshetra",
+    NoOfStudents: 234,
+  },
+  {
+    id: 2,
+    CoordinatorName: "Sharmila Yadav",
+    DistrictAssigned: "Piprauli",
+    NoOfStudents: 16,
+  },
+  {
+    id: 3,
+    CoordinatorName: "Avinash Malhotra",
+    DistrictAssigned: "Piprauli",
+    NoOfStudents: 34,
+  },
+  {
+    id: 4,
+    CoordinatorName: "Avinash Malhotra",
+    DistrictAssigned: "Piprauli",
+    NoOfStudents: 25,
+  },
+  {
+    id: 5,
+    CoordinatorName: "Avinash Malhotra",
+    DistrictAssigned: "Piprauli, Bhathat",
+    NoOfStudents: 25,
+  },
+];
+
+const SchoolMappingListScreen = () => {
   const [showModal, setShowModal] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(dummyStockData);
 
   const [editingOption, setEditingOption] = useState(null);
 
-  const fetchCategoryList = async () => {
-    try {
-      const res = await authAxios().get("/category/fetch/all");
+  //   const fetchInventoryList = async () => {
+  //     try {
+  //       const res = await authAxios().get("/category/fetch/all");
 
-      let data = res.data?.data || [];
-      setCategories(data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch category");
-    }
-  };
+  //       let data = res.data?.data || [];
+  //       setCategories(data);
+  //     } catch (err) {
+  //       console.error(err);
+  //       toast.error("Failed to fetch category");
+  //     }
+  //   };
 
-  useEffect(() => {
-    fetchCategoryList();
-  }, []);
+  //   useEffect(() => {
+  //     fetchInventoryList();
+  //   }, []);
 
   const formik = useFormik({
     initialValues: {
-      name_en: "",
-      name_hi: "",
-      position: "",
-      status: "ACTIVE",
+    coordinator: null,
+    schools: [{ district: null, school: null }],
     },
-    validationSchema,
+    // validationSchema,
     onSubmit: async (values, { resetForm }) => {
       console.log(values, "values");
       try {
@@ -64,7 +91,7 @@ const CategoryListScreen = () => {
         }
 
         // 🔄 Re-fetch after save
-        fetchCategoryList();
+        // fetchInventoryList();
       } catch (err) {
         console.error(err);
         toast.error("Failed to save user");
@@ -88,8 +115,8 @@ const CategoryListScreen = () => {
               setShowModal(true);
             }}
           >
-            <PiClipboardText className="text-xl" />
-            <span>Create Category</span>
+            <IoAdd className="text-xl" />
+            <span>Add Mapping</span>
           </button>
         </div>
         <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
@@ -98,11 +125,15 @@ const CategoryListScreen = () => {
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[100px]">ID</th>
-                    <th className="px-3 py-3 min-w-[120px]">Name (English)</th>
-                    <th className="px-3 py-3 min-w-[120px]">Name (Hindi)</th>
-                    <th className="px-3 py-3 min-w-[120px]">Position</th>
-                    <th className="px-3 py-3 min-w-[120px]">Status</th>
+                    <th className="px-3 py-3 min-w-[120px]">S.No.</th>
+                    <th className="px-3 py-3 min-w-[150px]">
+                      Coordinator Name
+                    </th>
+                    <th className="px-3 py-3 min-w-[170px]">
+                      District Assigned
+                    </th>
+                    <th className="px-3 py-3 min-w-[150px] text-center">No. of students</th>
+                    {/* <th className="px-3 py-3 min-w-[120px]">Status</th> */}
                     <th className="px-3 py-3">Action</th>
                   </tr>
                 </thead>
@@ -117,25 +148,14 @@ const CategoryListScreen = () => {
                     categories.map((item, index) => (
                       <tr key={index} className="border-t">
                         <td className="px-3 py-3">{item?.id}</td>
-                        <td className="px-3 py-3">{item?.name_en}</td>
-                        <td className="px-3 py-3">{item?.name_hi}</td>
-                        <td className="px-3 py-3">{item?.position}</td>
-                        <td className="px-3 py-3">
-                          <span
-                            className={`block w-fit px-3 py-1 rounded-full capitalize ${
-                              item.status === "ACTIVE"
-                                ? "bg-green-200"
-                                : "bg-gray-200"
-                            }`}
-                          >
-                            {formatCapitalText(item.status)}
-                          </span>
-                        </td>
+                        <td className="px-3 py-3">{item?.CoordinatorName}</td>
+                        <td className="px-3 py-3">{item?.DistrictAssigned}</td>
+                        <td className="px-3 py-3 text-center">{item?.NoOfStudents}</td>
                         <td className="px-3 py-3">
                           <div className="flex gap-2">
                             <Tooltip
                               id={`tooltip-edit-${item.id}`}
-                              content={`${userType === "ADMIN" ? "Edit Category" : "View Category"}`}
+                              content="Edit School Mapping"
                               place="left"
                             >
                               <div
@@ -146,7 +166,7 @@ const CategoryListScreen = () => {
                                 }}
                               >
                                 <img
-                                  src={userType === "ADMIN" ? editIcon : viewIcon}
+                                  src={editIcon}
                                   alt="view"
                                   className="w-full"
                                 />
@@ -165,7 +185,7 @@ const CategoryListScreen = () => {
 
         {/* Edit Modal */}
         {showModal && (
-          <EditCategoryModal
+          <EditSchoolMappingModal
             setShowModal={setShowModal}
             editingOption={editingOption}
             formik={formik}
@@ -176,4 +196,4 @@ const CategoryListScreen = () => {
   );
 };
 
-export default CategoryListScreen;
+export default SchoolMappingListScreen;

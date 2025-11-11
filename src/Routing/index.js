@@ -29,6 +29,8 @@ import CordinatorPerformanceListScreen from "../Pages/Admin/CordinatorPerformanc
 import UserManagementScreen from "../Pages/Admin/UserManagementScreen";
 import TicketsScreen from "../Pages/Admin/TicketsScreen";
 import TicketsCodinatorScreen from "../Pages/Coordinator/TicketsCodinatorScreen";
+import InventoryListScreen from "../Pages/Admin/InventoryListScreen";
+import SchoolMappingListScreen from "../Pages/Admin/SchoolMappingListScreen";
 
 export default function Routing() {
   const { accessToken, userType } = useSelector((state) => state.auth);
@@ -171,6 +173,22 @@ export default function Routing() {
               element={
                 <PrivateRoute>
                   <CordinatorPerformanceListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/inventory"
+              element={
+                <PrivateRoute>
+                  <InventoryListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/school-mapping"
+              element={
+                <PrivateRoute>
+                  <SchoolMappingListScreen />
                 </PrivateRoute>
               }
             />

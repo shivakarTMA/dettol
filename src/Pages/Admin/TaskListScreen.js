@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import editIcon from "../../Assests/Images/icons/edit.svg";
+import viewIcon from "../../Assests/Images/icons/viewbox.svg";
 import Pagination from "../../Components/Common/Pagination";
-import { FaPlus } from "react-icons/fa";
 import EditTaskModal from "../../Components/EditTaskModal";
 import { toast } from "react-toastify";
 import { authAxios } from "../../Config/config";
@@ -10,6 +10,7 @@ import * as Yup from "yup";
 import Select from "react-select";
 import { customStyles, formatCapitalText } from "../../Helper/helper";
 import Tooltip from "../../Components/Common/Tooltip";
+import { useSelector } from "react-redux";
 
 const validationSchema = Yup.object().shape({
   category_id: Yup.string().required("Category is required"),
@@ -30,6 +31,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const TaskListScreen = () => {
+  const { userType } = useSelector((state) => state.auth);
   const [showModal, setShowModal] = useState(false);
   const [taskList, setTaskList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
@@ -163,7 +165,7 @@ const TaskListScreen = () => {
                     <th className="px-3 py-3 min-w-[100px] text-center">
                       Position
                     </th>
-                    <th className="px-3 py-3 min-w-[70px]">Action</th>
+                    <th className="px-3 py-3">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -191,17 +193,17 @@ const TaskListScreen = () => {
                       <td className="px-3 py-3">
                         <Tooltip
                           id={`tooltip-edit-${item.id}`}
-                          content="Edit Task"
+                          content={`${userType === "ADMIN" ? "Edit Task" : "View Task"}`}
                           place="left"
                         >
                           <div
-                            className="cursor-pointer w-5"
+                            className="cursor-pointer w-8"
                             onClick={() => {
                               setEditingOption(item?.id);
                               setShowModal(true);
                             }}
                           >
-                            <img src={editIcon} alt="view" className="w-full" />
+                            <img src={userType === "ADMIN" ? editIcon : viewIcon} alt="view" className="w-full" />
                           </div>
                         </Tooltip>
                       </td>

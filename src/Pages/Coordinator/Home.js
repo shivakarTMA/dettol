@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react"; // Import React hooks
+import React, { useState, useMemo, useEffect } from "react"; // Import React hooks
 import Highcharts from "highcharts"; // Import Highcharts
 import HighchartsReact from "highcharts-react-official"; // Import React wrapper for Highcharts
 import Select from "react-select"; // Import react-select for dropdowns
@@ -12,6 +12,9 @@ import MilestonePopup from "../../Components/MilestonePopup";
 import { LuCalendar } from "react-icons/lu";
 import SchoolDashboardTables from "../../Components/SchoolDashboardTables";
 import SubmitRatingPopup from "../../Components/SubmitRatingPopup";
+import { authAxios } from "../../Config/config";
+import { toast } from "react-toastify";
+import RatingBar from "../../Components/Common/RatingBar";
 
 const milestoneDetailsSample = {
   studentName: "Name of Student",
@@ -52,8 +55,11 @@ const CoordinatorDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState(null);
+  const [quickLinks, setQuickLinks] = useState([]);
+  const [studentFeedback, setStudentFeedback] = useState({});
+  const [staffFeedback, setStaffFeedback] = useState({});
   const [pipelineFilter, setPipelineFilter] = useState({
-    value: "last7days",
+    value: "last_7_days",
     label: "Last 7 days",
   });
 
@@ -65,48 +71,23 @@ const CoordinatorDashboard = () => {
   // Custom dates for both filters
   const [pipelineCustomFrom, setPipelineCustomFrom] = useState(null);
   const [pipelineCustomTo, setPipelineCustomTo] = useState(null);
+  const [pipelineData, setPipelineData] = useState({
+    SHIPPED: 0,
+    DELIVERED: 0,
+    DELAYED: 0,
+    IN_ROUTE: 0,
+    REJECT: 0,
+  });
   const [verificationCustomFrom, setVerificationCustomFrom] = useState(null);
   const [verificationCustomTo, setVerificationCustomTo] = useState(null);
 
   // Dropdown filter options
   const filterOptions = [
     { value: "today", label: "Today" },
-    { value: "last7days", label: "Last 7 days" },
-    { value: "monthToDate", label: "Month till date" },
+    { value: "last_7_days", label: "Last 7 days" },
+    { value: "month_till_date", label: "Month till date" },
     { value: "custom", label: "Custom Date" },
   ];
-
-  // Function to generate pipeline data based on selected filter
-  const generatePipelineData = (filter, from, to) => {
-    const base = {
-      SHIPPED: 12,
-      DELIVERED: 24,
-      DELAYED: 5,
-      IN_ROUTE: 10,
-      REJECT: 5,
-    };
-    if (filter === "today")
-      return { SHIPPED: 3, DELIVERED: 5, DELAYED: 1, IN_ROUTE: 2, REJECT: 3 };
-    if (filter === "monthToDate")
-      return {
-        SHIPPED: 45,
-        DELIVERED: 89,
-        DELAYED: 15,
-        IN_ROUTE: 32,
-        REJECT: 7,
-      };
-    if (filter === "custom" && from && to) {
-      const days = Math.max(1, Math.floor((to - from) / (1000 * 60 * 60 * 24)));
-      return {
-        SHIPPED: days * 2,
-        DELIVERED: days * 3,
-        DELAYED: days,
-        IN_ROUTE: days * 1.5,
-        REJECT: 7,
-      };
-    }
-    return base;
-  };
 
   // Function to generate verification data and dynamic date labels based on filter
   const generateVerificationData = (filter, from, to) => {
@@ -175,15 +156,96 @@ const CoordinatorDashboard = () => {
     return { categories, data };
   };
 
-  // Memoized pipeline and verification data
-  const pipelineData = useMemo(
-    () =>
-      generatePipelineData(
-        pipelineFilter.value,
-        pipelineCustomFrom,
+  // ✅ Fetch pipeline data from API
+  const fetchPipelineData = async () => {
+    try {
+      let url = "/dashboard/reward/pipeline";
+
+      // Add query params based on selected filter
+      if (pipelineFilter.value === "today") {
+        url += "?dateFilter=today";
+      } else if (pipelineFilter.value === "last_7_days") {
+        url += "?dateFilter=last_7_days";
+      } else if (pipelineFilter.value === "month_till_date") {
+        url += "?dateFilter=month_till_date";
+      } else if (
+        pipelineFilter.value === "custom" &&
+        pipelineCustomFrom &&
         pipelineCustomTo
-      ),
-    [pipelineFilter, pipelineCustomFrom, pipelineCustomTo]
+      ) {
+        const startDate = pipelineCustomFrom.toISOString().split("T")[0];
+
+        // Backend expects endDate to be exclusive — add one day
+        const endDateObj = new Date(pipelineCustomTo);
+        endDateObj.setDate(endDateObj.getDate() + 1);
+        const endDate = endDateObj.toISOString().split("T")[0];
+
+        url += `?startDate=${startDate}&endDate=${endDate}`;
+      } else {
+        return; // Don’t fetch if custom dates not chosen
+      }
+
+      const res = await authAxios().get(url);
+      const data = res.data?.data || {};
+
+      setPipelineData({
+        SHIPPED: data.SHIPPED || 0,
+        DELIVERED: data.DELIVERED || 0,
+        DELAYED: data.DELAYED || 0,
+        IN_ROUTE: data.IN_ROUTE || 0,
+        REJECT: data.REJECT || 0,
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch pipeline data");
+    }
+  };
+
+  // 🔁 Fetch when filter or custom dates change
+  useEffect(() => {
+    fetchPipelineData();
+  }, [pipelineFilter, pipelineCustomFrom, pipelineCustomTo]);
+
+  // Pie Chart Configuration
+  const pieChartOptions = useMemo(
+    () => ({
+      chart: {
+        type: "pie",
+        backgroundColor: "transparent",
+        height: "60%",
+        spacing: [20, 20, 20, 20],
+        style: { maxWidth: "100%", margin: "auto" },
+      },
+      title: { text: "" },
+      credits: { enabled: false },
+      tooltip: { pointFormat: "<b>{point.y}</b>" },
+      // tooltip: { pointFormat: "<b>{point.y}</b> ({point.percentage:.1f}%)" },
+      plotOptions: {
+        pie: {
+          innerSize: "40%",
+          size: "80%",
+          dataLabels: {
+            enabled: true,
+            format: "{point.name}: {point.y}",
+            style: { fontSize: "14px", color: "#333" },
+          },
+          showInLegend: false,
+        },
+      },
+      series: [
+        {
+          name: "Status",
+          data: [
+            { name: "Shipped", y: pipelineData.SHIPPED, color: "#FBC02D" },
+            { name: "In route", y: pipelineData.IN_ROUTE, color: "#FB8C00" },
+            { name: "Delivered", y: pipelineData.DELIVERED, color: "#7DE281" },
+            { name: "Delayed", y: pipelineData.DELAYED, color: "#808080" },
+            { name: "Reject", y: pipelineData.REJECT, color: "#E53935" },
+          ],
+        },
+      ],
+    }),
+    [pipelineData]
   );
 
   const { categories, data: verificationData } = useMemo(
@@ -195,44 +257,6 @@ const CoordinatorDashboard = () => {
       ),
     [verificationFilter, verificationCustomFrom, verificationCustomTo]
   );
-
-  // Pie Chart Configuration
-  const pieChartOptions = {
-    chart: {
-      type: "pie",
-      backgroundColor: "transparent",
-      height: "60%",
-      spacing: [20, 20, 20, 20],
-      style: { maxWidth: "100%", margin: "auto" },
-    },
-    title: { text: "" },
-    credits: { enabled: false },
-    tooltip: { pointFormat: "<b>{point.y}</b> ({point.percentage:.1f}%)" },
-    plotOptions: {
-      pie: {
-        innerSize: "40%",
-        size: "80%",
-        dataLabels: {
-          enabled: true,
-          format: "{point.name}: {point.y}",
-          style: { fontSize: "14px", color: "#333" },
-        },
-        showInLegend: false,
-      },
-    },
-    series: [
-      {
-        name: "Status",
-        data: [
-          { name: "Shipped", y: pipelineData.SHIPPED, color: "#FBC02D" },
-          { name: "In route", y: pipelineData.IN_ROUTE, color: "#FB8C00" },
-          { name: "Delivered", y: pipelineData.DELIVERED, color: "#7DE281" },
-          { name: "Delayed", y: pipelineData.DELAYED, color: "#808080" },
-          { name: "Reject", y: pipelineData.REJECT, color: "#E53935" },
-        ],
-      },
-    ],
-  };
 
   // Line Chart Configuration with dynamic categories
   const lineChartOptions = {
@@ -331,6 +355,47 @@ const CoordinatorDashboard = () => {
     </div>
   );
 
+  const fetchQuickLinks = async () => {
+    try {
+      const res = await authAxios().get("/dashboard/quick/report");
+
+      let data = res.data?.data || [];
+      setQuickLinks(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch quick links");
+    }
+  };
+
+  const fetchStudentFeedback = async () => {
+    try {
+      const res = await authAxios().get("/dashboard/student/feedback");
+
+      const data = res.data?.data || {}; // default to object
+      setStudentFeedback(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch student feedback");
+    }
+  };
+  const fetchStaffFeedback = async () => {
+    try {
+      const res = await authAxios().get("/dashboard/employee/feedback");
+
+      const data = res.data?.data || {}; // default to object
+      setStaffFeedback(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch staff feedback");
+    }
+  };
+
+  useEffect(() => {
+    fetchQuickLinks();
+    fetchStudentFeedback();
+    fetchStaffFeedback();
+  }, []);
+
   const handleViewClick = (milestone) => {
     setSelectedMilestone(milestone.details);
     setIsModalOpen(true);
@@ -353,10 +418,38 @@ const CoordinatorDashboard = () => {
             Quick Reports
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 ">
-            <StatCard title="Schools Assigned" value="09" />
-            <StatCard title="Total Students" value="213" />
-            <StatCard title="Students Registered" value="850" />
-            <StatCard title="Verification Pending" value="234" />
+            <StatCard
+              title="Schools Assigned"
+              value={quickLinks?.schools_assigned_count}
+            />
+            <StatCard
+              title="Students Registered"
+              value={quickLinks?.student_registered_count}
+            />
+            <StatCard
+              title="Students Enrolled"
+              value={quickLinks?.student_enrolled_count}
+            />
+            <StatCard
+              title="Verification Pending"
+              value={quickLinks?.verification_pending_count}
+            />
+          </div>
+        </div>
+
+        <div className="custom--shodow bg-white lg:p-4 p-2 rounded-[10px] mb-3">
+          <h2 className="lg:text-xl text-lg font-bold text-black lg:mb-3 mb-2">
+            Feedback
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 ">
+            <RatingBar
+              title="Student Feedback"
+              rating={Number(studentFeedback?.student_rating_average) || 0}
+            />
+            <RatingBar
+              title="Employee Feedback"
+              rating={Number(staffFeedback?.employee_rating_average) || 0}
+            />
           </div>
         </div>
 
@@ -386,10 +479,21 @@ const CoordinatorDashboard = () => {
                     </span>
                     <DatePicker
                       selected={pipelineCustomFrom}
-                      onChange={setPipelineCustomFrom}
-                      dateFormat="yyyy-MM-dd"
+                      onChange={(date) => {
+                        setPipelineCustomFrom(date);
+                        // If end date is before new start date, clear or adjust it
+                        if (
+                          pipelineCustomTo &&
+                          date &&
+                          pipelineCustomTo < date
+                        ) {
+                          setPipelineCustomTo(null);
+                        }
+                      }}
+                      dateFormat="dd-MM-yyyy"
                       className="input--icon"
                       placeholderText="From Date"
+                      maxDate={new Date()}
                     />
                   </div>
                 </div>
@@ -401,15 +505,17 @@ const CoordinatorDashboard = () => {
                     <DatePicker
                       selected={pipelineCustomTo}
                       onChange={setPipelineCustomTo}
-                      dateFormat="yyyy-MM-dd"
+                      dateFormat="dd-MM-yyyy"
                       className="input--icon"
                       placeholderText="To Date"
+                      minDate={pipelineCustomFrom || null} // cannot select before start
+                      maxDate={new Date()} // cannot select future
+                      disabled={!pipelineCustomFrom} // disable until start date chosen
                     />
                   </div>
                 </div>
               </div>
             )}
-
             <HighchartsReact
               highcharts={Highcharts}
               options={pieChartOptions}

@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { customStyles } from "../Helper/helper";
 import Select from "react-select";
 import { MdImage } from "react-icons/md";
+import { useSelector } from "react-redux";
 
 // Validation schema using Yup
 const validationSchema = Yup.object().shape({
@@ -42,6 +43,7 @@ const StopOption = [
 ];
 
 const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
+  const { userType } = useSelector((state) => state.auth);
   const initialValues = {
     Award_name_en: "Jackpot (1-Year Supply of Dettol Soaps)",
     award_name_hi: "कचरा प्रबंधन पर स्वच्छता संदेश वाला पोस्टर बनाएं",
@@ -340,6 +342,7 @@ const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
                   )}
                 </div>
               </div>
+              {userType === "ADMIN" && (
               <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
                 <button
                   type="button"
@@ -355,6 +358,7 @@ const EditSpinAwardsModal = ({ school, onClose, onSave }) => {
                   Save
                 </button>
               </div>
+              )}
             </form>
           </div>
         </div>

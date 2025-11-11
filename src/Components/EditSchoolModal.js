@@ -2,8 +2,10 @@ import React, { useEffect } from "react";
 import { IoMdClose } from "react-icons/io";
 import { toast } from "react-toastify";
 import { authAxios } from "../Config/config";
+import { useSelector } from "react-redux";
 
 const EditSchoolModal = ({ setShowModal, editingOption, formik }) => {
+  const { userType } = useSelector((state) => state.auth);
   useEffect(() => {
     if (!editingOption) return;
 
@@ -201,24 +203,27 @@ const EditSchoolModal = ({ setShowModal, editingOption, formik }) => {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    formik.resetForm();
-                    setShowModal(false);
-                  }}
-                  className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
-                >
-                  Save
-                </button>
-              </div>
+
+              {userType === "ADMIN" && (
+                <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      formik.resetForm();
+                      setShowModal(false);
+                    }}
+                    className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
+                  >
+                    Save
+                  </button>
+                </div>
+              )}
             </form>
           </div>
         </div>

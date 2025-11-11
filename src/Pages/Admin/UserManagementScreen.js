@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import editIcon from "../../Assests/Images/icons/edit.svg";
+import editIcon from "../../Assests/Images/icons/edit-old.svg";
 import deleteIcon from "../../Assests/Images/icons/delete.svg";
 import EditUserManagementModal from "../../Components/EditUserManagementModal";
 import { formatRole } from "../../Helper/helper";
@@ -111,11 +111,11 @@ const UserManagementScreen = () => {
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[100px]">User Name</th>
-                    <th className="px-3 py-3 min-w-[120px]">Mobile Number</th>
+                    <th className="px-3 py-3 min-w-[130px]">User Name</th>
+                    <th className="px-3 py-3 min-w-[150px]">Mobile Number</th>
                     <th className="px-3 py-3 min-w-[120px]">Role</th>
                     <th className="px-3 py-3 min-w-[120px]">Reports To</th>
-                    <th className="px-3 py-3 min-w-[120px]">Action</th>
+                    <th className="px-3 py-3">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -133,44 +133,34 @@ const UserManagementScreen = () => {
                         <td className="px-3 py-3">{item.role}</td>
                         <td className="px-3 py-3">{item.report_to}</td>
                         <td className="px-3 py-3">
-                          <div className="flex gap-2">
+                          <div className="flex gap-0">
                             <Tooltip
                               id={`tooltip-edit-${item.id}`}
                               content="Edit User"
                               place="left"
                             >
-                              <div
-                                className="cursor-pointer w-5"
+                              <button
+                                className={`w-11 h-9 flex items-center justify-center rounded-l-[5px] border `}
                                 onClick={() => {
                                   setEditingOption(item?.id);
                                   setShowModal(true);
                                 }}
                               >
-                                <img
-                                  src={editIcon}
-                                  alt="view"
-                                  className="w-full"
-                                />
-                              </div>
+                                <img src={editIcon} className={`w-4 `} />
+                              </button>
                             </Tooltip>
-
                             <Tooltip
                               id={`tooltip-edit-${item.id}`}
                               content="Delete User"
                               place="left"
                             >
-                              <div
-                                className="cursor-pointer w-5"
+                              <button
+                                className={`w-11 h-9 flex items-center justify-center rounded-r-[5px] border `}
                                 onClick={() => handleDelete(item.id)}
                               >
-                                <img
-                                  src={deleteIcon}
-                                  alt="view"
-                                  className="w-full"
-                                />
-                              </div>
+                                <img src={deleteIcon} className={`w-4`} />
+                              </button>
                             </Tooltip>
-                            {/* Delete Icon */}
                           </div>
                         </td>
                       </tr>

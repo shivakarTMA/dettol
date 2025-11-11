@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import editIcon from "../../Assests/Images/icons/edit.svg";
+import viewIcon from "../../Assests/Images/icons/viewbox.svg";
 import Pagination from "../../Components/Common/Pagination";
 import { FaPlus } from "react-icons/fa";
 import EditSpinAwardsModal from "../../Components/EditSpinAwardsModal";
 import Tooltip from "../../Components/Common/Tooltip";
+import { useSelector } from "react-redux";
 
 const taskList = [
   {
@@ -81,6 +83,7 @@ const taskList = [
 ];
 
 const SpinAwardsScreen = () => {
+  const { userType } = useSelector((state) => state.auth);
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
@@ -140,18 +143,18 @@ const SpinAwardsScreen = () => {
                       <td className="px-3 py-3">
                         <Tooltip
                           id={`tooltip-edit-${item.id}`}
-                          content="Edit Spin Reward"
+                          content={`${userType === "ADMIN" ? "Edit Spin Reward" : "View Spin Reward"}`}
                           place="left"
                         >
                           <div
-                            className="cursor-pointer w-5"
+                            className="cursor-pointer w-8"
                             // onClick={() => {
                             //   setEditingOption(item?.id);
                             //   setShowModal(true);
                             // }}
                             onClick={() => handleEdit(item)}
                           >
-                            <img src={editIcon} alt="view" className="w-full" />
+                            <img src={userType === "ADMIN" ? editIcon : viewIcon} alt="view" className="w-full" />
                           </div>
                         </Tooltip>
                       </td>

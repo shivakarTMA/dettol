@@ -1,120 +1,161 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import editIcon from "../../Assests/Images/icons/edit.svg";
+import viewIcon from "../../Assests/Images/icons/viewbox.svg";
 import EditLearnModuleModal from "../../Components/EditLearnModuleModal";
 import { MdImage } from "react-icons/md";
 import { FaFilePdf } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Tooltip from "../../Components/Common/Tooltip";
+import { authAxios } from "../../Config/config";
+import { toast } from "react-toastify";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { PiMedalMilitary } from "react-icons/pi";
+import { useSelector } from "react-redux";
+
+const validationSchema = Yup.object({
+  title_en: Yup.string().required("File Name (English) is required"),
+  title_hi: Yup.string().required("File Name (Hindi) is required"),
+  file_en: Yup.string().required("File (English) is required"),
+  file_hi: Yup.string().required("File (Hindi) is required"),
+  position: Yup.number()
+    .typeError("Position must be a number")
+    .required("Position is required")
+    .min(1, "Position must be greater than 0"),
+});
 
 const LearnModuleListScreen = () => {
-  const [learnModule, setLearnModule] = useState([
-    {
-      File_Id: "PDF001",
-      file_name_En: "Coping with Exam Stress",
-      file_name_hi: "परीक्षा के तनाव से कैसे निपटें",
-      File_en_url:
-        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-      File_hi_url:
-        "https://img.freepik.com/free-photo/front-view-stacked-books-graduation-cap-ladders-education-day_23-2149241014.jpg",
-    },
-    {
-      File_Id: "PDF002",
-      file_name_En: "How to Handle Exam Days?",
-      file_name_hi: "परीक्षा के दिनों में क्या करें",
-      File_en_url:
-        "https://img.freepik.com/free-photo/front-view-stacked-books-graduation-cap-ladders-education-day_23-2149241014.jpg",
-      File_hi_url: "https://www.africau.edu/images/default/sample.pdf",
-    },
-    {
-      File_Id: "PDF003",
-      file_name_En: "Stress Management Exercise – Box Breathing",
-      file_name_hi: "तनाव कम करने की कसरत – बॉक्स ब्रीदिंग",
-      File_en_url: "https://www.africau.edu/images/default/sample.pdf",
-      File_hi_url:
-        "https://img.freepik.com/free-photo/front-view-stacked-books-graduation-cap-ladders-education-day_23-2149241014.jpg",
-    },
-    {
-      File_Id: "PDF004",
-      file_name_En: "Smart Food for Exam Success!",
-      file_name_hi: "परीक्षा में सफलता के लिए अच्छा खाना",
-      File_en_url:
-        "https://img.freepik.com/free-photo/front-view-stacked-books-graduation-cap-ladders-education-day_23-2149241014.jpg",
-      File_hi_url:
-        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-    },
-    {
-      File_Id: "PDF005",
-      file_name_En: "Stress Management Exercise – The Mindful Breathing",
-      file_name_hi: "तनाव कम करने की कसरत – माइंडफुल ब्रीदिंग",
-      File_en_url:
-        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-      File_hi_url:
-        "https://img.freepik.com/free-photo/front-view-stacked-books-graduation-cap-ladders-education-day_23-2149241014.jpg",
-    },
-    {
-      File_Id: "PDF006",
-      file_name_En: "Find Your Best Way to Learn!",
-      file_name_hi: "सीखने का अपना तरीका खोजो",
-      File_en_url:
-        "https://img.freepik.com/free-photo/front-view-stacked-books-graduation-cap-ladders-education-day_23-2149241014.jpg",
-      File_hi_url: "https://www.africau.edu/images/default/sample.pdf",
-    },
-    {
-      File_Id: "PDF007",
-      file_name_En: "What is Exam Stress?",
-      file_name_hi: "परीक्षा का तनाव क्या है",
-      File_en_url:
-        "https://img.freepik.com/free-photo/front-view-stacked-books-graduation-cap-ladders-education-day_23-2149241014.jpg",
-      File_hi_url: "https://www.africau.edu/images/default/sample.pdf",
-    },
-  ]);
+  const { userType } = useSelector((state) => state.auth);
+  const [showModal, setShowModal] = useState(false);
+  const [editingOption, setEditingOption] = useState(null);
+  const [learnModule, setLearnModule] = useState([]);
 
-  // Edit & Delete states
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const fetchLearnModuleList = async () => {
+    try {
+      const res = await authAxios().get("/exam/stress/management/list");
 
-  // Open edit modal
-  const handleEdit = (school) => {
-    setSelectedCategory(school);
-    setEditModalOpen(true);
+      let data = res.data?.data || [];
+      setLearnModule(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch reward");
+    }
   };
+
+  useEffect(() => {
+    fetchLearnModuleList();
+  }, []);
+
+  const formik = useFormik({
+    initialValues: {
+      title_en: "",
+      file_en: "",
+      title_hi: "",
+      file_hi: "",
+      position: "",
+      status: "ACTIVE",
+    },
+    validationSchema,
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        const formData = new FormData();
+
+        formData.append("title_en", values.title_en);
+        formData.append("title_hi", values.title_hi);
+        formData.append("position", values.position);
+        formData.append("status", values.status);
+
+        if (values.file_en instanceof File) {
+          formData.append("file_en", values.file_en);
+        }
+
+        if (values.file_hi instanceof File) {
+          formData.append("file_hi", values.file_hi);
+        }
+
+        if (editingOption) {
+          await authAxios().put(
+            `/exam/stress/management/${editingOption}`,
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+          toast.success("Updated Successfully");
+        } else {
+          await authAxios().post(`/exam/stress/management/create`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          toast.success("Created Successfully");
+        }
+
+        fetchLearnModuleList();
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to save exam");
+      }
+
+      resetForm();
+      setEditingOption(null);
+      setShowModal(false);
+    },
+  });
 
   return (
     <div>
       <div className="">
+        <div className="mb-3 flex">
+          <button
+            className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
+            onClick={() => {
+              setEditingOption(null);
+              formik.resetForm();
+              setShowModal(true);
+            }}
+          >
+            <PiMedalMilitary className="text-xl" />
+            <span>Create Learn Module</span>
+          </button>
+        </div>
         <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
           <div className="rounded-[10px] overflow-hidden">
             <div className="relative overflow-x-auto ">
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[100px]">ID</th>
-                    <th className="px-3 py-3 min-w-[120px]">File English</th>
-                    <th className="px-3 py-3 min-w-[120px]">File HIndi</th>
-                    <th className="px-3 py-3 min-w-[120px] text-center">
-                      File English
+                    <th className="px-3 py-3 min-w-[170px]">
+                      File Name (English)
+                    </th>
+                    <th className="px-3 py-3 min-w-[170px]">
+                      File Name (HIndi)
                     </th>
                     <th className="px-3 py-3 min-w-[120px] text-center">
-                      File Hindi
+                      File (English)
                     </th>
-                    <th className="px-3 py-3 min-w-[120px]">Action</th>
+                    <th className="px-3 py-3 min-w-[120px] text-center">
+                      File (Hindi)
+                    </th>
+                    <th className="px-3 py-3 min-w-[50px]">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {learnModule.map((item, index) => (
                     <tr key={index} className="border-t">
-                      <td className="px-3 py-3">{item?.File_Id}</td>
-                      <td className="px-3 py-3">{item?.file_name_En}</td>
-                      <td className="px-3 py-3">{item?.file_name_hi}</td>
+                      <td className="px-3 py-3">
+                        {item?.title_en ? item?.title_en : "--"}
+                      </td>
+                      <td className="px-3 py-3">
+                        {item?.title_hi ? item?.title_hi : "--"}
+                      </td>
                       <td className="px-3 py-3 text-center">
-                        {item.File_en_url ? (
+                        {item.file_en ? (
                           <Link
-                            to={item?.File_en_url}
+                            to={item?.file_en}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-black underline"
                           >
-                            {item?.File_en_url.endsWith(".pdf") ? (
+                            {item?.file_en.endsWith(".pdf") ? (
                               <FaFilePdf className="text-xl mx-auto" />
                             ) : (
                               <MdImage className="text-xl mx-auto" />
@@ -125,14 +166,14 @@ const LearnModuleListScreen = () => {
                         )}
                       </td>
                       <td className="px-3 py-3 text-center">
-                        {item?.File_hi_url ? (
+                        {item?.file_hi ? (
                           <Link
-                            to={item?.File_hi_url}
+                            to={item?.file_hi}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-black underline"
                           >
-                            {item?.File_hi_url.endsWith(".pdf") ? (
+                            {item?.file_hi.endsWith(".pdf") ? (
                               <FaFilePdf className="text-xl mx-auto" />
                             ) : (
                               <MdImage className="text-xl mx-auto" />
@@ -146,19 +187,18 @@ const LearnModuleListScreen = () => {
                         <div className="flex gap-2">
                           <Tooltip
                             id={`tooltip-edit-${item.id}`}
-                            content="Edit Learn Module"
+                            content={`${userType === "ADMIN" ? "Edit Learn Module" : "View Learn Module"}`}
                             place="left"
                           >
                             <div
-                              className="cursor-pointer w-5"
-                              // onClick={() => {
-                              //   setEditingOption(item?.id);
-                              //   setShowModal(true);
-                              // }}
-                              onClick={() => handleEdit(item)}
+                              className="cursor-pointer w-8"
+                              onClick={() => {
+                                setEditingOption(item?.id);
+                                setShowModal(true);
+                              }}
                             >
                               <img
-                                src={editIcon}
+                                src={userType === "ADMIN" ? editIcon : viewIcon}
                                 alt="view"
                                 className="w-full"
                               />
@@ -175,11 +215,11 @@ const LearnModuleListScreen = () => {
         </div>
 
         {/* Edit Modal */}
-        {editModalOpen && (
+        {showModal && (
           <EditLearnModuleModal
-            school={selectedCategory}
-            setSchool={setSelectedCategory}
-            onClose={() => setEditModalOpen(false)}
+            setShowModal={setShowModal}
+            editingOption={editingOption}
+            formik={formik}
           />
         )}
       </div>

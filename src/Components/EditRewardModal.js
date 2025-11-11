@@ -3,8 +3,10 @@ import { IoMdClose } from "react-icons/io";
 import { authAxios } from "../Config/config";
 import { toast } from "react-toastify";
 import { MdImage } from "react-icons/md";
+import { useSelector } from "react-redux";
 
 const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
+  const { userType } = useSelector((state) => state.auth);
   useEffect(() => {
     if (!editingOption) return;
 
@@ -259,6 +261,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                   )}
                 </div>
               </div>
+              {userType === "ADMIN" && (
               <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
                 <button
                   type="button"
@@ -277,6 +280,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                   Save
                 </button>
               </div>
+              )}
             </form>
           </div>
         </div>

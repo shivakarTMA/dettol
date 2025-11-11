@@ -32,6 +32,8 @@ export default function PrivateLayout({ children }) {
     "/cordinator-performance": "Co-ordinator Performance",
     "/tickets": "Tickets",
     "/tickets-list": "My Tickets",
+    "/inventory": "Inventory Management",
+    "/school-mapping": "School Mapping",
   };
 
   const pageTitle = pageTitles[location.pathname] || "Page";

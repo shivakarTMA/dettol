@@ -4,28 +4,26 @@ import { authAxios } from "../Config/config";
 import { toast } from "react-toastify";
 import { customStyles } from "../Helper/helper";
 import Select from "react-select";
-import { useSelector } from "react-redux";
 
 const statusOption = [
   { value: "ACTIVE", label: "Active" },
   { value: "INACTIVE", label: "Inactive" },
 ];
 
-const EditCategoryModal = ({ setShowModal, editingOption, formik }) => {
-  const { userType } = useSelector((state) => state.auth);
+const EditInventoryModal = ({ setShowModal, editingOption, formik }) => {
   useEffect(() => {
     if (!editingOption) return;
 
     const fetchStaffById = async (id) => {
       try {
-        const res = await authAxios().get(`/category/${id}`);
+        const res = await authAxios().get(`/inventory/${id}`);
         const data = res.data?.data || res.data || null;
 
         if (data) {
           formik.setValues({
-            name_en: data.name_en || "",
-            name_hi: data.name_hi || "",
-            position: data.position || "",
+            product_name: data.product_name || "",
+            total: data.total || "",
+            allotted: data.allotted || "",
             status: data.status || "ACTIVE",
           });
         }
@@ -52,7 +50,7 @@ const EditCategoryModal = ({ setShowModal, editingOption, formik }) => {
           <div className="w-full bg-white rounded-[20px]">
             <div className="flex gap-2 items-center justify-between lg:py-3 py-2 lg:px-5 px-3 border-b border-b-[#D4D4D4]">
               <h3 className="text-lg font-semibold">
-                {editingOption ? "Edit Category" : "Create Category"}
+                {editingOption ? "Edit Inventory" : "Create Inventory"}
               </h3>
               {/* Close button */}
               <button
@@ -71,55 +69,55 @@ const EditCategoryModal = ({ setShowModal, editingOption, formik }) => {
               <div className="grid lg:grid-cols-1 grid-cols-1 gap-x-3 lg:gap-y-5 gap-y-4 lg:pb-5 pb-2 lg:pt-5 pt-2 lg:px-5 px-3">
                 <div>
                   <label className="mb-2 block font-[500]">
-                    Name (English)<span className="text-red-500">*</span>
+                    Product Name<span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    name="name_en"
-                    value={formik.values.name_en || ""}
+                    name="product_name"
+                    value={formik.values.product_name || ""}
                     onChange={formik.handleChange}
-                    placeholder="Category Name (English)"
+                    placeholder="Product Name"
                     className="custom--input w-full"
                   />
-                  {formik.touched.name_en && formik.errors.name_en && (
+                  {formik.touched.product_name && formik.errors.product_name && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.name_en}
+                      {formik.errors.product_name}
                     </div>
                   )}
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
-                    Name (Hindi)<span className="text-red-500">*</span>
+                    Total Stock<span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="text"
-                    name="name_hi"
-                    value={formik.values.name_hi || ""}
+                    type="number"
+                    name="total"
+                    value={formik.values.total || ""}
                     onChange={formik.handleChange}
-                    placeholder="Category Name (Hindi)"
+                    placeholder="Total Stock"
                     className="custom--input w-full"
                   />
-                  {formik.touched.name_hi && formik.errors.name_hi && (
+                  {formik.touched.total && formik.errors.total && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.name_hi}
+                      {formik.errors.total}
                     </div>
                   )}
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
-                    Position<span className="text-red-500">*</span>
+                    Allotted Stock<span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="text"
-                    name="position"
-                    value={formik.values.position || ""}
+                    type="number"
+                    name="allotted"
+                    value={formik.values.allotted || ""}
                     onChange={formik.handleChange}
-                    placeholder="Position"
+                    placeholder="Allotted Stock"
                     className="custom--input w-full"
                   />
-                  {formik.touched.position && formik.errors.position && (
+                  {formik.touched.allotted && formik.errors.allotted && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.position}
+                      {formik.errors.allotted}
                     </div>
                   )}
                 </div>
@@ -144,26 +142,24 @@ const EditCategoryModal = ({ setShowModal, editingOption, formik }) => {
                   </div>
                 )}
               </div>
-              {userType === "ADMIN" && (
-                <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      formik.resetForm();
-                      setShowModal(false);
-                    }}
-                    className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
-                  >
-                    Save
-                  </button>
-                </div>
-              )}
+              <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    formik.resetForm();
+                    setShowModal(false);
+                  }}
+                  className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
+                >
+                  Save
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -172,4 +168,4 @@ const EditCategoryModal = ({ setShowModal, editingOption, formik }) => {
   );
 };
 
-export default EditCategoryModal;
+export default EditInventoryModal;

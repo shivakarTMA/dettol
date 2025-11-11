@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import Logo from "../../Assests/Images/logo.png";
 import dashboardIcon from "../../Assests/Images/icons/dashboard.svg";
 import schoolIcon from "../../Assests/Images/sidebar/schoolmanagement.svg";
+import schoolmapIcon from "../../Assests/Images/sidebar/school.svg";
 import studentIcon from "../../Assests/Images/sidebar/studentmanagement.svg";
 import CategoryIcon from "../../Assests/Images/sidebar/taskcategory.svg";
 import tasksIcon from "../../Assests/Images/sidebar/tasks.svg";
@@ -14,6 +15,7 @@ import feedbackIcon from "../../Assests/Images/sidebar/feedback.svg";
 import reportsIcon from "../../Assests/Images/sidebar/reports.svg";
 import userIcon from "../../Assests/Images/sidebar/usermanagement.svg";
 import ticketIcon from "../../Assests/Images/sidebar/ticket.svg";
+import inventoryIcon from "../../Assests/Images/sidebar/inventory.svg";
 import { useSelector } from "react-redux";
 import { FaAngleDown, FaCircle } from "react-icons/fa";
 
@@ -191,6 +193,19 @@ const toggleMenu = (menuKey) => {
               />
               <span className="nav-text">Telemedicine</span>
             </Link>
+            <Link
+              to="/school-mapping"
+              className={`nav-link mb-2 ${
+                location.pathname === "/school-mapping" ? "active" : ""
+              }`}
+            >
+              <img
+                src={schoolmapIcon}
+                alt="schoolmapIcon"
+                className="menu--icon"
+              />
+              <span className="nav-text">School Mapping</span>
+            </Link>
 
             <div
               className="nav-link d-flex justify-between align-items-center mb-2 dropdown--menu"
@@ -285,6 +300,19 @@ const toggleMenu = (menuKey) => {
                 </Link>
               </div>
             )}
+            <Link
+              to="/inventory"
+              className={`nav-link mb-2 ${
+                location.pathname === "/inventory" ? "active" : ""
+              }`}
+            >
+              <img
+                src={inventoryIcon}
+                alt="inventoryIcon"
+                className="menu--icon"
+              />
+              <span className="nav-text">Inventory Management</span>
+            </Link>
             <Link
               to="/user-management"
               className={`nav-link mb-2 ${

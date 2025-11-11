@@ -4,6 +4,7 @@ import { customStyles } from "../Helper/helper";
 import Select from "react-select";
 import { authAxios } from "../Config/config";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 const statusOption = [
   { value: "ACTIVE", label: "Active" },
@@ -11,6 +12,7 @@ const statusOption = [
 ];
 
 const EditTaskModal = ({ setShowModal, editingOption, formik }) => {
+  const { userType } = useSelector((state) => state.auth);
   const [categoryList, setCategoryList] = useState([]);
 
   const fetchCategoryList = async () => {
@@ -64,27 +66,27 @@ const EditTaskModal = ({ setShowModal, editingOption, formik }) => {
     fetchStaffById(editingOption);
   }, [editingOption]);
 
-const handleInstructionChange = (field, index, value) => {
-  const updatedArray = [...formik.values[field]];
-  updatedArray[index] = value;
-  formik.setFieldValue(field, updatedArray);
+  const handleInstructionChange = (field, index, value) => {
+    const updatedArray = [...formik.values[field]];
+    updatedArray[index] = value;
+    formik.setFieldValue(field, updatedArray);
 
-  // Mark that field as touched when typing
-  formik.setFieldTouched(`${field}[${index}]`, true);
-};
+    // Mark that field as touched when typing
+    formik.setFieldTouched(`${field}[${index}]`, true);
+  };
 
-const addInstruction = (field) => {
-  const updatedArray = [...(formik.values[field] || []), ""]; // add empty string
-  formik.setFieldValue(field, updatedArray);
+  const addInstruction = (field) => {
+    const updatedArray = [...(formik.values[field] || []), ""]; // add empty string
+    formik.setFieldValue(field, updatedArray);
 
-  // mark the new index as touched to trigger validation UI
-  formik.setFieldTouched(`${field}[${updatedArray.length - 1}]`, true);
-};
+    // mark the new index as touched to trigger validation UI
+    formik.setFieldTouched(`${field}[${updatedArray.length - 1}]`, true);
+  };
 
-const removeInstruction = (field, index) => {
-  const updatedArray = formik.values[field].filter((_, i) => i !== index);
-  formik.setFieldValue(field, updatedArray);
-};
+  const removeInstruction = (field, index) => {
+    const updatedArray = formik.values[field].filter((_, i) => i !== index);
+    formik.setFieldValue(field, updatedArray);
+  };
 
   return (
     <>
@@ -210,34 +212,36 @@ const removeInstruction = (field, index) => {
                   {(formik.values.instructions_en || []).map(
                     (instruction, index) => (
                       <>
-                      <div key={index} className="flex mb-2">
-                        <input
-                          type="text"
-                          value={instruction}
-                          onChange={(e) =>
-                            handleInstructionChange(
-                              "instructions_en",
-                              index,
-                              e.target.value
-                            )
-                          }
-                          className="custom--input w-full !rounded-r-[0px]"
-                          placeholder={`Instruction ${index + 1}`}
-                        />
-                        <button
-                          type="button"
-                          className="bg-red-500 font-bold rounded-r-[5px] px-3 text-white"
-                          onClick={() =>
-                            removeInstruction("instructions_en", index)
-                          }
-                        >
-                          ✕
-                        </button>
-                      </div>
-                      {formik.touched.instructions_en?.[index] &&
-                      formik.errors.instructions_en?.[index] && (
-                        <p className="text-red-500 text-sm mb-3">{formik.errors.instructions_en[index]}</p>
-                      )}
+                        <div key={index} className="flex mb-2">
+                          <input
+                            type="text"
+                            value={instruction}
+                            onChange={(e) =>
+                              handleInstructionChange(
+                                "instructions_en",
+                                index,
+                                e.target.value
+                              )
+                            }
+                            className="custom--input w-full !rounded-r-[0px]"
+                            placeholder={`Instruction ${index + 1}`}
+                          />
+                          <button
+                            type="button"
+                            className="bg-red-500 font-bold rounded-r-[5px] px-3 text-white"
+                            onClick={() =>
+                              removeInstruction("instructions_en", index)
+                            }
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        {formik.touched.instructions_en?.[index] &&
+                          formik.errors.instructions_en?.[index] && (
+                            <p className="text-red-500 text-sm mb-3">
+                              {formik.errors.instructions_en[index]}
+                            </p>
+                          )}
                       </>
                     )
                   )}
@@ -258,34 +262,36 @@ const removeInstruction = (field, index) => {
                   {(formik.values.instructions_hi || []).map(
                     (instruction, index) => (
                       <>
-                      <div key={index} className="flex mb-2">
-                        <input
-                          type="text"
-                          value={instruction}
-                          onChange={(e) =>
-                            handleInstructionChange(
-                              "instructions_hi",
-                              index,
-                              e.target.value
-                            )
-                          }
-                          className="custom--input w-full !rounded-r-[0px]"
-                          placeholder={`निर्देश ${index + 1}`}
-                        />
-                        <button
-                          type="button"
-                          className="bg-red-500 font-bold rounded-r-[5px] px-3 text-white"
-                          onClick={() =>
-                            removeInstruction("instructions_hi", index)
-                          }
-                        >
-                          ✕
-                        </button>
-                      </div>
-                      {formik.touched.instructions_hi?.[index] &&
-                      formik.errors.instructions_hi?.[index] && (
-                        <p className="text-red-500 text-sm mb-3">{formik.errors.instructions_hi[index]}</p>
-                      )}
+                        <div key={index} className="flex mb-2">
+                          <input
+                            type="text"
+                            value={instruction}
+                            onChange={(e) =>
+                              handleInstructionChange(
+                                "instructions_hi",
+                                index,
+                                e.target.value
+                              )
+                            }
+                            className="custom--input w-full !rounded-r-[0px]"
+                            placeholder={`निर्देश ${index + 1}`}
+                          />
+                          <button
+                            type="button"
+                            className="bg-red-500 font-bold rounded-r-[5px] px-3 text-white"
+                            onClick={() =>
+                              removeInstruction("instructions_hi", index)
+                            }
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        {formik.touched.instructions_hi?.[index] &&
+                          formik.errors.instructions_hi?.[index] && (
+                            <p className="text-red-500 text-sm mb-3">
+                              {formik.errors.instructions_hi[index]}
+                            </p>
+                          )}
                       </>
                     )
                   )}
@@ -336,25 +342,26 @@ const removeInstruction = (field, index) => {
                   </div>
                 )}
               </div>
-
-              <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    formik.resetForm();
-                    setShowModal(false);
-                  }}
-                  className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
-                >
-                  Save
-                </button>
-              </div>
+              {userType === "ADMIN" && (
+                <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      formik.resetForm();
+                      setShowModal(false);
+                    }}
+                    className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
+                  >
+                    Save
+                  </button>
+                </div>
+              )}
             </form>
           </div>
         </div>
