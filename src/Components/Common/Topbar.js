@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import logoutIcon from "../../Assests/Images/icons/logout.svg";
+import guideIcon from "../../Assests/Images/icons/guide.svg";
 import ToggleMenu from "../../Assests/Images/icons/togglemenu.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../Redux/Reducers/authSlice";
+import Tooltip from "./Tooltip";
+import InstractionGuide from "../InstractionGuide";
 
 const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
-  const { user } = useSelector((state) => state.auth);
+  const { user, userType } = useSelector((state) => state.auth);
+  const [showPdf, setShowPdf] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -18,8 +22,9 @@ const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
     dispatch(logout());
     navigate("/login");
   };
-
-
+  const handleGuideClick = () => {
+    setShowPdf(true);
+  };
   return (
     <>
       <section className="top--bar p-3 border-b border-b-[#D4D4D4]">
@@ -36,7 +41,24 @@ const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
           <div className="top--bar--menu flex items-center gap-3">
             <div className="flex gap-2 items-center">
               <p className="text-sm md:block hidden">{user?.name}</p>
-              <div className="flex bg-[var(--primarycolor)] rounded-full items-center justify-center cursor-pointer gap-2 py-2 px-4" onClick={handleLogout}>
+              {userType === "COORDINATOR" && (
+                <Tooltip
+                  id={`tooltip-guide`}
+                  content={`Instruction Manual`}
+                  place="left"
+                >
+                  <div
+                    className="flex bg-[#EAEAEA] rounded-full items-center justify-center cursor-pointer w-10 h-10"
+                    onClick={handleGuideClick}
+                  >
+                    <img src={guideIcon} className="w-4" />
+                  </div>
+                </Tooltip>
+              )}
+              <div
+                className="flex bg-[var(--primarycolor)] rounded-full items-center justify-center cursor-pointer gap-2 py-2 px-4"
+                onClick={handleLogout}
+              >
                 <img src={logoutIcon} className="brightness-0 invert-[1]" />
                 <span className="text-white text-sm">Logout</span>
               </div>
@@ -44,6 +66,12 @@ const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
           </div>
         </div>
       </section>
+
+      <InstractionGuide
+        show={showPdf}
+        onClose={() => setShowPdf(false)}
+        pdfUrl="/sample.pdf"
+      />
     </>
   );
 };

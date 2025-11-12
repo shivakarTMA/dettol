@@ -1,269 +1,195 @@
 import React, { useEffect, useState } from "react";
-import searchIcon from "../../Assests/Images/icons/search.svg";
+import viewIcon from "../../Assests/Images/icons/viewbox.svg";
 import replyIcon from "../../Assests/Images/icons/la_reply.svg";
-import Pagination from "../../Components/Common/Pagination";
 import ReplyTicketModal from "../../Components/ReplyTicketModal";
-import { authAxios } from "../../Config/config";
-import { toast } from "react-toastify";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import Tooltip from "../../Components/Common/Tooltip";
-import { PiStudentLight } from "react-icons/pi";
-import { IoTicketOutline } from "react-icons/io5";
 import RaiseTicketModal from "../../Components/RaiseTicketModal";
-
-const validationSchema = Yup.object().shape({
-  name_en: Yup.string().required("Name English is required"),
-  name_hi: Yup.string().required("Name Hindi is required"),
-  address_en: Yup.string().required("Address English is required"),
-  address_hi: Yup.string().required("Address Hindi is required"),
-  city_en: Yup.string().required("City English is required"),
-  city_hi: Yup.string().required("City Hindi is required"),
-  pincode: Yup.number().required("Pincode is required"),
-});
-
-const ticketData = [
-  {
-    ticketId: "#TC-001",
-    subject: "Issue related to address",
-    requestDate: "06 Nov, 2025, 11:34 am",
-    raisedBy: "Avinash Malhotra",
-    status: "New",
-  },
-  {
-    ticketId: "#TC-002",
-    subject: "Need senior support",
-    requestDate: "05 Nov, 2025, 10:52 am",
-    raisedBy: "Suman Jain",
-    status: "Resolved",
-  },
-  {
-    ticketId: "#TC-003",
-    subject: "No reward stock",
-    requestDate: "04 Nov, 2025, 09:02 am",
-    raisedBy: "Sharmila Tagore",
-    status: "Closed",
-  },
-  {
-    ticketId: "#TC-004",
-    subject: "Others",
-    requestDate: "03 Nov, 2025, 04:05 pm",
-    raisedBy: "Rohan Bansal",
-    status: "In Progress",
-  },
-];
+import { toast } from "react-toastify";
+import { IoTicketOutline } from "react-icons/io5";
+import Tooltip from "../../Components/Common/Tooltip";
+import { authAxios } from "../../Config/config";
+import { formatStatus, formatWithTimeDate } from "../../Helper/helper";
 
 const TicketsCodinatorScreen = () => {
-  const [tickets, setTickets] = useState(ticketData);
+  const [tickets, setTickets] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [raiseTicketModal, setRaiseTicketModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [editingOption, setEditingOption] = useState(null);
-  const [page, setPage] = useState(1);
-  const [rowsPerPage] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
 
-  const fetchSchoolList = async (search = searchTerm, currentPage = page) => {
+  // Local states for ticket creation (no Formik)
+  const [newTicket, setNewTicket] = useState({
+    subject: "",
+    message: "",
+  });
+
+  // Fetch all tickets
+  const fetchTicketList = async () => {
     try {
-      const res = await authAxios().get("/school/fetch/all", {
-        params: {
-          page: currentPage,
-          limit: rowsPerPage,
-          ...(search ? { search } : {}),
-        },
-      });
-
-      let data = res.data?.data || [];
-      // setTickets(data);
-      setPage(res.data?.currentPage || 1);
-      setTotalPages(res.data?.totalPage || 1);
-      setTotalCount(res.data?.totalCount || data.length);
+      const res = await authAxios().get("/ticket/list");
+      setTickets(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch school");
+      toast.error("Failed to fetch tickets");
     }
   };
 
   useEffect(() => {
-    fetchSchoolList();
+    fetchTicketList();
   }, []);
 
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      setPage(1);
-      fetchSchoolList(searchTerm, 1);
-    }, 300);
+  // ✅ Create ticket API
+  const handleCreateTicket = async () => {
+    if (!newTicket.subject.trim() || !newTicket.message.trim()) {
+      toast.error("Please fill in both fields");
+      return;
+    }
 
-    return () => clearTimeout(delayDebounce);
-  }, [searchTerm]);
+    try {
+      const res = await authAxios().post("/ticket/create", {
+        subject: newTicket.subject,
+        message: newTicket.message,
+      });
 
-  const formik = useFormik({
-    initialValues: {
-      name_en: "",
-      address_en: "",
-      district_en: "",
-      city_en: "",
-      name_hi: "",
-      address_hi: "",
-      district_hi: "",
-      city_hi: "",
-      pincode: "",
-    },
-    // validationSchema,
-    onSubmit: async (values, { resetForm }) => {
-      console.log(values, "values");
-      // try {
-      //   const payload = { ...values };
+      toast.success("Ticket created successfully!");
+      setNewTicket({ subject: "", message: "" });
+      setRaiseTicketModal(false);
+      fetchTicketList();
+      console.log("Ticket Created:", res.data);
+    } catch (err) {
+      console.error("Error creating ticket:", err);
+      toast.error("Failed to create ticket");
+    }
+  };
 
-      //   if (editingOption) {
-      //     // Update
-      //     await authAxios().put(`/school/update/${editingOption}`, payload);
-      //     toast.success("Updated Successfully");
-      //   } else {
-      //     // Create
-      //     await authAxios().post("/school/create", payload);
-      //     toast.success("Created Successfully");
-      //   }
+  // Update ticket status to resolved (local change)
+  const handleMarkResolved = async (ticketId) => {
+    try {
+      // ✅ Call API to mark ticket as resolved
+      const res = await authAxios().put(`/ticket/resolved/${ticketId}`);
 
-      //   // 🔄 Re-fetch after save
-      //   fetchSchoolList();
-      // } catch (err) {
-      //   console.error(err);
-      //   toast.error("Failed to save user");
-      // }
+      // ✅ Update UI instantly
+      setTickets((prevTickets) =>
+        prevTickets.map((ticket) =>
+          ticket.id === ticketId ? { ...ticket, status: "RESOLVED" } : ticket
+        )
+      );
 
-      resetForm();
-      setEditingOption(null);
       setShowModal(false);
-    },
-  });
+      toast.success("Ticket marked as resolved successfully!");
+      console.log("✅ Ticket resolved response:", res.data);
+    } catch (err) {
+      console.error("❌ Failed to mark ticket resolved:", err);
+      toast.error("Failed to mark ticket as resolved.");
+    }
+  };
 
   return (
     <div>
-      <div className="">
-        <div className="flex gap-2 items-center mb-3">
-          <button
-            className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
-            onClick={() => {
-              setRaiseTicketModal(true);
-            }}
-          >
-            <IoTicketOutline className="text-xl" />
-            <span>Raise a ticket</span>
-          </button>
-        </div>
-        <div className="bg-white custom--shodow rounded-[10px] p-3">
-          <div className="rounded-[10px] overflow-hidden">
-            <div className="relative overflow-x-auto ">
-              <table className="min-w-full text-sm text-left">
-                <thead className="bg-[#F1F1F1]">
+      <div className="flex gap-2 items-center mb-3">
+        <button
+          className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
+          onClick={() => setRaiseTicketModal(true)}
+        >
+          <IoTicketOutline className="text-xl" />
+          <span>Raise a ticket</span>
+        </button>
+      </div>
+
+      <div className="bg-white custom--shodow rounded-[10px] p-3">
+        <div className="rounded-[10px] overflow-hidden">
+          <div className="relative overflow-x-auto">
+            <table className="min-w-full text-sm text-left">
+              <thead className="bg-[#F1F1F1]">
+                <tr>
+                  <th className="px-3 py-3 min-w-[100px]">Ticket ID</th>
+                  <th className="px-3 py-3 min-w-[120px]">Subject</th>
+                  <th className="px-3 py-3 min-w-[120px]">Request Date</th>
+                  <th className="px-3 py-3 min-w-[120px] text-center">
+                    Status
+                  </th>
+                  <th className="px-3 py-3">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tickets.length === 0 ? (
                   <tr>
-                    <th className="px-3 py-3 min-w-[170px]">Ticket ID</th>
-                    <th className="px-3 py-3 min-w-[120px]">Subject</th>
-                    <th className="px-3 py-3 min-w-[120px]">Request Date</th>
-                    <th className="px-3 py-3 min-w-[120px] text-center">
-                      Status
-                    </th>
-                    <th className="px-3 py-3 min-w-[120px]">Action</th>
+                    <td colSpan="5" className="px-3 py-3 text-center">
+                      No data available
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {tickets.length === 0 ? (
-                    <tr>
-                      <td colSpan="5" className="px-3 py-3 text-center">
-                        No data available
+                ) : (
+                  tickets.map((item, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="px-3 py-3">{item?.id}</td>
+                      <td className="px-3 py-3">{item?.subject}</td>
+                      <td className="px-3 py-3">
+                        {formatWithTimeDate(item?.createdAt)}
+                      </td>
+                      <td className="px-3 py-3 text-center">
+                        <span
+                          className={`mx-auto block w-fit px-3 py-1 rounded-full capitalize ${
+                            item.status === "OPEN"
+                              ? "bg-[#EBF8F9] text-[#0092C7]"
+                              : item.status === "RESOLVED"
+                              ? "bg-[#EBF9F1] text-[#1F9254]"
+                              : "bg-[#F9F2EB] text-[#C78100]"
+                          }`}
+                        >
+                          {formatStatus(item.status)}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <Tooltip
+                          id={`tooltip-${item.id}`}
+                          content={
+                            item.status === "RESOLVED" ? "View" : "Reply"
+                          }
+                          place="left"
+                        >
+                          <div
+                            className="cursor-pointer w-8"
+                            onClick={() => {
+                              setEditingOption(item);
+                              setShowModal(true);
+                            }}
+                          >
+                            <img
+                              src={
+                                item.status === "RESOLVED"
+                                  ? viewIcon
+                                  : replyIcon
+                              }
+                              alt="view"
+                              className="w-full"
+                            />
+                          </div>
+                        </Tooltip>
                       </td>
                     </tr>
-                  ) : (
-                    tickets.map((item, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item?.ticketId}</td>
-                        <td className="px-3 py-3">{item?.subject}</td>
-                        <td className="px-3 py-3">{item?.requestDate}</td>
-                        <td className="px-3 py-3 text-center">
-                          <span
-                            className={`mx-auto block w-fit px-3 py-1 rounded-full capitalize ${
-                              item.status === "New"
-                                ? "bg-[#EBF8F9] text-[#0092C7]"
-                                : ""
-                            } ${
-                              item.status === "Resolved"
-                                ? "bg-[#EBF9F1] text-[#1F9254]"
-                                : ""
-                            } ${
-                              item.status === "Closed"
-                                ? "bg-[#F9EBEB] text-[#C70000]"
-                                : ""
-                            } ${
-                              item.status === "In Progress"
-                                ? "bg-[#F9F2EB] text-[#C78100]"
-                                : ""
-                            }
-                            `}
-                          >
-                            {item.status}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3">
-                          <div className="flex gap-2">
-                            <Tooltip
-                              id={`tooltip-edit-${item.id}`}
-                              content="Reply"
-                              place="left"
-                            >
-                              <div
-                                className="cursor-pointer w-8"
-                                onClick={() => {
-                                  setEditingOption(item?.id);
-                                  setShowModal(true);
-                                }}
-                              >
-                                <img
-                                  src={replyIcon}
-                                  alt="view"
-                                  className="w-full"
-                                />
-                              </div>
-                            </Tooltip>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
-
-        {/* <Pagination
-          page={page}
-          totalPages={totalPages}
-          rowsPerPage={rowsPerPage}
-          totalCount={totalCount}
-          currentDataLength={tickets.length}
-          onPageChange={(newPage) => {
-            setPage(newPage);
-            fetchSchoolList(searchTerm, newPage);
-          }}
-        /> */}
-
-        {showModal && (
-          <ReplyTicketModal
-            setShowModal={setShowModal}
-            editingOption={editingOption}
-            formik={formik}
-          />
-        )}
-        {raiseTicketModal && (
-          <RaiseTicketModal
-            setRaiseTicketModal={setRaiseTicketModal}
-            editingOption={editingOption}
-            formik={formik}
-          />
-        )}
       </div>
+
+      {/* Modals */}
+      {showModal && (
+        <ReplyTicketModal
+          setShowModal={setShowModal}
+          editingOption={editingOption}
+          handleMarkResolved={handleMarkResolved}
+        />
+      )}
+
+      {raiseTicketModal && (
+        <RaiseTicketModal
+          setRaiseTicketModal={setRaiseTicketModal}
+          newTicket={newTicket}
+          setNewTicket={setNewTicket}
+          handleCreateTicket={handleCreateTicket}
+        />
+      )}
     </div>
   );
 };

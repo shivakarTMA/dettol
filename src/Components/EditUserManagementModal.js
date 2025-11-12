@@ -21,6 +21,26 @@ const userRole = [
   { value: "TELEMEDICINE", label: "Telemedicine" },
 ];
 
+const reportOptions = [
+  {
+    value: "ADMIN",
+    label: "Admin",
+  },
+  {
+    value: "LEADERSHIP",
+    label: "Leadership",
+  },
+  {
+    value: "PROJECT_MANAGER",
+    label: "Project Manager",
+  },
+  {
+    value: "COORDINATOR",
+    label: "Coordinator",
+  },
+  { value: "TELEMEDICINE", label: "Telemedicine" },
+];
+
 const EditUserManagementModal = ({ setShowModal, editingOption, formik }) => {
   const [userReport, setUserReport] = useState([]);
 
@@ -159,21 +179,16 @@ const EditUserManagementModal = ({ setShowModal, editingOption, formik }) => {
                     Reports To<span className="text-red-500">*</span>
                   </label>
                   <Select
-                    value={userReport.find(
-                      (user) => user.name === formik.values.report_to // Match selected user by ID
-                    )}
-                    onChange={(selectedOption) => {
-                      // When a new "Reports To" is selected, store the whole selected user object
-                      // in Formik's state, but only send user.id in the payload
+                    value={reportOptions.find(
+                      (option) => option.value === formik.values.report_to
+                    )} // ✅ React Select expects the full object, not just the value
+                    onChange={(option) =>
                       formik.setFieldValue(
                         "report_to",
-                        selectedOption ? selectedOption.value : "" // Save the user id (value)
-                      );
-                    }}
-                    options={userReport.map((user) => ({
-                      value: user.id, // The ID will be used in the payload
-                      label: user.name,
-                    }))}
+                        option ? option.value : ""
+                      )
+                    } // ✅ Handles both select & clear
+                    options={reportOptions}
                     placeholder="Reports To"
                     styles={customStyles}
                   />

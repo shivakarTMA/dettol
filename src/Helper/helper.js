@@ -84,3 +84,20 @@ export function formatStatus(status) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 }
+
+export function formatWithTimeDate(dateString) {
+  if (!dateString) return '';
+
+  const date = new Date(dateString);
+
+  const day = date.toLocaleString('en-GB', { day: '2-digit' });
+  const month = date.toLocaleString('en-GB', { month: 'short' });
+  const year = date.getFullYear();
+  const time = date.toLocaleString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  return `${day} ${month}, ${year}, ${time.toLowerCase()}`;
+}

@@ -5,14 +5,12 @@ import { authAxios } from "../../Config/config";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { formatCapitalText } from "../../Helper/helper";
 import Tooltip from "../../Components/Common/Tooltip";
 import { MdOutlineInventory2 } from "react-icons/md";
 
 const validationSchema = Yup.object().shape({
   product_name: Yup.string().required("Product Name is required"),
   total: Yup.string().required("Total Stock is required"),
-  allotted: Yup.string().required("Allotted Stock is required"),
 });
 
 
@@ -97,10 +95,9 @@ const InventoryListScreen = () => {
                 <thead className="bg-[#F1F1F1]">
                   <tr>
                     <th className="px-3 py-3 min-w-[120px]">Product Name</th>
-                    <th className="px-3 py-3 min-w-[120px]">Total Stock</th>
-                    <th className="px-3 py-3 min-w-[150px]">Available Stock</th>
-                    <th className="px-3 py-3 min-w-[120px]">Allotted Stock</th>
-                    <th className="px-3 py-3 min-w-[120px]">Status</th>
+                    <th className="px-3 py-3 min-w-[120px] text-center">Total Qty</th>
+                    <th className="px-3 py-3 min-w-[150px] text-center">Available Qty</th>
+                    <th className="px-3 py-3 min-w-[120px] text-center">Distributed Qty</th>
                     <th className="px-3 py-3">Action</th>
                   </tr>
                 </thead>
@@ -115,25 +112,14 @@ const InventoryListScreen = () => {
                     inventoryList.map((item, index) => (
                       <tr key={index} className="border-t">
                         <td className="px-3 py-3">{item?.product_name}</td>
-                        <td className="px-3 py-3">{item?.total}</td>
-                        <td className="px-3 py-3">{item?.available}</td>
-                        <td className="px-3 py-3">{item?.allotted}</td>
-                        <td className="px-3 py-3">
-                          <span
-                            className={`block w-fit px-3 py-1 rounded-full capitalize ${
-                              item.status === "ACTIVE"
-                                ? "bg-green-200"
-                                : "bg-gray-200"
-                            }`}
-                          >
-                            {formatCapitalText(item.status)}
-                          </span>
-                        </td>
+                        <td className="px-3 py-3 text-center">{item?.total}</td>
+                        <td className="px-3 py-3 text-center">{item?.available}</td>
+                        <td className="px-3 py-3 text-center">{item?.allotted}</td>
                         <td className="px-3 py-3">
                           <div className="flex gap-2">
                             <Tooltip
                               id={`tooltip-edit-${item.id}`}
-                              content="Edit Inventory"
+                              content="Add Stock"
                               place="left"
                             >
                               <div
