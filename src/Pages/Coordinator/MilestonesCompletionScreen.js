@@ -18,6 +18,9 @@ const MilestonesCompletionScreen = () => {
   const [milestoneList, setMilestonesList] = useState([]);
   const [editingOption, setEditingOption] = useState(null);
 
+  const [showConfirmReject, setShowConfirmReject] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState(null);
+
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
@@ -53,31 +56,36 @@ const MilestonesCompletionScreen = () => {
     setIsModalOpen(true);
   };
 
-  const handlePopupSubmit = (tasks) => {
-    console.log("📦 Received in parent:", tasks);
-    // const allCompleted = tasks.every((task) => task.completed === true);
-    // console.log(allCompleted, "allCompleted");
-    // if (allCompleted) {
-    //   setIsSuccessModalOpen(true);
-    // }
-
-    setIsModalOpen(false);
-    // Open Success popup
-    setIsSuccessModalOpen(true);
-  };
-
   const handleShippingClick = async (itemId, status) => {
     try {
       // Pass the status in the request payload
       const res = await authAxios().put(`/myreward/${itemId}`, {
         status: status,
       });
-      toast.success(`Status updated to ${status} successfully!`);
+      toast.success(`Status updated to ${formatStatus(status)} successfully!`);
       fetchMilestonesList(); // Assuming this reloads or updates the milestones list
     } catch (err) {
       console.error(err);
       toast.error("Failed to update milestone status");
     }
+  };
+
+  const confirmRejectTask = async () => {
+    if (!selectedItemId) return;
+
+    try {
+      await handleShippingClick(selectedItemId, "REJECT");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setShowConfirmReject(false);
+      setSelectedItemId(null);
+    }
+  };
+
+  const cancelRejectTask = () => {
+    setShowConfirmReject(false);
+    setSelectedItemId(null);
   };
 
   return (
@@ -135,18 +143,27 @@ const MilestonesCompletionScreen = () => {
                       </span>
                     ) : (
                       <>
-                        <div
-                          className="bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center cursor-pointer p-[6px]"
-                          onClick={() => handleViewClick(item)}
-                        >
-                          <img
-                            src={viewIcon}
-                            alt="view"
-                            className="w-full brightness-[0] invert-[1]"
-                          />
-                        </div>
-                        <div
-                          className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px]
+                        {item?.status === "DELIVERED" ? null : (
+                          <>
+                            <div
+                              className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[6px] ${
+                                ["REJECT"].includes(item?.status)
+                                  ? "opacity-50 cursor-not-allowed pointer-events-none"
+                                  : "cursor-pointer"
+                              }`}
+                              onClick={() => {
+                                setEditingOption(item?.id);
+                                setIsModalOpen(true);
+                              }}
+                            >
+                              <img
+                                src={viewIcon}
+                                alt="view"
+                                className="w-full brightness-[0] invert-[1]"
+                              />
+                            </div>
+                            <div
+                              className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px]
                         ${
                           [
                             "IN_ROUTE",
@@ -158,29 +175,32 @@ const MilestonesCompletionScreen = () => {
                             : "cursor-pointer"
                         }
                         `}
-                          onClick={() =>
-                            handleShippingClick(item?.id, "IN_ROUTE")
-                          }
-                        >
-                          <img
-                            src={shippingIcon}
-                            alt="view"
-                            className="w-full brightness-[0] invert-[1]"
-                          />
-                        </div>
-                        <div
-                          className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px] cursor-pointer
+                              onClick={() =>
+                                handleShippingClick(item?.id, "IN_ROUTE")
+                              }
+                            >
+                              <img
+                                src={shippingIcon}
+                                alt="view"
+                                className="w-full brightness-[0] invert-[1]"
+                              />
+                            </div>
+                            <div
+                              className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px] cursor-pointer
                         `}
-                          onClick={() =>
-                            handleShippingClick(item?.id, "REJECT")
-                          }
-                        >
-                          <img
-                            src={closeIcon}
-                            alt="view"
-                            className="w-full brightness-[0] invert-[1]"
-                          />
-                        </div>
+                              onClick={() => {
+                                      setSelectedItemId(item?.id);
+                                      setShowConfirmReject(true);
+                                    }}
+                            >
+                              <img
+                                src={closeIcon}
+                                alt="view"
+                                className="w-full brightness-[0] invert-[1]"
+                              />
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
                   </div>
@@ -217,7 +237,9 @@ const MilestonesCompletionScreen = () => {
                   <th className="px-3 py-3 min-w-[120px]">Name</th>
                   <th className="px-3 py-3 min-w-[170px]">School Name</th>
                   <th className="px-3 py-3 min-w-[170px]">Address</th>
-                  <th className="px-3 py-3 min-w-[120px]">Milestones Achieved</th>
+                  <th className="px-3 py-3 min-w-[120px]">
+                    Milestones Achieved
+                  </th>
                   <th className="px-3 py-3 min-w-[120px]">Status</th>
                   <th className="px-3 py-3 min-w-[120px]">View Details</th>
                 </tr>
@@ -272,78 +294,83 @@ const MilestonesCompletionScreen = () => {
                             Rejected
                           </span>
                         ) : (
-                          <div className="flex flex-nowrap w-full items-center">
-                            <Tooltip
-                              id={`tooltip-edit-${item.id}`}
-                              content="View Milestones"
-                              place="left"
-                            >
-                              <div
-                                className={`bg-[#F1F1F1] border border-[#D4D4D4] rounded-l-[5px] w-9 h-8 flex items-center justify-center p-[6px] ${
-                                  ["REJECT"].includes(item?.status)
-                                    ? "opacity-50 cursor-not-allowed pointer-events-none"
-                                    : "cursor-pointer"
-                                }`}
-                                // onClick={() => handleViewClick(item)}
-                                onClick={() => {
-                                  setEditingOption(item?.id);
-                                  setIsModalOpen(true);
-                                }}
-                              >
-                                <img
-                                  src={viewIcon}
-                                  alt="view"
-                                  className="w-full"
-                                />
-                              </div>
-                            </Tooltip>
+                          <>
+                            {item?.status === "DELIVERED" ? null : (
+                              <div className="flex flex-nowrap w-full items-center">
+                                <Tooltip
+                                  id={`tooltip-edit-${item.id}`}
+                                  content="View Milestones"
+                                  place="left"
+                                >
+                                  <div
+                                    className={`bg-[#F1F1F1] border border-[#D4D4D4] rounded-l-[5px] w-9 h-8 flex items-center justify-center p-[6px] ${
+                                      ["REJECT"].includes(item?.status)
+                                        ? "opacity-50 cursor-not-allowed pointer-events-none"
+                                        : "cursor-pointer"
+                                    }`}
+                                    // onClick={() => handleViewClick(item)}
+                                    onClick={() => {
+                                      setEditingOption(item?.id);
+                                      setIsModalOpen(true);
+                                    }}
+                                  >
+                                    <img
+                                      src={viewIcon}
+                                      alt="view"
+                                      className="w-full"
+                                    />
+                                  </div>
+                                </Tooltip>
 
-                            <Tooltip
-                              id={`tooltip-edit-${item.id}`}
-                              content="In Route"
-                              place="left"
-                            >
-                              <div
-                                className={`bg-[#F1F1F1] border border-[#D4D4D4] w-9 h-8 flex items-center justify-center p-[8px] ${
-                                  [
-                                    "IN_ROUTE",
-                                    "DELIVERED",
-                                    "DELAYED",
-                                    "REJECT",
-                                  ].includes(item?.status)
-                                    ? "opacity-50 cursor-not-allowed pointer-events-none"
-                                    : "cursor-pointer"
-                                }`}
-                                onClick={() =>
-                                  handleShippingClick(item?.id, "IN_ROUTE")
-                                }
-                              >
-                                <img
-                                  src={shippingIcon}
-                                  alt="view"
-                                  className="w-full"
-                                />
+                                <Tooltip
+                                  id={`tooltip-edit-${item.id}`}
+                                  content="In Route"
+                                  place="left"
+                                >
+                                  <div
+                                    className={`bg-[#F1F1F1] border border-[#D4D4D4] w-9 h-8 flex items-center justify-center p-[8px] ${
+                                      [
+                                        "IN_ROUTE",
+                                        "DELIVERED",
+                                        "DELAYED",
+                                        "REJECT",
+                                      ].includes(item?.status)
+                                        ? "opacity-50 cursor-not-allowed pointer-events-none"
+                                        : "cursor-pointer"
+                                    }`}
+                                    onClick={() =>
+                                      handleShippingClick(item?.id, "IN_ROUTE")
+                                    }
+                                  >
+                                    <img
+                                      src={shippingIcon}
+                                      alt="view"
+                                      className="w-full"
+                                    />
+                                  </div>
+                                </Tooltip>
+                                <Tooltip
+                                  id={`tooltip-edit-${item.id}`}
+                                  content="Reject Milestone"
+                                  place="left"
+                                >
+                                  <div
+                                    className={`bg-[#F1F1F1] border border-[#D4D4D4] rounded-r-[5px] w-9 h-8 flex items-center justify-center p-[10px] cursor-pointer`}
+                                    onClick={() => {
+                                      setSelectedItemId(item?.id);
+                                      setShowConfirmReject(true);
+                                    }}
+                                  >
+                                    <img
+                                      src={closeIcon}
+                                      alt="view"
+                                      className="w-full"
+                                    />
+                                  </div>
+                                </Tooltip>
                               </div>
-                            </Tooltip>
-                            <Tooltip
-                              id={`tooltip-edit-${item.id}`}
-                              content="Reject Milestone"
-                              place="left"
-                            >
-                              <div
-                                className={`bg-[#F1F1F1] border border-[#D4D4D4] rounded-r-[5px] w-9 h-8 flex items-center justify-center p-[10px] cursor-pointer`}
-                                onClick={() =>
-                                  handleShippingClick(item?.id, "REJECT")
-                                }
-                              >
-                                <img
-                                  src={closeIcon}
-                                  alt="view"
-                                  className="w-full"
-                                />
-                              </div>
-                            </Tooltip>
-                          </div>
+                            )}
+                          </>
                         )}
                       </td>
                     </tr>
@@ -376,7 +403,7 @@ const MilestonesCompletionScreen = () => {
         <MilestonePopup
           setIsModalOpen={setIsModalOpen}
           editingOption={editingOption}
-          onSubmit={handlePopupSubmit} // ✅ MUST be here
+          fetchMilestonesList={fetchMilestonesList}
         />
       )}
 
@@ -386,6 +413,30 @@ const MilestonesCompletionScreen = () => {
           isOpen={isSuccessModalOpen} // ✅ Add this line
           onClose={() => setIsSuccessModalOpen(false)}
         />
+      )}
+
+      {showConfirmReject && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-[90%] max-w-sm text-center">
+            <h3 className="text-lg font-semibold mb-3">
+              Are you sure you want to reject this milestones?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={confirmRejectTask}
+                className="bg-red-600 text-white px-4 py-2 rounded"
+              >
+                Yes, Reject
+              </button>
+              <button
+                onClick={cancelRejectTask}
+                className="bg-gray-300 text-black px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
