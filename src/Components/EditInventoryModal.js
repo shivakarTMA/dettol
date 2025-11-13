@@ -86,14 +86,14 @@ const EditInventoryModal = ({ setShowModal, editingOption, formik }) => {
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
-                    Total Qty<span className="text-red-500">*</span>
+                    Stock<span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
                     name="total"
                     value={formik.values.total || ""}
                     onChange={formik.handleChange}
-                    placeholder="Total Qty"
+                    placeholder="Stock"
                     className="custom--input w-full"
                   />
                   {formik.touched.total && formik.errors.total && (

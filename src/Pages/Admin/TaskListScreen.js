@@ -138,7 +138,7 @@ const TaskListScreen = () => {
   return (
     <>
       <div className="">
-        <div className="max-w-[150px] w-full mb-3">
+        {/* <div className="max-w-[150px] w-full mb-3">
           <Select
             value={selectedCategory}
             onChange={(selected) => {
@@ -149,7 +149,7 @@ const TaskListScreen = () => {
             options={categoryList}
             styles={customStyles}
           />
-        </div>
+        </div> */}
         <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
           <div className="rounded-[10px] overflow-hidden">
             <div className="relative overflow-x-auto ">

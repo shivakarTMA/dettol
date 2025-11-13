@@ -14,7 +14,7 @@ import { PiStudentLight } from "react-icons/pi";
 import { formatCapitalText } from "../../Helper/helper";
 import Tooltip from "../../Components/Common/Tooltip";
 import { useSelector } from "react-redux";
-
+import Loader from "../../Components/Common/Loader";
 
 const validationSchema = Yup.object().shape({
   profile_pic: Yup.mixed()
@@ -58,6 +58,7 @@ const StudentsScreen = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [cardSearch, setCardSearch] = useState("");
   const [cardError, setCardError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { userType } = useSelector((state) => state.auth);
 
@@ -72,6 +73,7 @@ const StudentsScreen = () => {
 
   // 🧠 Fetch all students once
   const fetchStudentList = async () => {
+    setLoading(true);
     try {
       const res = await authAxios().get("/student/fetch/all");
       const data = res.data?.data || [];
@@ -79,6 +81,8 @@ const StudentsScreen = () => {
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch students");
+    } finally {
+      setLoading(false); // 👈 stop loading
     }
   };
 
@@ -290,7 +294,7 @@ const StudentsScreen = () => {
       <div className="flex justify-between items-center flex-wrap gap-3 mb-5">
         <div className="relative">
           <div className="flex gap-2 items-center">
-            <button
+            {/* <button
               className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
               onClick={() => {
                 setEditingOption(null);
@@ -299,7 +303,7 @@ const StudentsScreen = () => {
             >
               <PiStudentLight className="text-xl" />
               <span>Create student</span>
-            </button>
+            </button> */}
             <button
               onClick={() => setShowFilterModal(true)}
               className="w-[34px] h-[30px] bg-white text-black rounded-[5px] flex items-center justify-center border-[#D4D4D4] border-[2px]"
@@ -391,55 +395,74 @@ const StudentsScreen = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedStudents.length > 0 ? (
-                paginatedStudents.map((item, index) => (
-                  <tr key={index} className="border-t">
-                    <td className="px-3 py-3">
-                      {formatCardNumber(item.card_no)}
-                    </td>
-                    <td className="px-3 py-3">{item.name_en}</td>
-                    <td className="px-3 py-3">{item.gender_en}</td>
-                    <td className="px-3 py-3">{item.school_name}</td>
-                    <td className="px-3 py-3">
-                      {String(item.age).padStart(2, "0")}
-                    </td>
-                    <td className="px-3 py-3">{item.district_en}</td>
-                    <td className="px-3 py-3">
-                      <span
-                        className={`block w-fit px-3 py-1 rounded-full capitalize ${
-                          item.status === "ACTIVE"
-                            ? "bg-green-200"
-                            : "bg-gray-200"
-                        }`}
-                      >
-                        {formatCapitalText(item.status)}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3">
-                      <Tooltip
-                        id={`tooltip-edit-${item.id}`}
-                        content={`${userType === "ADMIN" ? "Edit Student" : "View Student"}`}
-                        place="left"
-                      >
-                        <div
-                          className="cursor-pointer w-8"
-                          onClick={() => {
-                            setEditingOption(item?.id);
-                            setShowModal(true);
-                          }}
-                        >
-                          <img src={userType === "ADMIN" ? editIcon : viewIcon} alt="view" className="w-full" />
-                        </div>
-                      </Tooltip>
-                    </td>
-                  </tr>
-                ))
+              {loading ? (
+                <div className="flex justify-center items-center h-64">
+                  {/* You can replace this with your own spinner */}
+                  <Loader />
+                  {/* or simple text fallback: */}
+                  {/* <p className="text-gray-500">Loading schools...</p> */}
+                </div>
               ) : (
-                <tr>
-                  <td colSpan={8} className="text-center py-3">
-                    No data available
-                  </td>
-                </tr>
+                <>
+                  {paginatedStudents.length > 0 ? (
+                    paginatedStudents.map((item, index) => (
+                      <tr key={index} className="border-t">
+                        <td className="px-3 py-3">
+                          {formatCardNumber(item.card_no)}
+                        </td>
+                        <td className="px-3 py-3">{item.name_en}</td>
+                        <td className="px-3 py-3">{item.gender_en}</td>
+                        <td className="px-3 py-3">{item.school_name}</td>
+                        <td className="px-3 py-3">
+                          {String(item.age).padStart(2, "0")}
+                        </td>
+                        <td className="px-3 py-3">{item.district_en}</td>
+                        <td className="px-3 py-3">
+                          <span
+                            className={`block w-fit px-3 py-1 rounded-full capitalize ${
+                              item.status === "ACTIVE"
+                                ? "bg-green-200"
+                                : "bg-gray-200"
+                            }`}
+                          >
+                            {formatCapitalText(item.status)}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3">
+                          <Tooltip
+                            id={`tooltip-edit-${item.id}`}
+                            content={`${
+                              userType === "ADMIN"
+                                ? "Edit Student"
+                                : "View Student"
+                            }`}
+                            place="left"
+                          >
+                            <div
+                              className="cursor-pointer w-8"
+                              onClick={() => {
+                                setEditingOption(item?.id);
+                                setShowModal(true);
+                              }}
+                            >
+                              <img
+                                src={userType === "ADMIN" ? editIcon : viewIcon}
+                                alt="view"
+                                className="w-full"
+                              />
+                            </div>
+                          </Tooltip>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="text-center py-3">
+                        No data available
+                      </td>
+                    </tr>
+                  )}
+                </>
               )}
             </tbody>
           </table>

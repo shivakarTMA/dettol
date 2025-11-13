@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import editIcon from "../../Assests/Images/icons/edit.svg";
+import stockIcon from "../../Assests/Images/icons/stock.svg";
 import EditInventoryModal from "../../Components/EditInventoryModal";
 import { authAxios } from "../../Config/config";
 import { toast } from "react-toastify";
@@ -75,7 +75,7 @@ const InventoryListScreen = () => {
   return (
     <div>
       <div className="">
-        <div className="mb-3 flex">
+        {/* <div className="mb-3 flex">
           <button
             className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
             onClick={() => {
@@ -87,7 +87,7 @@ const InventoryListScreen = () => {
             <MdOutlineInventory2 className="text-xl" />
             <span>Add Inventory</span>
           </button>
-        </div>
+        </div> */}
         <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
           <div className="rounded-[10px] overflow-hidden">
             <div className="relative overflow-x-auto ">
@@ -130,7 +130,7 @@ const InventoryListScreen = () => {
                                 }}
                               >
                                 <img
-                                  src={editIcon}
+                                  src={stockIcon}
                                   alt="view"
                                   className="w-full"
                                 />

@@ -156,9 +156,9 @@ const SchoolDashboardTables = () => {
               <thead className="bg-[#F1F1F1]">
                 <tr>
                   <th className="px-3 py-3 min-w-[170px]">School Name</th>
-                  <th className="px-3 py-3 min-w-[120px]">Total Students</th>
-                  <th className="px-3 py-3 min-w-[90px]">Male</th>
-                  <th className="px-3 py-3 min-w-[90px]">Female</th>
+                  <th className="px-3 py-3 min-w-[120px] text-center">Total Students</th>
+                  <th className="px-3 py-3 min-w-[90px] text-center">Male</th>
+                  <th className="px-3 py-3 min-w-[90px] text-center">Female</th>
                 </tr>
               </thead>
               <tbody>
@@ -166,9 +166,9 @@ const SchoolDashboardTables = () => {
                   schoolWiseMilestones.slice(0, 4).map((item, index) => (
                     <tr key={index} className="border-t">
                       <td className="px-3 py-3">{item?.school_name}</td>
-                      <td className="px-3 py-3">{item?.total_student_count}</td>
-                      <td className="px-3 py-3">{item?.male_count}</td>
-                      <td className="px-3 py-3">{item?.female_count}</td>
+                      <td className="px-3 py-3 text-center">{item?.total_student_count}</td>
+                      <td className="px-3 py-3 text-center">{item?.male_count}</td>
+                      <td className="px-3 py-3 text-center">{item?.female_count}</td>
                     </tr>
                   ))
                 ) : (
@@ -253,9 +253,9 @@ const SchoolDashboardTables = () => {
               <thead className="bg-[#F1F1F1]">
                 <tr>
                   <th className="px-3 py-3 min-w-[170px]">School Name</th>
-                  <th className="px-3 py-3 min-w-[100px]">St. Enrolled</th>
-                  <th className="px-3 py-3 min-w-[120px]">St. Registered</th>
-                  <th className="px-3 py-3 min-w-[100px]">Active St.</th>
+                  <th className="px-3 py-3 min-w-[120px] text-center">St. Registered</th>
+                  <th className="px-3 py-3 min-w-[100px] text-center">St. Enrolled</th>
+                  <th className="px-3 py-3 min-w-[100px] text-center">Active St.</th>
                 </tr>
               </thead>
               <tbody>
@@ -263,13 +263,13 @@ const SchoolDashboardTables = () => {
                   activeStudentsData.slice(0, 4).map((item, index) => (
                     <tr key={index} className="border-t">
                       <td className="px-3 py-3">{item?.school_name}</td>
-                      <td className="px-3 py-3">
-                        {item?.enrolled_student_count}
-                      </td>
-                      <td className="px-3 py-3">
+                      <td className="px-3 py-3 text-center">
                         {item?.student_registered_count}
                       </td>
-                      <td className="px-3 py-3">
+                      <td className="px-3 py-3 text-center">
+                        {item?.enrolled_student_count}
+                      </td>
+                      <td className="px-3 py-3 text-center">
                         {item?.total_active_student_count}
                       </td>
                     </tr>

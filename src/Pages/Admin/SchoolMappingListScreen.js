@@ -106,7 +106,7 @@ const SchoolMappingListScreen = () => {
   return (
     <div>
       <div className="">
-        <div className="mb-3 flex">
+        {/* <div className="mb-3 flex">
           <button
             className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
             onClick={() => {
@@ -118,7 +118,7 @@ const SchoolMappingListScreen = () => {
             <IoAdd className="text-xl" />
             <span>Add Mapping</span>
           </button>
-        </div>
+        </div> */}
         <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
           <div className="rounded-[10px] overflow-hidden">
             <div className="relative overflow-x-auto ">

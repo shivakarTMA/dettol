@@ -16,6 +16,7 @@ const MilestonesCompletionScreen = () => {
   const [selectedMilestone, setSelectedMilestone] = useState(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [milestoneList, setMilestonesList] = useState([]);
+  const [editingOption, setEditingOption] = useState(null);
 
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
@@ -283,7 +284,11 @@ const MilestonesCompletionScreen = () => {
                                     ? "opacity-50 cursor-not-allowed pointer-events-none"
                                     : "cursor-pointer"
                                 }`}
-                                onClick={() => handleViewClick(item)}
+                                // onClick={() => handleViewClick(item)}
+                                onClick={() => {
+                                  setEditingOption(item?.id);
+                                  setIsModalOpen(true);
+                                }}
                               >
                                 <img
                                   src={viewIcon}
@@ -369,9 +374,8 @@ const MilestonesCompletionScreen = () => {
 
       {isModalOpen && (
         <MilestonePopup
-          isOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
-          milestone={selectedMilestone}
+          editingOption={editingOption}
           onSubmit={handlePopupSubmit} // ✅ MUST be here
         />
       )}

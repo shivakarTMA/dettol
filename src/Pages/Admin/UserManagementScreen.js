@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import editIcon from "../../Assests/Images/icons/edit-old.svg";
 import deleteIcon from "../../Assests/Images/icons/delete.svg";
 import EditUserManagementModal from "../../Components/EditUserManagementModal";
-import { formatRole } from "../../Helper/helper";
+import { formatStatus, formatRole } from "../../Helper/helper";
 import { IoMdPersonAdd } from "react-icons/io";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
@@ -16,7 +16,11 @@ const validationSchema = Yup.object().shape({
     .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
     .required("Mobile number is required"),
   role: Yup.string().required("Role is required"),
-  report_to: Yup.string().required("Report to is required"),
+  report_to: Yup.string().when("role", {
+    is: (role) => role !== "ADMIN",
+    then: (schema) => schema.required("Report to is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });
 
 const UserManagementScreen = () => {
@@ -130,8 +134,10 @@ const UserManagementScreen = () => {
                       <tr key={index} className="border-t">
                         <td className="px-3 py-3">{item.name}</td>
                         <td className="px-3 py-3">{item.mobile}</td>
-                        <td className="px-3 py-3">{item.role}</td>
-                        <td className="px-3 py-3">{item.report_to}</td>
+                        <td className="px-3 py-3">{formatStatus(item.role)}</td>
+                        <td className="px-3 py-3">
+                          {item.report_to ? formatStatus(item.report_to) : "--"}
+                        </td>
                         <td className="px-3 py-3">
                           <div className="flex gap-0">
                             <Tooltip
@@ -149,18 +155,20 @@ const UserManagementScreen = () => {
                                 <img src={editIcon} className={`w-4 `} />
                               </button>
                             </Tooltip>
-                            <Tooltip
-                              id={`tooltip-edit-${item.id}`}
-                              content="Delete User"
-                              place="left"
-                            >
-                              <button
-                                className={`w-11 h-9 flex items-center justify-center rounded-r-[5px] border `}
-                                onClick={() => handleDelete(item.id)}
+                            {item.role !== "ADMIN" && (
+                              <Tooltip
+                                id={`tooltip-edit-${item.id}`}
+                                content="Delete User"
+                                place="left"
                               >
-                                <img src={deleteIcon} className={`w-4`} />
-                              </button>
-                            </Tooltip>
+                                <button
+                                  className={`w-11 h-9 flex items-center justify-center rounded-r-[5px] border `}
+                                  onClick={() => handleDelete(item.id)}
+                                >
+                                  <img src={deleteIcon} className={`w-4`} />
+                                </button>
+                              </Tooltip>
+                            )}
                           </div>
                         </td>
                       </tr>

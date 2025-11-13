@@ -10,6 +10,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import Tooltip from "../../Components/Common/Tooltip";
 import { useSelector } from "react-redux";
+import Loader from "../../Components/Common/Loader";
 
 const validationSchema = Yup.object().shape({
   name_en: Yup.string().required("Name English is required"),
@@ -30,10 +31,12 @@ const SchoolsScreen = () => {
   const [rowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const { userType } = useSelector((state) => state.auth);
 
   const fetchSchoolList = async (search = searchTerm, currentPage = page) => {
+    setLoading(false);
     try {
       const res = await authAxios().get("/school/fetch/all", {
         params: {
@@ -51,6 +54,8 @@ const SchoolsScreen = () => {
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch school");
+    } finally {
+      setLoading(false); // 👈 stop loading
     }
   };
 
@@ -137,57 +142,76 @@ const SchoolsScreen = () => {
                     <th className="px-3 py-3 min-w-[170px]">School Name</th>
                     <th className="px-3 py-3 min-w-[120px]">City</th>
                     <th className="px-3 py-3 min-w-[120px] text-center">
-                      Students Enrolled
+                      Students Registered
                     </th>
                     <th className="px-3 py-3 min-w-[120px] text-center">
-                      Students Registered
+                      Students Enrolled
                     </th>
                     <th className="px-3 py-3">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {schools.length === 0 ? (
-                    <tr>
-                      <td colSpan="5" className="px-3 py-3 text-center">
-                        No data available
-                      </td>
-                    </tr>
+                  {loading ? (
+                    <div className="flex justify-center items-center h-64">
+                      {/* You can replace this with your own spinner */}
+                      <Loader />
+                      {/* or simple text fallback: */}
+                      {/* <p className="text-gray-500">Loading schools...</p> */}
+                    </div>
                   ) : (
-                    schools.map((item, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item.name_en}</td>
-                        <td className="px-3 py-3">{item.city_en}</td>
-                        <td className="px-3 py-3 text-center">
-                          {item.student_enrolled}
-                        </td>
-                        <td className="px-3 py-3 text-center">
-                          {item.student_registered}
-                        </td>
-                        <td className="px-3 py-3">
-                          <div className="flex gap-2">
-                            <Tooltip
-                              id={`tooltip-edit-${item.id}`}
-                              content={`${userType === "ADMIN" ? "Edit School" : "View School"}`}
-                              place="left"
-                            >
-                              <div
-                                className="cursor-pointer w-8"
-                                onClick={() => {
-                                  setEditingOption(item?.id);
-                                  setShowModal(true);
-                                }}
-                              >
-                                <img
-                                  src={userType === "ADMIN" ? editIcon : viewIcon}
-                                  alt="view"
-                                  className="w-full"
-                                />
+                    <>
+                      {schools.length === 0 ? (
+                        <tr>
+                          <td colSpan="5" className="px-3 py-3 text-center">
+                            No data available
+                          </td>
+                        </tr>
+                      ) : (
+                        schools.map((item, index) => (
+                          <tr key={index} className="border-t">
+                            <td className="px-3 py-3">{item.name_en}</td>
+                            <td className="px-3 py-3">{item.city_en}</td>
+                            <td className="px-3 py-3 text-center">
+                              {item.student_registered}
+                            </td>
+                            <td className="px-3 py-3 text-center">
+                              {item.student_enrolled}
+                            </td>
+                            <td className="px-3 py-3">
+                              <div className="flex gap-2">
+                                <Tooltip
+                                  id={`tooltip-edit-${item.id}`}
+                                  content={`${
+                                    userType === "ADMIN"
+                                      ? "Edit School"
+                                      : "View School"
+                                  }`}
+                                  place="left"
+                                >
+                                  <div
+                                    className="cursor-pointer w-8"
+                                    onClick={() => {
+                                      setEditingOption(item?.id);
+                                      setShowModal(true);
+                                    }}
+                                  >
+                                    <img
+                                      src={
+                                        userType === "ADMIN"
+                                          ? editIcon
+                                          : viewIcon
+                                      }
+                                      alt="view"
+                                      className="w-full"
+                                    />
+                                  </div>
+                                </Tooltip>
                               </div>
-                            </Tooltip>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </>
                   )}
                 </tbody>
               </table>

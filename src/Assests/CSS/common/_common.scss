@@ -268,3 +268,14 @@ input.number--appearance-none[type="number"]::-webkit-outer-spin-button {
 .inner--shadow{
   box-shadow: 0px 4px 4px 0px #0000001A inset;
 }
+
+.loader-new{
+  width: 100%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #00000099;
+    height: 100%;
+    z-index: 99999;
+}

@@ -7,6 +7,10 @@ import { authAxios } from "../Config/config";
 
 const userRole = [
   {
+    value: "ADMIN",
+    label: "Admin",
+  },
+  {
     value: "LEADERSHIP",
     label: "Leadership",
   },
@@ -174,30 +178,32 @@ const EditUserManagementModal = ({ setShowModal, editingOption, formik }) => {
                     </div>
                   )}
                 </div>
-                <div>
-                  <label className="mb-2 block font-[500]">
-                    Reports To<span className="text-red-500">*</span>
-                  </label>
-                  <Select
-                    value={reportOptions.find(
-                      (option) => option.value === formik.values.report_to
-                    )} // ✅ React Select expects the full object, not just the value
-                    onChange={(option) =>
-                      formik.setFieldValue(
-                        "report_to",
-                        option ? option.value : ""
-                      )
-                    } // ✅ Handles both select & clear
-                    options={reportOptions}
-                    placeholder="Reports To"
-                    styles={customStyles}
-                  />
-                  {formik.touched.report_to && formik.errors.report_to && (
-                    <div className="text-red-500 text-sm">
-                      {formik.errors.report_to}
-                    </div>
-                  )}
-                </div>
+                {formik?.values?.role === "ADMIN" ? null : (
+                  <div>
+                    <label className="mb-2 block font-[500]">
+                      Reports To<span className="text-red-500">*</span>
+                    </label>
+                    <Select
+                      value={reportOptions.find(
+                        (option) => option.value === formik.values.report_to
+                      )} // ✅ React Select expects the full object, not just the value
+                      onChange={(option) =>
+                        formik.setFieldValue(
+                          "report_to",
+                          option ? option.value : ""
+                        )
+                      } // ✅ Handles both select & clear
+                      options={reportOptions}
+                      placeholder="Reports To"
+                      styles={customStyles}
+                    />
+                    {formik.touched.report_to && formik.errors.report_to && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors.report_to}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
                 <button

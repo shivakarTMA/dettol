@@ -3,9 +3,14 @@ import { IoMdClose } from "react-icons/io";
 import { toast } from "react-toastify";
 import { authAxios } from "../Config/config";
 import { formatWithTimeDate } from "../Helper/helper";
+import { useSelector } from "react-redux";
 
-const ReplyTicketModal = ({ setShowModal, editingOption, handleMarkResolved }) => {
-  console.log(editingOption,'editingOption')
+const ReplyTicketModal = ({
+  setShowModal,
+  editingOption,
+  handleMarkResolved,
+}) => {
+  const { userType } = useSelector((state) => state.auth);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [ticketInfo, setTicketInfo] = useState(null);
@@ -99,14 +104,14 @@ const ReplyTicketModal = ({ setShowModal, editingOption, handleMarkResolved }) =
               {messages.length === 0 ? (
                 <p className="text-center text-gray-500">No messages found.</p>
               ) : (
-                messages.map((msg) => {
+                messages.map((msg,index) => {
                   const isAdmin = msg.is_reply;
                   const senderName = isAdmin
                     ? msg.replyed_staff_name || "Admin"
                     : msg.ticket_raised_staff_name || "User";
 
                   return (
-                    <div key={msg.id} className="flex gap-3 items-start">
+                    <div key={msg.id} className={`flex gap-3 items-start pb-4 ${index !== messages.length - 1 ? 'border-b border-b-[#D4D4D4]' : ''}`}>
                       <div
                         className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-[500] ${
                           msg?.replyed_staff_role === "ADMIN"
@@ -152,14 +157,16 @@ const ReplyTicketModal = ({ setShowModal, editingOption, handleMarkResolved }) =
                   </button>
                 </div>
 
-                <div className="flex justify-end gap-2 px-5 pb-4">
-                  <button
-                    onClick={() => handleMarkResolved(editingOption?.id)}
-                    className="bg-[#008421] text-white px-4 py-2 rounded-md"
-                  >
-                    Mark as resolved
-                  </button>
-                </div>
+                {userType === "ADMIN" && (
+                  <div className="flex justify-end gap-2 px-5 pb-4">
+                    <button
+                      onClick={() => handleMarkResolved(editingOption?.id)}
+                      className="bg-[#008421] text-white px-4 py-2 rounded-md"
+                    >
+                      Mark as resolved
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </div>

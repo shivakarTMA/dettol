@@ -63,19 +63,19 @@ const CordinatorPerformanceListScreen = () => {
   ];
 
   // State for active students data categorized by time period
-  const [activeStudentsData, setActiveStudentsData] = useState({
-    today: codinatorPerformanceData.filter(
-      (d) => d.date === new Date().toISOString().split("T")[0]
-    ),
-    last7days: codinatorPerformanceData.filter((d) => {
-      const diff = (new Date() - new Date(d.date)) / (1000 * 60 * 60 * 24);
-      return diff >= 0 && diff < 7;
-    }),
-    monthToDate: codinatorPerformanceData.filter(
-      (d) => new Date(d.date).getMonth() === new Date().getMonth()
-    ),
-    custom: [],
-  });
+  // const [activeStudentsData, setActiveStudentsData] = useState({
+  //   today: codinatorPerformanceData.filter(
+  //     (d) => d.date === new Date().toISOString().split("T")[0]
+  //   ),
+  //   last7days: codinatorPerformanceData.filter((d) => {
+  //     const diff = (new Date() - new Date(d.date)) / (1000 * 60 * 60 * 24);
+  //     return diff >= 0 && diff < 7;
+  //   }),
+  //   monthToDate: codinatorPerformanceData.filter(
+  //     (d) => new Date(d.date).getMonth() === new Date().getMonth()
+  //   ),
+  //   custom: [],
+  // });
 
   // Handle period dropdown selection change
   const handlePeriodChange = (selected) => {
@@ -84,21 +84,21 @@ const CordinatorPerformanceListScreen = () => {
   };
 
   // Automatically update custom filtered data when fromDate or toDate changes
-  useEffect(() => {
-    if (showCustomDate && fromDate && toDate) {
-      const filtered = codinatorPerformanceData.filter((row) => {
-        const rowDate = new Date(row.date);
-        return rowDate >= fromDate && rowDate <= toDate;
-      });
-      setActiveStudentsData((prev) => ({ ...prev, custom: filtered }));
-      setSelectedPeriod({ value: "custom", label: "Custom Date" });
-    }
-  }, [fromDate, toDate, showCustomDate]);
+  // useEffect(() => {
+  //   if (showCustomDate && fromDate && toDate) {
+  //     const filtered = codinatorPerformanceData.filter((row) => {
+  //       const rowDate = new Date(row.date);
+  //       return rowDate >= fromDate && rowDate <= toDate;
+  //     });
+  //     setActiveStudentsData((prev) => ({ ...prev, custom: filtered }));
+  //     setSelectedPeriod({ value: "custom", label: "Custom Date" });
+  //   }
+  // }, [fromDate, toDate, showCustomDate]);
 
-  // Memoized filtered active students data
-  const filteredCodinatorPerformanceData = useMemo(() => {
-    return activeStudentsData[selectedPeriod.value] || [];
-  }, [selectedPeriod, activeStudentsData]);
+  // // Memoized filtered active students data
+  // const filteredCodinatorPerformanceData = useMemo(() => {
+  //   return activeStudentsData[selectedPeriod.value] || [];
+  // }, [selectedPeriod, activeStudentsData]);
 
   return (
     <>
@@ -149,20 +149,20 @@ const CordinatorPerformanceListScreen = () => {
                 <thead className="bg-[#F1F1F1]">
                   <tr>
                     <th className="px-3 py-3 min-w-[150px]">Name</th>
-                    <th className="px-3 py-3 min-w-[120px]">In Preparation</th>
-                    <th className="px-3 py-3 min-w-[120px]">In Transit</th>
-                    <th className="px-3 py-3 min-w-[120px]">Delivered</th>
-                    <th className="px-3 py-3 min-w-[120px]">Delayed</th>
+                    <th className="px-3 py-3 min-w-[120px] text-center">In Preparation</th>
+                    <th className="px-3 py-3 min-w-[120px] text-center">In Transit</th>
+                    <th className="px-3 py-3 min-w-[120px] text-center">Delivered</th>
+                    <th className="px-3 py-3 min-w-[120px] text-center">Delayed</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredCodinatorPerformanceData.map((item, index) => (
+                  {codinatorPerformanceData.map((item, index) => (
                     <tr key={index} className="border-t">
                       <td className="px-3 py-3">{item.name}</td>
-                      <td className="px-3 py-3">{item.inPreparation}</td>
-                      <td className="px-3 py-3">{item.inTransit}</td>
-                      <td className="px-3 py-3">{item.delivered}</td>
-                      <td className="px-3 py-3">{item.delayed}</td>
+                      <td className="px-3 py-3 text-center">{item.inPreparation}</td>
+                      <td className="px-3 py-3 text-center">{item.inTransit}</td>
+                      <td className="px-3 py-3 text-center">{item.delivered}</td>
+                      <td className="px-3 py-3 text-center">{item.delayed}</td>
                     </tr>
                   ))}
                 </tbody>
