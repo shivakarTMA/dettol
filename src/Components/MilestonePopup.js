@@ -6,19 +6,21 @@ import checkIcon from "../Assests/Images/icons/check.svg";
 import rejectIcon from "../Assests/Images/icons/reject.svg";
 import { toast } from "react-toastify";
 import { authAxios } from "../Config/config";
+import { useSelector } from "react-redux";
 
 export default function MilestonePopup({
   setIsModalOpen,
   editingOption,
   fetchMilestonesList,
+  setIsSuccessModalOpen,
 }) {
+  const { user } = useSelector((state) => state.auth);
   const [milestone, setMilestone] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [earnedCoins, setEarnedCoins] = useState(0);
   const [showConfirmReject, setShowConfirmReject] = useState(false);
   const [rejectTaskId, setRejectTaskId] = useState(null);
-
-  console.log(tasks, "SHIVAKAR");
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
 
   // This array will be sent in Submit API
   const [approvedIds, setApprovedIds] = useState([]);
@@ -65,6 +67,23 @@ export default function MilestonePopup({
 
     fetchMilestone();
   }, [editingOption]);
+
+  const fetchStaffById = async () => {
+    const id = user?.id;
+    try {
+      const res = await authAxios().get(`/staff/${id}`);
+      const data = res.data?.data?.rating_submitted;
+      console.log(data, "data");
+      setRatingSubmitted(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch staff details");
+    }
+  };
+
+  useEffect(() => {
+    fetchStaffById();
+  }, []);
 
   // ============================================================
   // ✅ Recalculate coins
@@ -148,10 +167,6 @@ export default function MilestonePopup({
       toast.error("Please approve at least one task");
       return;
     }
-
-    console.log("Approved Task IDs:", approvedIds);
-    console.log("Total Earned Coins:", earnedCoins);
-    // my_reward_id: ,
     try {
       await authAxios().put("/myreward/mytask/approved", {
         my_reward_id: editingOption,
@@ -159,18 +174,20 @@ export default function MilestonePopup({
       });
       toast.success("Tasks submitted successfully!");
       fetchMilestonesList();
+      setIsModalOpen(false);
+      if (ratingSubmitted === false) {
+        setIsSuccessModalOpen(true);
+      } else {
+        setIsSuccessModalOpen(false);
+      }
     } catch (error) {
       console.error(error);
       toast.error("Failed to submit tasks");
       return;
     }
-
-    setIsModalOpen(false);
   };
 
   if (!milestone) return null;
-
-  console.log(editingOption, "editingOption");
   return (
     <>
       <div
