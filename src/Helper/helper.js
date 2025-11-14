@@ -1,3 +1,18 @@
+// export const checkIncognito = () => {
+//   return new Promise((resolve) => {
+//     const fs = window.RequestFileSystem || window.webkitRequestFileSystem;
+
+//     if (!fs) resolve(false);
+
+//     fs(
+//       window.TEMPORARY,
+//       100,
+//       () => resolve(false),
+//       () => resolve(true)
+//     );
+//   });
+// };
+
 export const customStyles = {
   control: (base, state) => {
     const isMobile = window.innerWidth < 640; // Example: Tailwind's sm breakpoint
@@ -47,6 +62,14 @@ export const customStyles = {
   }),
   indicatorSeparator: () => ({
     display: "none",
+  }),
+  clearIndicator: (base) => ({
+    ...base,
+    padding: 0, // Remove padding
+    cursor: "pointer", // Make sure the clear button is clickable
+    // "&:hover": {
+    //   backgroundColor: "#e0e0e0", // Optional: Add a hover effect for the clear button
+    // },
   }),
 };
 

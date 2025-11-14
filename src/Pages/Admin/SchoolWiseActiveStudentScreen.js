@@ -6,6 +6,7 @@ import { customStyles } from "../../Helper/helper";
 import { LuCalendar } from "react-icons/lu";
 import { toast } from "react-toastify";
 import { authAxios } from "../../Config/config";
+import Pagination from "../../Components/Common/Pagination";
 
 const periodOptions = [
   { value: "today", label: "Today" },
@@ -18,6 +19,11 @@ const SchoolWiseActiveStudentScreen = () => {
   const [activeStudentsData, setActiveStudentsData] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState(periodOptions[1]);
   const [showCustomDate, setShowCustomDate] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const [rowsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
@@ -35,41 +41,53 @@ const SchoolWiseActiveStudentScreen = () => {
     return `${year}-${month}-${day}`;
   };
 
-  const fetchSchoolActiveStudentList = async () => {
+const fetchSchoolActiveStudentList = async (currentPage = page) => {
     try {
-      let params = {};
+      // Set default request parameters
+      let params = {
+        page: currentPage,
+        limit: rowsPerPage,
+      };
 
+      // Apply date filter if selected
       if (selectedPeriod) {
         if (selectedPeriod.value === "custom") {
+          // Custom date requires both Start and End dates
           if (fromDate && toDate) {
-            const startDate = formatDate(fromDate);
-            const endDate = formatDate(toDate);
-
             params = {
               ...params,
               dateFilter: "custom",
-              startDate,
-              endDate,
+              startDate: formatDate(fromDate),
+              endDate: formatDate(toDate),
             };
           } else {
             return;
           }
         } else {
-          // Use pre-defined date filters like 'today', 'last_7_days', 'month_till_date'
-          params = { dateFilter: selectedPeriod.value };
+          // Predefined filters like "today", "last_7_days"
+          params = {
+            ...params,
+            dateFilter: selectedPeriod.value,
+          };
         }
       }
 
-      // Fetch data with the parameters
-      const res = await authAxios().get(
+      // Fire API request
+      const response = await authAxios().get(
         "/dashboard/school/active/student/list",
         { params }
       );
 
-      let data = res.data?.data || [];
+      // Extract API response
+      const data = response.data?.data || [];
+
+      // Update states from API
       setActiveStudentsData(data);
-    } catch (err) {
-      console.error(err);
+      setPage(currentPage);
+      setTotalPages(response.data?.totalPage || 1);
+      setTotalCount(response.data?.totalCount || data.length);
+    } catch (error) {
+      console.error(error);
       toast.error("Failed to fetch active students.");
     }
   };
@@ -77,9 +95,9 @@ const SchoolWiseActiveStudentScreen = () => {
   useEffect(() => {
     if (selectedPeriod?.value === "custom") {
       // wait until both dates selected
-      if (fromDate && toDate) fetchSchoolActiveStudentList();
+      if (fromDate && toDate) fetchSchoolActiveStudentList(1);
     } else {
-      fetchSchoolActiveStudentList();
+      fetchSchoolActiveStudentList(1);
     }
   }, [selectedPeriod, fromDate, toDate]);
 
@@ -141,9 +159,15 @@ const SchoolWiseActiveStudentScreen = () => {
                 <thead className="bg-[#F1F1F1]">
                   <tr>
                     <th className="px-3 py-3 min-w-[170px]">School Name</th>
-                    <th className="px-3 py-3 min-w-[120px] text-center">St. Registered</th>
-                    <th className="px-3 py-3 min-w-[100px] text-center">St. Enrolled</th>
-                    <th className="px-3 py-3 min-w-[100px] text-center">Active St.</th>
+                    <th className="px-3 py-3 min-w-[120px] text-center">
+                      St. Registered
+                    </th>
+                    <th className="px-3 py-3 min-w-[100px] text-center">
+                      St. Enrolled
+                    </th>
+                    <th className="px-3 py-3 min-w-[100px] text-center">
+                      Active St.
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -177,6 +201,17 @@ const SchoolWiseActiveStudentScreen = () => {
             </div>
           </div>
         </div>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          rowsPerPage={rowsPerPage}
+          totalCount={totalCount}
+          currentDataLength={activeStudentsData.length}
+          onPageChange={(newPage) => {
+            setPage(newPage);
+            fetchSchoolActiveStudentList(newPage);
+          }}
+        />
       </div>
     </div>
   );

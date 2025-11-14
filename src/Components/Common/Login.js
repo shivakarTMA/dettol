@@ -104,10 +104,10 @@ const Login = (props) => {
 
   return (
     <div className="min-h-screen bg-white flex lg:flex-row flex-col relative overflow-hidden justify-center">
-      <div class="lg:block hidden w-full" style={{backgroundImage:`url(${bgLogin})`,backgroundSize:'cover',backgroundPosition:'center'}}>
+      <div className="lg:block hidden w-full" style={{backgroundImage:`url(${bgLogin})`,backgroundSize:'cover',backgroundPosition:'center'}}>
       </div>
 
-      <div class="w-full flex items-center justify-center">
+      <div className="w-full flex items-center justify-center">
         <div className="lg:p-2 p-5 transform transition-all duration-300 max-w-[450px] w-full">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center  mb-4 ">

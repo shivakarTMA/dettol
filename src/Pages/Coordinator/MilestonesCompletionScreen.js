@@ -10,13 +10,40 @@ import { authAxios } from "../../Config/config";
 import { toast } from "react-toastify";
 import { formatStatus } from "../../Helper/helper";
 import Pagination from "../../Components/Common/Pagination";
+import searchIcon from "../../Assests/Images/icons/search.svg";
+import Select from "react-select";
+import { customStyles } from "../../Helper/helper";
+
+const milestoneOptions = [
+  { value: "Milestone 1", label: "Milestone 1" },
+  { value: "Milestone 2", label: "Milestone 2" },
+  { value: "Milestone 3", label: "Milestone 3" },
+  { value: "Milestone 4", label: "Milestone 4" },
+  { value: "Milestone 5", label: "Milestone 5" },
+  { value: "Milestone 6", label: "Milestone 6" },
+  { value: "Milestone 7", label: "Milestone 7" },
+  { value: "Milestone 8", label: "Milestone 8" },
+  { value: "Milestone 9", label: "Milestone 9" },
+  { value: "Milestone 10", label: "Milestone 10" },
+  { value: "Milestone 11", label: "Milestone 11" },
+  { value: "Milestone 12", label: "Milestone 12" },
+];
+
+const statusOptions = [
+  { value: "IN_ROUTE", label: "In Route" },
+  { value: "DELIVERED", label: "Delivered" },
+  { value: "REJECT", label: "Reject" },
+];
 
 const MilestonesCompletionScreen = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [milestoneList, setMilestonesList] = useState([]);
   const [editingOption, setEditingOption] = useState(null);
+  const [cardSearch, setCardSearch] = useState("");
+  const [cardError, setCardError] = useState("");
 
   const [showConfirmReject, setShowConfirmReject] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
@@ -27,34 +54,48 @@ const MilestonesCompletionScreen = () => {
   const [totalCount, setTotalCount] = useState(0);
 
   const fetchMilestonesList = async (currentPage = page) => {
-    try {
-      const res = await authAxios().get("/myreward/list", {
-        params: {
-          page: currentPage,
-          limit: rowsPerPage,
-        },
-      });
+  try {
+    const params = {
+      page: currentPage,
+      limit: rowsPerPage,
+    };
 
-      let data = res.data?.data || [];
-      setMilestonesList(data);
-      setPage(res.data?.currentPage || 1);
-      setTotalPages(res.data?.totalPage || 1);
-      setTotalCount(res.data?.totalCount || data.length);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch myreward");
+    // Add milestone filter
+    if (selectedMilestone?.value) {
+      params.milestone_name = selectedMilestone.value;
     }
-  };
 
-  useEffect(() => {
-    fetchMilestonesList();
-  }, []);
+    // Add status filter
+    if (selectedStatus?.value) {
+      params.status = selectedStatus.value;
+    }
 
-  // ✅ Opens the milestone popup
-  const handleViewClick = (milestone) => {
-    setSelectedMilestone(milestone.details);
-    setIsModalOpen(true);
-  };
+    // Add card search filter (numeric only)
+    const cleanSearch = cardSearch.replace(/-/g, ""); 
+    if (cleanSearch.length === 16) {
+      params.search = cleanSearch;
+    }
+
+    const res = await authAxios().get("/myreward/list", { params });
+
+    let data = res.data?.data || [];
+
+    setMilestonesList(data);
+    setPage(res.data?.currentPage || 1);
+    setTotalPages(res.data?.totalPage || 1);
+    setTotalCount(res.data?.totalCount || data.length);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to fetch myreward");
+  }
+};
+
+  console.log(cardSearch,'cardSearch')
+
+useEffect(() => {
+  setPage(1);
+  fetchMilestonesList(1);
+}, [selectedMilestone, selectedStatus, cardSearch]);
 
   const handleShippingClick = async (itemId, status) => {
     try {
@@ -88,8 +129,72 @@ const MilestonesCompletionScreen = () => {
     setSelectedItemId(null);
   };
 
+  const handleCardSearchChange = (e) => {
+  let value = e.target.value.replace(/[^0-9-]/g, ""); 
+  let numericValue = value.replace(/-/g, "");
+
+  // Auto-format display (xxxx-xxxx-xxxx-xxxx)
+  if (numericValue.length > 0) {
+    value = numericValue
+      .substring(0, 16)
+      .replace(/(\d{4})(?=\d)/g, "$1-")
+      .slice(0, 19);
+  }
+
+  setCardSearch(value);
+
+  if (!numericValue) {
+    setCardError("");
+    return;
+  }
+
+  if (numericValue.length !== 16) {
+    setCardError("Please enter 16 digits");
+  } else {
+    setCardError("");
+  }
+
+  setPage(1);
+};
+
   return (
     <>
+      <div className="flex lg:flex-row flex-col justify-between lg:items-center flex-wrap gap-3 mb-5">
+        <div className="flex gap-2 flex-1 items-center">
+          <Select
+            value={selectedMilestone}
+            options={milestoneOptions}
+            onChange={setSelectedMilestone}
+            styles={customStyles}
+            className="w-full lg:max-w-[160px]"
+            isClearable
+          />
+          <Select
+            value={selectedStatus}
+            options={statusOptions}
+            onChange={setSelectedStatus}
+            styles={customStyles}
+            className="w-full lg:max-w-[160px]"
+            isClearable
+          />
+        </div>
+        <div className="flex gap-3 lg:justify-end">
+          <div className="relative w-full lg:max-w-[250px]">
+            <img src={searchIcon} className="absolute top-[13px] left-[15px]" />
+            <input
+              type="text"
+              className="pr-2 pl-[35px] py-2 rounded-full w-full"
+              placeholder="Search by card number"
+              value={cardSearch}
+              onChange={handleCardSearchChange}
+              maxLength={19}
+            />
+            {cardError && (
+              <span className="text-red-500 text-sm mt-1">{cardError}</span>
+            )}
+          </div>
+        </div>
+      </div>
       <div className="bg-white custom--shodow rounded-[10px] p-3">
         {/* Mobile */}
         <div className="sm:hidden block space-y-2">
@@ -189,9 +294,9 @@ const MilestonesCompletionScreen = () => {
                               className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px] cursor-pointer
                         `}
                               onClick={() => {
-                                      setSelectedItemId(item?.id);
-                                      setShowConfirmReject(true);
-                                    }}
+                                setSelectedItemId(item?.id);
+                                setShowConfirmReject(true);
+                              }}
                             >
                               <img
                                 src={closeIcon}
@@ -295,7 +400,7 @@ const MilestonesCompletionScreen = () => {
                           </span>
                         ) : (
                           <>
-                            {item?.status === "DELIVERED" ? null : (
+                            {item?.status === "DELIVERED" ? ("--") : (
                               <div className="flex flex-nowrap w-full items-center">
                                 <Tooltip
                                   id={`tooltip-edit-${item.id}`}
@@ -404,14 +509,14 @@ const MilestonesCompletionScreen = () => {
           setIsModalOpen={setIsModalOpen}
           editingOption={editingOption}
           fetchMilestonesList={fetchMilestonesList}
+          setIsSuccessModalOpen={setIsSuccessModalOpen}
         />
       )}
 
       {/* ✅ Success / Rating Popup */}
       {isSuccessModalOpen && (
         <SubmitRatingPopup
-          isOpen={isSuccessModalOpen} // ✅ Add this line
-          onClose={() => setIsSuccessModalOpen(false)}
+          setIsSuccessModalOpen={setIsSuccessModalOpen}
         />
       )}
 

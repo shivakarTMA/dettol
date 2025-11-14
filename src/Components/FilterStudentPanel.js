@@ -47,13 +47,9 @@ const FilterStudentPanel = ({
   ];
 
   const ageOptions = [
-    { value: 9, label: "09" },
-    { value: 10, label: "10" },
-    { value: 11, label: "11" },
-    { value: 12, label: "12" },
-    { value: 13, label: "13" },
-    { value: 14, label: "14" },
-    { value: 15, label: "15" },
+    { value: "6-8", label: "6-8 Years" },
+    { value: "9-11", label: "9-11 Years" },
+    { value: "12-14", label: "12-14 Years" },
   ];
 
   const statusOptions = [
@@ -91,7 +87,6 @@ const FilterStudentPanel = ({
           options={genderOptions}
           placeholder="Gender"
           styles={customStyles}
-          isClearable
         />
 
         {/* School Filter */}
@@ -101,17 +96,15 @@ const FilterStudentPanel = ({
           options={schoolList}
           placeholder="School"
           styles={customStyles}
-          isClearable
         />
 
         {/* Age Filter */}
         <Select
-          value={filters.age}
-          onChange={(selected) => handleFilterChange("age", selected)}
+          value={filters.age_range}
+          onChange={(selected) => handleFilterChange("age_range", selected)}
           options={ageOptions}
           placeholder="Age"
           styles={customStyles}
-          isClearable
         />
 
         {/* Status Filter */}
@@ -121,7 +114,6 @@ const FilterStudentPanel = ({
           options={statusOptions}
           placeholder="Status"
           styles={customStyles}
-          isClearable
         />
       </div>
 

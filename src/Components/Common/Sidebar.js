@@ -48,6 +48,10 @@ const Sidebar = ({ toggleMenuBar, setToggleMenuBar, handleGuideClick }) => {
     }
   }, [toggleMenuBar]);
 
+  const handlePdfControl = () =>{
+    handleGuideClick();
+    setToggleMenuBar(false);
+  }
 
   return (
     <div className={`sidebar ${toggleMenuBar ? "activetoggle" : ""}`}>
@@ -486,7 +490,7 @@ const Sidebar = ({ toggleMenuBar, setToggleMenuBar, handleGuideClick }) => {
             </Link>
 
             <div
-              className={`nav-link mb-2 cursor-pointer`} onClick={handleGuideClick}
+              className={`nav-link mb-2 cursor-pointer`} onClick={handlePdfControl}
             >
               <img src={guideIcon} alt="guideIcon" className="menu--icon" />
               <span className="nav-text">Instruction Manual</span>

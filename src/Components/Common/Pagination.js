@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  FaAngleLeft,
-  FaAngleRight,
-  FaAnglesLeft,
-  FaAnglesRight,
-} from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 
 const Pagination = ({
   page,
@@ -14,8 +9,13 @@ const Pagination = ({
   currentDataLength,
   onPageChange,
 }) => {
+  if (totalCount <= rowsPerPage) {
+    return null;
+  }
+
   const start = currentDataLength === 0 ? 0 : (page - 1) * rowsPerPage + 1;
-  const end = Math.min(page * rowsPerPage, totalCount);
+  const end =
+    currentDataLength === 0 ? 0 : (page - 1) * rowsPerPage + currentDataLength;
 
   // Compute page numbers
   let pagesToShow = [];
@@ -38,15 +38,6 @@ const Pagination = ({
 
       {/* Pagination Controls */}
       <div className="flex items-center gap-1">
-        {/* First */}
-        {/* <button
-          onClick={() => onPageChange(1)}
-          disabled={page === 1}
-          className="px-3 py-2 border rounded disabled:opacity-50"
-        >
-          <FaAnglesLeft />
-        </button> */}
-
         {/* Prev */}
         <button
           onClick={() => onPageChange(page - 1)}
@@ -103,15 +94,6 @@ const Pagination = ({
         >
           <FaAngleRight />
         </button>
-
-        {/* Last */}
-        {/* <button
-          onClick={() => onPageChange(totalPages)}
-          disabled={page === totalPages}
-          className="px-3 py-2 border rounded disabled:opacity-50"
-        >
-          <FaAnglesRight />
-        </button> */}
       </div>
     </div>
   );

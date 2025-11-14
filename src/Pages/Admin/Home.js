@@ -6,19 +6,16 @@ import DatePicker from "react-datepicker"; // Import datepicker for custom date 
 import "react-datepicker/dist/react-datepicker.css"; // Import default datepicker styles
 import { customStyles } from "../../Helper/helper";
 import { Link } from "react-router-dom";
-import viewIcon from "../../Assests/Images/icons/view.svg";
-import MilestonePopup from "../../Components/MilestonePopup";
 import { LuCalendar } from "react-icons/lu";
 import SchoolDashboardTables from "../../Components/SchoolDashboardTables";
 import RatingBar from "../../Components/Common/RatingBar";
 import { toast } from "react-toastify";
 import { authAxios } from "../../Config/config";
 
-// Options for period dropdown
-const periodOptions = [
+const filterOptions = [
   { value: "today", label: "Today" },
-  { value: "last7days", label: "Last 7 days" },
-  { value: "monthToDate", label: "Month till date" },
+  { value: "last_7_days", label: "Last 7 days" },
+  { value: "month_till_date", label: "Month till date" },
   { value: "custom", label: "Custom Date" },
 ];
 
@@ -26,15 +23,34 @@ const AdminDashboard = () => {
   const [quickLinks, setQuickLinks] = useState([]);
   const [studentFeedback, setStudentFeedback] = useState({});
   const [staffFeedback, setStaffFeedback] = useState({});
+
+  // Rewards Pipeline
   const [pipelineFilter, setPipelineFilter] = useState({
     value: "last_7_days",
     label: "Last 7 days",
   });
+  const [pipelineCustomFrom, setPipelineCustomFrom] = useState(null);
+  const [pipelineCustomTo, setPipelineCustomTo] = useState(null);
+  const [pipelineData, setPipelineData] = useState({
+    SHIPPED: 0,
+    DELIVERED: 0,
+    DELAYED: 0,
+    IN_ROUTE: 0,
+    REJECT: 0,
+  });
 
+  // Verifications Done
+  const [dateCategories, setDateCategories] = useState([]);
   const [verificationFilter, setVerificationFilter] = useState({
-    value: "last7days",
+    value: "last_7_days", // Default filter value
     label: "Last 7 days",
   });
+  const [verificationData, setVerificationData] = useState({
+    date: "",
+    delivered_count: 0,
+  });
+  const [verificationCustomFrom, setVerificationCustomFrom] = useState(null);
+  const [verificationCustomTo, setVerificationCustomTo] = useState(null);
 
   const [selectedPeriod, setSelectedPeriod] = useState({
     value: "last7days",
@@ -47,27 +63,6 @@ const AdminDashboard = () => {
   // States for from and to dates
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
-
-  // Custom dates for both filters
-  const [pipelineCustomFrom, setPipelineCustomFrom] = useState(null);
-  const [pipelineCustomTo, setPipelineCustomTo] = useState(null);
-  const [pipelineData, setPipelineData] = useState({
-    SHIPPED: 0,
-    DELIVERED: 0,
-    DELAYED: 0,
-    IN_ROUTE: 0,
-    REJECT: 0,
-  });
-  const [verificationCustomFrom, setVerificationCustomFrom] = useState(null);
-  const [verificationCustomTo, setVerificationCustomTo] = useState(null);
-
-  // Dropdown filter options
-  const filterOptions = [
-    { value: "today", label: "Today" },
-    { value: "last_7_days", label: "Last 7 days" },
-    { value: "month_till_date", label: "Month till date" },
-    { value: "custom", label: "Custom Date" },
-  ];
 
   // Dummy data for School Wise Active Students
   const codinatorPerformanceData = [
@@ -105,117 +100,33 @@ const AdminDashboard = () => {
     },
   ];
 
-  // Handle period dropdown selection change
-  const handlePeriodChange = (selected) => {
-    setSelectedPeriod(selected);
-    setShowCustomDate(selected.value === "custom");
-  };
-
-  // Function to generate verification data and dynamic date labels based on filter
-  const generateVerificationData = (filter, from, to) => {
-    let categories = [];
-    let data = [];
-
-    // Helper to format date as 'dd MMM'
-    const formatDate = (date) => {
-      return date.toLocaleDateString("en-US", {
-        day: "2-digit",
-        month: "short",
-      });
-    };
-
-    if (filter === "today") {
-      const today = new Date();
-      categories = [formatDate(today)];
-      data = [Math.floor(Math.random() * 80) + 10];
-    } else if (filter === "last7days") {
-      const today = new Date();
-      categories = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(today);
-        d.setDate(today.getDate() - (6 - i));
-        return formatDate(d);
-      });
-      data = Array.from(
-        { length: 7 },
-        () => Math.floor(Math.random() * 80) + 20
-      );
-    } else if (filter === "monthToDate") {
-      const today = new Date();
-      const start = new Date(today.getFullYear(), today.getMonth(), 1);
-      const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1;
-      categories = Array.from({ length: diffDays }, (_, i) => {
-        const d = new Date(start);
-        d.setDate(start.getDate() + i);
-        return formatDate(d);
-      });
-      data = Array.from(
-        { length: diffDays },
-        () => Math.floor(Math.random() * 90) + 10
-      );
-    } else if (filter === "custom" && from && to) {
-      const diffDays =
-        Math.max(1, Math.floor((to - from) / (1000 * 60 * 60 * 24))) + 1;
-      categories = Array.from({ length: diffDays }, (_, i) => {
-        const d = new Date(from);
-        d.setDate(from.getDate() + i);
-        return formatDate(d);
-      });
-      data = Array.from(
-        { length: diffDays },
-        () => Math.floor(Math.random() * 90) + 10
-      );
-    } else {
-      // Default case (last 7 days)
-      const today = new Date();
-      categories = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(today);
-        d.setDate(today.getDate() - (6 - i));
-        return formatDate(d);
-      });
-      data = [20, 28, 68, 48, 62, 28, 45];
-    }
-
-    return { categories, data };
-  };
-
   // ✅ Fetch pipeline data from API
   const fetchPipelineData = async () => {
     try {
       let url = "/dashboard/reward/pipeline";
 
-      // Add query params based on selected filter
-      if (pipelineFilter.value === "today") {
-        url += "?dateFilter=today";
-      } else if (pipelineFilter.value === "last_7_days") {
-        url += "?dateFilter=last_7_days";
-      } else if (pipelineFilter.value === "month_till_date") {
-        url += "?dateFilter=month_till_date";
-      } else if (
-        pipelineFilter.value === "custom" &&
-        pipelineCustomFrom &&
-        pipelineCustomTo
-      ) {
+      if (pipelineFilter.value !== "custom") {
+        url += `?dateFilter=${pipelineFilter.value}`;
+      } else if (pipelineCustomFrom && pipelineCustomTo) {
         const startDate = pipelineCustomFrom.toISOString().split("T")[0];
-
-        // Backend expects endDate to be exclusive — add one day
-        const endDateObj = new Date(pipelineCustomTo);
-        endDateObj.setDate(endDateObj.getDate() + 1);
-        const endDate = endDateObj.toISOString().split("T")[0];
+        const end = new Date(pipelineCustomTo);
+        end.setDate(end.getDate() + 1);
+        const endDate = end.toISOString().split("T")[0];
 
         url += `?startDate=${startDate}&endDate=${endDate}`;
       } else {
-        return; // Don’t fetch if custom dates not chosen
+        return; // no custom dates yet
       }
 
       const res = await authAxios().get(url);
       const data = res.data?.data || {};
 
       setPipelineData({
-        SHIPPED: data.SHIPPED || 0,
-        DELIVERED: data.DELIVERED || 0,
-        DELAYED: data.DELAYED || 0,
-        IN_ROUTE: data.IN_ROUTE || 0,
-        REJECT: data.REJECT || 0,
+        SHIPPED: data.SHIPPED ?? 0,
+        DELIVERED: data.DELIVERED ?? 0,
+        DELAYED: data.DELAYED ?? 0,
+        IN_ROUTE: data.IN_ROUTE ?? 0,
+        REJECT: data.REJECT ?? 0,
       });
     } catch (err) {
       console.error(err);
@@ -223,12 +134,10 @@ const AdminDashboard = () => {
     }
   };
 
-  // 🔁 Fetch when filter or custom dates change
   useEffect(() => {
     fetchPipelineData();
   }, [pipelineFilter, pipelineCustomFrom, pipelineCustomTo]);
 
-  // Pie Chart Configuration
   const pieChartOptions = useMemo(
     () => ({
       chart: {
@@ -270,18 +179,51 @@ const AdminDashboard = () => {
     [pipelineData]
   );
 
-  const { categories, data: verificationData } = useMemo(
-    () =>
-      generateVerificationData(
-        verificationFilter.value,
-        verificationCustomFrom,
-        verificationCustomTo
-      ),
-    [verificationFilter, verificationCustomFrom, verificationCustomTo]
-  );
+  // ✅ Fetch verification data from API
+  const fetchVerificationData = async () => {
+    try {
+      let url = "/dashboard/verification/done";
 
-  // Line Chart Configuration with dynamic categories
-  const lineChartOptions = {
+      if (verificationFilter.value !== "custom") {
+        url += `?dateFilter=${verificationFilter.value}`;
+      } else if (verificationCustomFrom && verificationCustomTo) {
+        const startDate = verificationCustomFrom.toISOString().split("T")[0];
+
+        const end = new Date(verificationCustomTo);
+        end.setDate(end.getDate() + 1);
+        const endDate = end.toISOString().split("T")[0];
+
+        url += `?startDate=${startDate}&endDate=${endDate}`;
+      } else {
+        return;
+      }
+
+      const res = await authAxios().get(url);
+      const data = res.data?.data || [];
+
+      if (!data.length) {
+        // ✨ Fallback → keep chart working
+        setDateCategories(["No Data"]);
+        setVerificationData([0]);
+        return;
+      }
+
+      const categories = data.map((item) => item.date);
+      const counts = data.map((item) => item.delivered_count);
+
+      setDateCategories(categories);
+      setVerificationData(counts);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch verification data");
+    }
+  };
+
+  useEffect(() => {
+    fetchVerificationData();
+  }, [verificationFilter, verificationCustomFrom, verificationCustomTo]);
+
+  const lineChartOptions = useMemo(() => ({
     chart: {
       type: "line",
       backgroundColor: "transparent",
@@ -292,11 +234,27 @@ const AdminDashboard = () => {
     title: { text: "" },
     credits: { enabled: false },
     xAxis: {
-      categories: categories, // Dynamic date categories
+      categories: dateCategories,
       lineColor: "#E5E7EB",
       tickColor: "#E5E5E5",
-      labels: { style: { color: "#000000", fontSize: "11px" } },
+      labels: {
+        style: { color: "#000000", fontSize: "11px" },
+        formatter: function () {
+          const date = new Date(this.value);
+
+          // If invalid date -> show fallback text
+          if (isNaN(date.getTime())) {
+            return "No data found";
+          }
+
+          return date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          });
+        },
+      },
     },
+
     yAxis: {
       title: { text: "" },
       gridLineColor: "#E5E5E5",
@@ -309,9 +267,7 @@ const AdminDashboard = () => {
       borderColor: "#1F2937",
       style: { color: "#FFFFFF" },
       formatter: function () {
-        return (
-          "<b>" + this.x + "</b><br/>" + "Verifications: <b>" + this.y + "</b>"
-        );
+        return "<b>" + "Verifications: <b>" + this.y + "</b>";
       },
     },
     plotOptions: {
@@ -329,6 +285,12 @@ const AdminDashboard = () => {
     series: [
       { name: "Verifications", data: verificationData, color: "#000000" },
     ],
+  }));
+
+  // Handle period dropdown selection change
+  const handlePeriodChange = (selected) => {
+    setSelectedPeriod(selected);
+    setShowCustomDate(selected.value === "custom");
   };
 
   const StatCard = ({ title, value }) => (
@@ -489,7 +451,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
             )}
-
             <HighchartsReact
               highcharts={Highcharts}
               options={pieChartOptions}
@@ -505,7 +466,9 @@ const AdminDashboard = () => {
               <div className="lg:w-44">
                 <Select
                   value={verificationFilter}
-                  onChange={setVerificationFilter}
+                  onChange={(selectedOption) => {
+                    setVerificationFilter(selectedOption);
+                  }}
                   options={filterOptions}
                   styles={customStyles}
                 />
@@ -521,10 +484,20 @@ const AdminDashboard = () => {
                     </span>
                     <DatePicker
                       selected={verificationCustomFrom}
-                      onChange={setVerificationCustomFrom}
+                      onChange={(date) => {
+                        setVerificationCustomFrom(date);
+                        if (
+                          verificationCustomTo &&
+                          date &&
+                          verificationCustomTo < date
+                        ) {
+                          setVerificationCustomTo(null);
+                        }
+                      }}
                       dateFormat="dd-MM-yyyy"
                       className="input--icon"
                       placeholderText="From Date"
+                      maxDate={new Date()}
                     />
                   </div>
                 </div>
@@ -536,9 +509,12 @@ const AdminDashboard = () => {
                     <DatePicker
                       selected={verificationCustomTo}
                       onChange={setVerificationCustomTo}
-                      dateFormat="dd-MM-yyyy"
+                      dateFormat="yyyy-MM-dd"
                       className="input--icon"
                       placeholderText="To Date"
+                      minDate={verificationCustomFrom || null}
+                      maxDate={new Date()}
+                      disabled={!verificationCustomFrom}
                     />
                   </div>
                 </div>
@@ -574,7 +550,7 @@ const AdminDashboard = () => {
               <Select
                 value={selectedPeriod}
                 onChange={handlePeriodChange}
-                options={periodOptions}
+                options={filterOptions}
                 styles={customStyles}
                 className="lg:min-w-[150px] min-w-[100px]"
               />
@@ -591,11 +567,7 @@ const AdminDashboard = () => {
                       onChange={(date) => {
                         setFromDate(date);
                         // If end date is before new start date, clear or adjust it
-                        if (
-                          toDate &&
-                          date &&
-                          toDate < date
-                        ) {
+                        if (toDate && date && toDate < date) {
                           setToDate(null);
                         }
                       }}
@@ -633,19 +605,33 @@ const AdminDashboard = () => {
                       <th className="px-3 py-3 min-w-[120px] text-center">
                         In Preparation
                       </th>
-                      <th className="px-3 py-3 min-w-[120px] text-center">In Transit</th>
-                      <th className="px-3 py-3 min-w-[120px] text-center">Delivered</th>
-                      <th className="px-3 py-3 min-w-[120px] text-center">Delayed</th>
+                      <th className="px-3 py-3 min-w-[120px] text-center">
+                        In Transit
+                      </th>
+                      <th className="px-3 py-3 min-w-[120px] text-center">
+                        Delivered
+                      </th>
+                      <th className="px-3 py-3 min-w-[120px] text-center">
+                        Delayed
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {codinatorPerformanceData.map((item, index) => (
                       <tr key={index} className="border-t">
                         <td className="px-3 py-3">{item.name}</td>
-                        <td className="px-3 py-3 text-center">{item.inPreparation}</td>
-                        <td className="px-3 py-3 text-center">{item.inTransit}</td>
-                        <td className="px-3 py-3 text-center">{item.DELIVERED}</td>
-                        <td className="px-3 py-3 text-center">{item.DELAYED}</td>
+                        <td className="px-3 py-3 text-center">
+                          {item.inPreparation}
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          {item.inTransit}
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          {item.DELIVERED}
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          {item.DELAYED}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

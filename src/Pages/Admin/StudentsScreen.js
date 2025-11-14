@@ -66,7 +66,7 @@ const StudentsScreen = () => {
   const [filters, setFilters] = useState({
     gender_en: null,
     school_id: null,
-    age: null,
+    age_range: null,
     status: null,
   });
   const [tempFilters, setTempFilters] = useState(filters);
@@ -192,9 +192,12 @@ const StudentsScreen = () => {
       ? String(student.school_id) === String(filters.school_id.value)
       : true;
 
-    const ageMatch = filters.age
-      ? Number(student.age) === Number(filters.age.value)
-      : true;
+    const ageMatch = filters.age_range
+    ? (() => {
+        const [minAge, maxAge] = filters.age_range.value.split("-").map(Number);
+        return student.age >= minAge && student.age <= maxAge;
+      })()
+    : true;
 
     const statusMatch = filters.status
       ? student.status?.toLowerCase() === filters.status.value?.toLowerCase()
@@ -379,95 +382,90 @@ const StudentsScreen = () => {
       )}
 
       {/* Table */}
-      <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
-        <div className="relative overflow-x-auto">
-          <table className="min-w-full text-sm text-left">
-            <thead className="bg-[#F1F1F1]">
-              <tr>
-                <th className="px-3 py-3 min-w-[170px]">Card No.</th>
-                <th className="px-3 py-3 min-w-[120px]">Student Name</th>
-                <th className="px-3 py-3 min-w-[90px]">Gender</th>
-                <th className="px-3 py-3 min-w-[110px]">School</th>
-                <th className="px-3 py-3 min-w-[50px]">Age</th>
-                <th className="px-3 py-3 min-w-[90px]">District</th>
-                <th className="px-3 py-3 min-w-[80px]">Status</th>
-                <th className="px-3 py-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <div className="flex justify-center items-center h-64">
-                  {/* You can replace this with your own spinner */}
-                  <Loader />
-                  {/* or simple text fallback: */}
-                  {/* <p className="text-gray-500">Loading schools...</p> */}
-                </div>
-              ) : (
-                <>
-                  {paginatedStudents.length > 0 ? (
-                    paginatedStudents.map((item, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="px-3 py-3">
-                          {formatCardNumber(item.card_no)}
-                        </td>
-                        <td className="px-3 py-3">{item.name_en}</td>
-                        <td className="px-3 py-3">{item.gender_en}</td>
-                        <td className="px-3 py-3">{item.school_name}</td>
-                        <td className="px-3 py-3">
-                          {String(item.age).padStart(2, "0")}
-                        </td>
-                        <td className="px-3 py-3">{item.district_en}</td>
-                        <td className="px-3 py-3">
-                          <span
-                            className={`block w-fit px-3 py-1 rounded-full capitalize ${
-                              item.status === "ACTIVE"
-                                ? "bg-green-200"
-                                : "bg-gray-200"
-                            }`}
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader />
+        </div>
+      ) : (
+        <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
+          <div className="relative overflow-x-auto">
+            <table className="min-w-full text-sm text-left">
+              <thead className="bg-[#F1F1F1]">
+                <tr>
+                  <th className="px-3 py-3 min-w-[170px]">Card No.</th>
+                  <th className="px-3 py-3 min-w-[120px]">Student Name</th>
+                  <th className="px-3 py-3 min-w-[90px]">Gender</th>
+                  <th className="px-3 py-3 min-w-[110px]">School</th>
+                  <th className="px-3 py-3 min-w-[50px]">Age</th>
+                  <th className="px-3 py-3 min-w-[90px]">District</th>
+                  <th className="px-3 py-3 min-w-[80px]">Status</th>
+                  <th className="px-3 py-3">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedStudents.length > 0 ? (
+                  paginatedStudents.map((item, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="px-3 py-3">
+                        {formatCardNumber(item.card_no)}
+                      </td>
+                      <td className="px-3 py-3">{item.name_en}</td>
+                      <td className="px-3 py-3">{item.gender_en}</td>
+                      <td className="px-3 py-3">{item.school_name}</td>
+                      <td className="px-3 py-3">
+                        {String(item.age).padStart(2, "0")}
+                      </td>
+                      <td className="px-3 py-3">{item.district_en}</td>
+                      <td className="px-3 py-3">
+                        <span
+                          className={`block w-fit px-3 py-1 rounded-full capitalize ${
+                            item.status === "ACTIVE"
+                              ? "bg-green-200"
+                              : "bg-gray-200"
+                          }`}
+                        >
+                          {formatCapitalText(item.status)}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <Tooltip
+                          id={`tooltip-edit-${item.id}`}
+                          content={`${
+                            userType === "ADMIN"
+                              ? "Edit Student"
+                              : "View Student"
+                          }`}
+                          place="left"
+                        >
+                          <div
+                            className="cursor-pointer w-8"
+                            onClick={() => {
+                              setEditingOption(item?.id);
+                              setShowModal(true);
+                            }}
                           >
-                            {formatCapitalText(item.status)}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3">
-                          <Tooltip
-                            id={`tooltip-edit-${item.id}`}
-                            content={`${
-                              userType === "ADMIN"
-                                ? "Edit Student"
-                                : "View Student"
-                            }`}
-                            place="left"
-                          >
-                            <div
-                              className="cursor-pointer w-8"
-                              onClick={() => {
-                                setEditingOption(item?.id);
-                                setShowModal(true);
-                              }}
-                            >
-                              <img
-                                src={userType === "ADMIN" ? editIcon : viewIcon}
-                                alt="view"
-                                className="w-full"
-                              />
-                            </div>
-                          </Tooltip>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={8} className="text-center py-3">
-                        No data available
+                            <img
+                              src={userType === "ADMIN" ? editIcon : viewIcon}
+                              alt="view"
+                              className="w-full"
+                            />
+                          </div>
+                        </Tooltip>
                       </td>
                     </tr>
-                  )}
-                </>
-              )}
-            </tbody>
-          </table>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="text-center py-3">
+                      No data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ✅ Pagination visible when >1 page */}
       {totalFilteredPages > 1 && (

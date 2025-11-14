@@ -1,81 +1,36 @@
-import React, { useState, useMemo, useEffect } from "react"; // Import React hooks
-import Highcharts from "highcharts"; // Import Highcharts
-import HighchartsReact from "highcharts-react-official"; // Import React wrapper for Highcharts
-import Select from "react-select"; // Import react-select for dropdowns
-import DatePicker from "react-datepicker"; // Import datepicker for custom date selection
-import "react-datepicker/dist/react-datepicker.css"; // Import default datepicker styles
+import React, { useState, useMemo, useEffect } from "react";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
+import Select from "react-select";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { customStyles, formatStatus } from "../../Helper/helper";
 import { Link } from "react-router-dom";
-import viewIcon from "../../Assests/Images/icons/view.svg";
-import shippingIcon from "../../Assests/Images/icons/shipping.svg";
 import MilestonePopup from "../../Components/MilestonePopup";
 import { LuCalendar } from "react-icons/lu";
 import SchoolDashboardTables from "../../Components/SchoolDashboardTables";
 import SubmitRatingPopup from "../../Components/SubmitRatingPopup";
 import { authAxios } from "../../Config/config";
 import { toast } from "react-toastify";
-import RatingBar from "../../Components/Common/RatingBar";
-import closeIcon from "../../Assests/Images/icons/close.svg";
-import Tooltip from "../../Components/Common/Tooltip";
 
-const milestoneDetailsSample = {
-  studentName: "Name of Student",
-  phone: "+91 9876543210",
-  address: "110, Gandhi nagar, Gorakhpur, Uttar Pradesh, 123456",
-  milestoneTitle: "Milestone 3",
-  verificationPending: true,
-  tasks: [
-    {
-      id: 1,
-      text: "Wash hands with soap for at least 20 seconds",
-      completed: null,
-    },
-    {
-      id: 2,
-      text: "Use tissues for blowing nose and dispose properly",
-      completed: null,
-    },
-    {
-      id: 3,
-      text: "Avoid sharing spoon/plate while eating food with classmates",
-      completed: null,
-    },
-    {
-      id: 4,
-      text: "Use personal water bottle instead of drinking fountains",
-      completed: null,
-    },
-    {
-      id: 5,
-      text: "Wipe down shared computer keyboards before use",
-      completed: null,
-    },
-  ],
-};
+const filterOptions = [
+  { value: "today", label: "Today" },
+  { value: "last_7_days", label: "Last 7 days" },
+  { value: "month_till_date", label: "Month till date" },
+  { value: "custom", label: "Custom Date" },
+];
 
 const CoordinatorDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const [selectedMilestone, setSelectedMilestone] = useState(null);
   const [quickLinks, setQuickLinks] = useState([]);
-  const [studentFeedback, setStudentFeedback] = useState({});
-  const [staffFeedback, setStaffFeedback] = useState({});
+  const [milestoneList, setMilestonesList] = useState([]);
+
+  // Rewards Pipeline
   const [pipelineFilter, setPipelineFilter] = useState({
     value: "last_7_days",
     label: "Last 7 days",
   });
-
-  const [verificationFilter, setVerificationFilter] = useState({
-    value: "last7days",
-    label: "Last 7 days",
-  });
-
-  const [milestoneList, setMilestonesList] = useState([]);
-  const [editingOption, setEditingOption] = useState(null);
-  const [selectedItemId, setSelectedItemId] = useState(null);
-  const [showConfirmReject, setShowConfirmReject] = useState(false);
-
-  // Custom dates for both filters
   const [pipelineCustomFrom, setPipelineCustomFrom] = useState(null);
   const [pipelineCustomTo, setPipelineCustomTo] = useState(null);
   const [pipelineData, setPipelineData] = useState({
@@ -85,122 +40,47 @@ const CoordinatorDashboard = () => {
     IN_ROUTE: 0,
     REJECT: 0,
   });
+
+  // Verifications Done
+  const [dateCategories, setDateCategories] = useState([]);
+  const [verificationFilter, setVerificationFilter] = useState({
+    value: "last_7_days", // Default filter value
+    label: "Last 7 days",
+  });
+  const [verificationData, setVerificationData] = useState({
+    date: "",
+    delivered_count: 0,
+  });
   const [verificationCustomFrom, setVerificationCustomFrom] = useState(null);
   const [verificationCustomTo, setVerificationCustomTo] = useState(null);
-
-  // Dropdown filter options
-  const filterOptions = [
-    { value: "today", label: "Today" },
-    { value: "last_7_days", label: "Last 7 days" },
-    { value: "month_till_date", label: "Month till date" },
-    { value: "custom", label: "Custom Date" },
-  ];
-
-  // Function to generate verification data and dynamic date labels based on filter
-  const generateVerificationData = (filter, from, to) => {
-    let categories = [];
-    let data = [];
-
-    // Helper to format date as 'dd MMM'
-    const formatDate = (date) => {
-      return date.toLocaleDateString("en-US", {
-        day: "2-digit",
-        month: "short",
-      });
-    };
-
-    if (filter === "today") {
-      const today = new Date();
-      categories = [formatDate(today)];
-      data = [Math.floor(Math.random() * 80) + 10];
-    } else if (filter === "last7days") {
-      const today = new Date();
-      categories = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(today);
-        d.setDate(today.getDate() - (6 - i));
-        return formatDate(d);
-      });
-      data = Array.from(
-        { length: 7 },
-        () => Math.floor(Math.random() * 80) + 20
-      );
-    } else if (filter === "monthToDate") {
-      const today = new Date();
-      const start = new Date(today.getFullYear(), today.getMonth(), 1);
-      const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1;
-      categories = Array.from({ length: diffDays }, (_, i) => {
-        const d = new Date(start);
-        d.setDate(start.getDate() + i);
-        return formatDate(d);
-      });
-      data = Array.from(
-        { length: diffDays },
-        () => Math.floor(Math.random() * 90) + 10
-      );
-    } else if (filter === "custom" && from && to) {
-      const diffDays =
-        Math.max(1, Math.floor((to - from) / (1000 * 60 * 60 * 24))) + 1;
-      categories = Array.from({ length: diffDays }, (_, i) => {
-        const d = new Date(from);
-        d.setDate(from.getDate() + i);
-        return formatDate(d);
-      });
-      data = Array.from(
-        { length: diffDays },
-        () => Math.floor(Math.random() * 90) + 10
-      );
-    } else {
-      // Default case (last 7 days)
-      const today = new Date();
-      categories = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(today);
-        d.setDate(today.getDate() - (6 - i));
-        return formatDate(d);
-      });
-      data = [20, 28, 68, 48, 62, 28, 45];
-    }
-
-    return { categories, data };
-  };
 
   // ✅ Fetch pipeline data from API
   const fetchPipelineData = async () => {
     try {
       let url = "/dashboard/reward/pipeline";
 
-      // Add query params based on selected filter
-      if (pipelineFilter.value === "today") {
-        url += "?dateFilter=today";
-      } else if (pipelineFilter.value === "last_7_days") {
-        url += "?dateFilter=last_7_days";
-      } else if (pipelineFilter.value === "month_till_date") {
-        url += "?dateFilter=month_till_date";
-      } else if (
-        pipelineFilter.value === "custom" &&
-        pipelineCustomFrom &&
-        pipelineCustomTo
-      ) {
+      if (pipelineFilter.value !== "custom") {
+        url += `?dateFilter=${pipelineFilter.value}`;
+      } else if (pipelineCustomFrom && pipelineCustomTo) {
         const startDate = pipelineCustomFrom.toISOString().split("T")[0];
-
-        // Backend expects endDate to be exclusive — add one day
-        const endDateObj = new Date(pipelineCustomTo);
-        endDateObj.setDate(endDateObj.getDate() + 1);
-        const endDate = endDateObj.toISOString().split("T")[0];
+        const end = new Date(pipelineCustomTo);
+        end.setDate(end.getDate() + 1);
+        const endDate = end.toISOString().split("T")[0];
 
         url += `?startDate=${startDate}&endDate=${endDate}`;
       } else {
-        return; // Don’t fetch if custom dates not chosen
+        return; // no custom dates yet
       }
 
       const res = await authAxios().get(url);
       const data = res.data?.data || {};
 
       setPipelineData({
-        SHIPPED: data.SHIPPED || 0,
-        DELIVERED: data.DELIVERED || 0,
-        DELAYED: data.DELAYED || 0,
-        IN_ROUTE: data.IN_ROUTE || 0,
-        REJECT: data.REJECT || 0,
+        SHIPPED: data.SHIPPED ?? 0,
+        DELIVERED: data.DELIVERED ?? 0,
+        DELAYED: data.DELAYED ?? 0,
+        IN_ROUTE: data.IN_ROUTE ?? 0,
+        REJECT: data.REJECT ?? 0,
       });
     } catch (err) {
       console.error(err);
@@ -208,12 +88,10 @@ const CoordinatorDashboard = () => {
     }
   };
 
-  // 🔁 Fetch when filter or custom dates change
   useEffect(() => {
     fetchPipelineData();
   }, [pipelineFilter, pipelineCustomFrom, pipelineCustomTo]);
 
-  // Pie Chart Configuration
   const pieChartOptions = useMemo(
     () => ({
       chart: {
@@ -255,18 +133,51 @@ const CoordinatorDashboard = () => {
     [pipelineData]
   );
 
-  const { categories, data: verificationData } = useMemo(
-    () =>
-      generateVerificationData(
-        verificationFilter.value,
-        verificationCustomFrom,
-        verificationCustomTo
-      ),
-    [verificationFilter, verificationCustomFrom, verificationCustomTo]
-  );
+  // ✅ Fetch verification data from API
+  const fetchVerificationData = async () => {
+    try {
+      let url = "/dashboard/verification/done";
 
-  // Line Chart Configuration with dynamic categories
-  const lineChartOptions = {
+      if (verificationFilter.value !== "custom") {
+        url += `?dateFilter=${verificationFilter.value}`;
+      } else if (verificationCustomFrom && verificationCustomTo) {
+        const startDate = verificationCustomFrom.toISOString().split("T")[0];
+
+        const end = new Date(verificationCustomTo);
+        end.setDate(end.getDate() + 1);
+        const endDate = end.toISOString().split("T")[0];
+
+        url += `?startDate=${startDate}&endDate=${endDate}`;
+      } else {
+        return;
+      }
+
+      const res = await authAxios().get(url);
+      const data = res.data?.data || [];
+
+      if (!data.length) {
+        // ✨ Fallback → keep chart working
+        setDateCategories(["No Data"]);
+        setVerificationData([0]);
+        return;
+      }
+
+      const categories = data.map((item) => item.date);
+      const counts = data.map((item) => item.delivered_count);
+
+      setDateCategories(categories);
+      setVerificationData(counts);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch verification data");
+    }
+  };
+
+  useEffect(() => {
+    fetchVerificationData();
+  }, [verificationFilter, verificationCustomFrom, verificationCustomTo]);
+
+  const lineChartOptions = useMemo(() => ({
     chart: {
       type: "line",
       backgroundColor: "transparent",
@@ -277,11 +188,27 @@ const CoordinatorDashboard = () => {
     title: { text: "" },
     credits: { enabled: false },
     xAxis: {
-      categories: categories, // Dynamic date categories
+      categories: dateCategories,
       lineColor: "#E5E7EB",
       tickColor: "#E5E5E5",
-      labels: { style: { color: "#000000", fontSize: "11px" } },
+      labels: {
+        style: { color: "#000000", fontSize: "11px" },
+        formatter: function () {
+          const date = new Date(this.value);
+
+          // If invalid date -> show fallback text
+          if (isNaN(date.getTime())) {
+            return "No data found";
+          }
+
+          return date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          });
+        },
+      },
     },
+
     yAxis: {
       title: { text: "" },
       gridLineColor: "#E5E5E5",
@@ -294,9 +221,7 @@ const CoordinatorDashboard = () => {
       borderColor: "#1F2937",
       style: { color: "#FFFFFF" },
       formatter: function () {
-        return (
-          "<b>" + this.x + "</b><br/>" + "Verifications: <b>" + this.y + "</b>"
-        );
+        return "<b>" + "Verifications: <b>" + this.y + "</b>";
       },
     },
     plotOptions: {
@@ -314,42 +239,7 @@ const CoordinatorDashboard = () => {
     series: [
       { name: "Verifications", data: verificationData, color: "#000000" },
     ],
-  };
-
-  const milestonesSummary = [
-    {
-      name: "Student 1",
-      school: "LN PUBLIC SCHOOL",
-      reward: "Milestone 1",
-      status: "SHIPPED",
-      address: "Garh road, Gorakhpur",
-      details: milestoneDetailsSample,
-    },
-    {
-      name: "Student 2",
-      school: "MINILAND CONVENT SCHOOL",
-      reward: "Milestone 3 + 1 dettol soap",
-      status: "in route",
-      address: "Garh road, Gorakhpur",
-      details: milestoneDetailsSample,
-    },
-    {
-      name: "Student 3",
-      school: "DEWAN PUBLIC SCHOOL",
-      reward: "Milestone 2",
-      status: "in route",
-      address: "Garh road, Gorakhpur",
-      details: milestoneDetailsSample,
-    },
-    {
-      name: "Student 4",
-      school: "LITTLE FLOWER PUBLIC SCHOOL",
-      reward: "Milestone 2 + 3 dettol soap",
-      status: "SHIPPED",
-      address: "Garh road, Gorakhpur",
-      details: milestoneDetailsSample,
-    },
-  ];
+  }));
 
   const StatCard = ({ title, value }) => (
     <div className="bg-white rounded-[10px] border border-[#D4D4D4] overflow-hidden">
@@ -374,33 +264,8 @@ const CoordinatorDashboard = () => {
     }
   };
 
-  const fetchStudentFeedback = async () => {
-    try {
-      const res = await authAxios().get("/dashboard/student/feedback");
-
-      const data = res.data?.data || {}; // default to object
-      setStudentFeedback(data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch student feedback");
-    }
-  };
-  const fetchStaffFeedback = async () => {
-    try {
-      const res = await authAxios().get("/dashboard/employee/feedback");
-
-      const data = res.data?.data || {}; // default to object
-      setStaffFeedback(data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch staff feedback");
-    }
-  };
-
   useEffect(() => {
     fetchQuickLinks();
-    fetchStudentFeedback();
-    fetchStaffFeedback();
   }, []);
 
   // Milestones functions
@@ -419,37 +284,6 @@ const CoordinatorDashboard = () => {
   useEffect(() => {
     fetchMilestonesList();
   }, []);
-  // const handleShippingClick = async (itemId, status) => {
-  //   try {
-  //     // Pass the status in the request payload
-  //     const res = await authAxios().put(`/myreward/${itemId}`, {
-  //       status: status,
-  //     });
-  //     toast.success(`Status updated to ${formatStatus(status)} successfully!`);
-  //     fetchMilestonesList(); // Assuming this reloads or updates the milestones list
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to update milestone status");
-  //   }
-  // };
-
-  // const confirmRejectTask = async () => {
-  //   if (!selectedItemId) return;
-
-  //   try {
-  //     await handleShippingClick(selectedItemId, "REJECT");
-  //   } catch (error) {
-  //     console.error(error);
-  //   } finally {
-  //     setShowConfirmReject(false);
-  //     setSelectedItemId(null);
-  //   }
-  // };
-
-  // const cancelRejectTask = () => {
-  //   setShowConfirmReject(false);
-  //   setSelectedItemId(null);
-  // };
 
   return (
     <>
@@ -474,22 +308,6 @@ const CoordinatorDashboard = () => {
             <StatCard
               title="Verification Pending"
               value={quickLinks?.verification_pending_count}
-            />
-          </div>
-        </div>
-
-        <div className="custom--shodow bg-white lg:p-4 p-2 rounded-[10px] mb-3">
-          <h2 className="lg:text-xl text-lg font-bold text-black lg:mb-3 mb-2">
-            Feedback
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 ">
-            <RatingBar
-              title="Student Feedback"
-              rating={Number(studentFeedback?.student_rating_average) || 0}
-            />
-            <RatingBar
-              title="Employee Feedback"
-              rating={Number(staffFeedback?.employee_rating_average) || 0}
             />
           </div>
         </div>
@@ -572,7 +390,9 @@ const CoordinatorDashboard = () => {
               <div className="lg:w-44">
                 <Select
                   value={verificationFilter}
-                  onChange={setVerificationFilter}
+                  onChange={(selectedOption) => {
+                    setVerificationFilter(selectedOption);
+                  }}
                   options={filterOptions}
                   styles={customStyles}
                 />
@@ -588,10 +408,20 @@ const CoordinatorDashboard = () => {
                     </span>
                     <DatePicker
                       selected={verificationCustomFrom}
-                      onChange={setVerificationCustomFrom}
-                      dateFormat="yyyy-MM-dd"
+                      onChange={(date) => {
+                        setVerificationCustomFrom(date);
+                        if (
+                          verificationCustomTo &&
+                          date &&
+                          verificationCustomTo < date
+                        ) {
+                          setVerificationCustomTo(null);
+                        }
+                      }}
+                      dateFormat="dd-MM-yyyy"
                       className="input--icon"
                       placeholderText="From Date"
+                      maxDate={new Date()}
                     />
                   </div>
                 </div>
@@ -606,6 +436,9 @@ const CoordinatorDashboard = () => {
                       dateFormat="yyyy-MM-dd"
                       className="input--icon"
                       placeholderText="To Date"
+                      minDate={verificationCustomFrom || null}
+                      maxDate={new Date()}
+                      disabled={!verificationCustomFrom}
                     />
                   </div>
                 </div>
@@ -785,7 +618,9 @@ const CoordinatorDashboard = () => {
                       <th className="px-3 py-3 min-w-[120px]">
                         Milestones Achieved
                       </th>
-                      <th className="px-3 py-3 min-w-[120px] text-center">Status</th>
+                      <th className="px-3 py-3 min-w-[120px] text-center">
+                        Status
+                      </th>
                       {/* <th className="px-3 py-3 min-w-[120px]">Action</th> */}
                     </tr>
                   </thead>
@@ -840,7 +675,7 @@ const CoordinatorDashboard = () => {
                               </span>
                             ) : (
                               <>
-                                {item?.status === "DELIVERED" ? null : (
+                                {item?.status === "DELIVERED" ? ("--") : (
                                   <div className="flex flex-nowrap w-full items-center">
                                     <Tooltip
                                       id={`tooltip-edit-${item.id}`}
@@ -941,7 +776,6 @@ const CoordinatorDashboard = () => {
       {isModalOpen && (
         <MilestonePopup
           setIsModalOpen={setIsModalOpen}
-          editingOption={editingOption}
           fetchMilestonesList={fetchMilestonesList}
         />
       )}

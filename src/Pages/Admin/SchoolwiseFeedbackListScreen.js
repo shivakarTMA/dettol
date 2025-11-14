@@ -2,16 +2,29 @@ import React, { useEffect, useState } from "react";
 import { GoStarFill } from "react-icons/go";
 import { authAxios } from "../../Config/config";
 import { toast } from "react-toastify";
+import Pagination from "../../Components/Common/Pagination";
 
 const SchoolwiseFeedbackListScreen = () => {
   const [schoolwiseFeedback, setSchoolwiseFeedback] = useState([]);
+  const [page, setPage] = useState(1);
+  const [rowsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const fetchSchoolFeedback = async () => {
+  const fetchSchoolFeedback = async (currentPage = page) => {
     try {
-      const res = await authAxios().get("/dashboard/school/feedback/list");
+      const res = await authAxios().get("/dashboard/school/feedback/list", {
+        params: {
+          page: currentPage,
+          limit: rowsPerPage,
+        },
+      });
 
       let data = res.data?.data || [];
       setSchoolwiseFeedback(data);
+      setPage(res.data?.currentPage || 1);
+      setTotalPages(res.data?.totalPage || 1);
+      setTotalCount(res.data?.totalCount || data.length);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch employee feedback");
@@ -63,6 +76,17 @@ const SchoolwiseFeedbackListScreen = () => {
             </div>
           </div>
         </div>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          rowsPerPage={rowsPerPage}
+          totalCount={totalCount}
+          currentDataLength={schoolwiseFeedback.length}
+          onPageChange={(newPage) => {
+            setPage(newPage);
+            fetchSchoolFeedback(newPage);
+          }}
+        />
       </div>
     </div>
   );

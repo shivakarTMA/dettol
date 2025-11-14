@@ -8,11 +8,13 @@ import { authAxios } from "../Config/config";
 
 // Validation schema for the form
 const validationSchema = Yup.object().shape({
-  rating: Yup.number().required("Rating is required").min(1, "Please select a rating"),
+  rating: Yup.number()
+    .required("Rating is required")
+    .min(1, "Please select a rating"),
   comment: Yup.string().required("Comment is required"),
 });
 
-export default function SubmitRatingPopup({ isOpen, onClose }) {
+export default function SubmitRatingPopup({ setIsSuccessModalOpen }) {
   const formik = useFormik({
     initialValues: {
       rating: 0, // Default value for rating
@@ -35,7 +37,7 @@ export default function SubmitRatingPopup({ isOpen, onClose }) {
 
       // Reset the form and close the modal
       resetForm();
-      onClose();
+      setIsSuccessModalOpen(false);
     },
   });
 
@@ -44,7 +46,10 @@ export default function SubmitRatingPopup({ isOpen, onClose }) {
       {/* Overlay */}
       <div
         className="fixed inset-0 bg-black bg-opacity-50 z-40"
-        onClick={onClose}
+        onClick={() => {
+          formik.resetForm();
+          setIsSuccessModalOpen(false);
+        }}
       ></div>
 
       {/* Modal */}
@@ -53,7 +58,10 @@ export default function SubmitRatingPopup({ isOpen, onClose }) {
           {/* Close button */}
           <button
             className="absolute top-4 right-4 text-2xl font-bold hover:text-gray-600"
-            onClick={onClose}
+            onClick={() => {
+              formik.resetForm();
+              setIsSuccessModalOpen(false);
+            }}
             aria-label="Close"
           >
             <IoMdClose />
@@ -78,10 +86,18 @@ export default function SubmitRatingPopup({ isOpen, onClose }) {
                     key={ratingValue}
                     size={28}
                     className="cursor-pointer transition"
-                    color={ratingValue <= formik.values.rating ? "#ffc107" : "#e4e5e9"}
+                    color={
+                      ratingValue <= formik.values.rating
+                        ? "#ffc107"
+                        : "#e4e5e9"
+                    }
                     onClick={() => formik.setFieldValue("rating", ratingValue)} // Set rating using Formik
-                    onMouseEnter={() => formik.setFieldValue("rating", ratingValue)} // Show hover effect
-                    onMouseLeave={() => formik.setFieldValue("rating", formik.values.rating)} // Revert to original rating
+                    onMouseEnter={() =>
+                      formik.setFieldValue("rating", ratingValue)
+                    } // Show hover effect
+                    onMouseLeave={() =>
+                      formik.setFieldValue("rating", formik.values.rating)
+                    } // Revert to original rating
                   />
                 );
               })}

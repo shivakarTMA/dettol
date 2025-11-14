@@ -3,6 +3,7 @@ import Select from "react-select";
 import { customStyles } from "../../Helper/helper";
 import { toast } from "react-toastify";
 import { authAxios } from "../../Config/config";
+import Pagination from "../../Components/Common/Pagination";
 
 const milestoneOptions = [
   { value: "Milestone 1", label: "Milestone 1" },
@@ -25,17 +26,29 @@ const SchoolWiseMilestonesListScreen = () => {
   );
   const [schoolWiseMilestones, setSchoolWiseMilestones] = useState([]);
 
-  const fetchSchoolMilestonesList = async (
-    milestone_name = selectedMilestone.value
-  ) => {
+  const [page, setPage] = useState(1);
+  const [rowsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const fetchSchoolMilestonesList = async (currentPage = page) => {
+    let params = {
+      page: currentPage,
+      limit: rowsPerPage,
+      milestone_name: selectedMilestone.value,
+    };
+
     try {
-      // Pass the selected milestone_name as a query parameter
-      const res = await authAxios().get(
-        `/dashboard/school/milestone/list?milestone_name=${milestone_name}`
-      );
+      const res = await authAxios().get("/dashboard/school/milestone/list", {
+        params,
+      });
 
       let data = res.data?.data || [];
+
       setSchoolWiseMilestones(data);
+      setPage(currentPage);
+      setTotalPages(res.data?.totalPage || 1);
+      setTotalCount(res.data?.totalCount || data.length);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch milestone");
@@ -43,7 +56,7 @@ const SchoolWiseMilestonesListScreen = () => {
   };
 
   useEffect(() => {
-    fetchSchoolMilestonesList(selectedMilestone.value);
+    fetchSchoolMilestonesList(1);
   }, [selectedMilestone]);
 
   return (
@@ -103,6 +116,17 @@ const SchoolWiseMilestonesListScreen = () => {
             </div>
           </div>
         </div>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          rowsPerPage={rowsPerPage}
+          totalCount={totalCount}
+          currentDataLength={schoolWiseMilestones.length}
+          onPageChange={(newPage) => {
+            setPage(newPage);
+            fetchSchoolMilestonesList(newPage);
+          }}
+        />
       </div>
     </div>
   );
