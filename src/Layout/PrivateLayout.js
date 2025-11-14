@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../Components/Common/Sidebar";
 import Topbar from "../Components/Common/Topbar";
 import { useLocation } from "react-router-dom";
+import InstractionGuide from "../Components/InstractionGuide";
 
 export default function PrivateLayout({ children }) {
   const [toggleMenuBar, setToggleMenuBar] = useState(false);
+  const [showPdf, setShowPdf] = useState(false);
   const location = useLocation();
 
-    useEffect(() => {
+  useEffect(() => {
     setToggleMenuBar(false);
   }, [location.pathname]);
 
@@ -38,6 +40,10 @@ export default function PrivateLayout({ children }) {
 
   const pageTitle = pageTitles[location.pathname] || "Page";
 
+  const handleGuideClick = () => {
+    setShowPdf(true);
+  };
+
   return (
     <>
       <div className="flex  h-full w-full">
@@ -50,6 +56,7 @@ export default function PrivateLayout({ children }) {
         <Sidebar
           toggleMenuBar={toggleMenuBar}
           setToggleMenuBar={setToggleMenuBar}
+          handleGuideClick={handleGuideClick}
         />
         <div
           className={`${
@@ -64,6 +71,14 @@ export default function PrivateLayout({ children }) {
           <div className="content--area lg:p-5 p-3">{children}</div>
         </div>
       </div>
+
+      {showPdf && (
+        <InstractionGuide
+          show={showPdf}
+          onClose={() => setShowPdf(false)}
+          pdfUrl="/sample.pdf"
+        />
+      )}
     </>
   );
 }

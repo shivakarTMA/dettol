@@ -403,20 +403,6 @@ const CoordinatorDashboard = () => {
     fetchStaffFeedback();
   }, []);
 
-  const handleViewClick = (milestone) => {
-    setSelectedMilestone(milestone.details);
-    setIsModalOpen(true);
-  };
-
-  const handlePopupSubmit = (tasks) => {
-    console.log("📦 Received in parent:", tasks);
-    const allCompleted = tasks.every((task) => task.completed === true);
-    console.log(allCompleted, "allCompleted");
-    if (allCompleted) {
-      setIsSuccessModalOpen(true);
-    }
-  };
-
   // Milestones functions
   const fetchMilestonesList = async () => {
     try {
@@ -433,37 +419,37 @@ const CoordinatorDashboard = () => {
   useEffect(() => {
     fetchMilestonesList();
   }, []);
-  const handleShippingClick = async (itemId, status) => {
-    try {
-      // Pass the status in the request payload
-      const res = await authAxios().put(`/myreward/${itemId}`, {
-        status: status,
-      });
-      toast.success(`Status updated to ${formatStatus(status)} successfully!`);
-      fetchMilestonesList(); // Assuming this reloads or updates the milestones list
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update milestone status");
-    }
-  };
+  // const handleShippingClick = async (itemId, status) => {
+  //   try {
+  //     // Pass the status in the request payload
+  //     const res = await authAxios().put(`/myreward/${itemId}`, {
+  //       status: status,
+  //     });
+  //     toast.success(`Status updated to ${formatStatus(status)} successfully!`);
+  //     fetchMilestonesList(); // Assuming this reloads or updates the milestones list
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to update milestone status");
+  //   }
+  // };
 
-  const confirmRejectTask = async () => {
-    if (!selectedItemId) return;
+  // const confirmRejectTask = async () => {
+  //   if (!selectedItemId) return;
 
-    try {
-      await handleShippingClick(selectedItemId, "REJECT");
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setShowConfirmReject(false);
-      setSelectedItemId(null);
-    }
-  };
+  //   try {
+  //     await handleShippingClick(selectedItemId, "REJECT");
+  //   } catch (error) {
+  //     console.error(error);
+  //   } finally {
+  //     setShowConfirmReject(false);
+  //     setSelectedItemId(null);
+  //   }
+  // };
 
-  const cancelRejectTask = () => {
-    setShowConfirmReject(false);
-    setSelectedItemId(null);
-  };
+  // const cancelRejectTask = () => {
+  //   setShowConfirmReject(false);
+  //   setSelectedItemId(null);
+  // };
 
   return (
     <>
@@ -647,7 +633,7 @@ const CoordinatorDashboard = () => {
                 to="/milestones-completion"
                 className="underline text-[#008421] text-lg"
               >
-                <small>View All</small>
+                <small>Take Action</small>
               </Link>
             </div>
             {/* Mobile */}
@@ -690,7 +676,7 @@ const CoordinatorDashboard = () => {
                         {formatStatus(item?.status)}
                       </span>
                     </div>
-                    <div>
+                    {/* <div>
                       <div className="flex flex-nowrap gap-1 w-full items-center">
                         {item?.status === "REJECT" ? (
                           <span
@@ -763,7 +749,7 @@ const CoordinatorDashboard = () => {
                           </>
                         )}
                       </div>
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="mt-2">
@@ -799,21 +785,21 @@ const CoordinatorDashboard = () => {
                       <th className="px-3 py-3 min-w-[120px]">
                         Milestones Achieved
                       </th>
-                      <th className="px-3 py-3 min-w-[120px]">Status</th>
-                      <th className="px-3 py-3 min-w-[120px]">View Details</th>
+                      <th className="px-3 py-3 min-w-[120px] text-center">Status</th>
+                      {/* <th className="px-3 py-3 min-w-[120px]">Action</th> */}
                     </tr>
                   </thead>
                   <tbody>
                     {milestoneList.length > 0 ? (
-                      milestoneList.slice(0, 20).map((item, index) => (
+                      milestoneList.slice(0, 4).map((item, index) => (
                         <tr key={index} className="border-t">
                           <td className="px-3 py-3">{item?.student_name}</td>
                           <td className="px-3 py-3">{item?.school_name}</td>
                           <td className="px-3 py-3">{item?.student_address}</td>
                           <td className="px-3 py-3">{item?.milestone_name}</td>
-                          <td className="px-3 py-3">
+                          <td className="px-3 py-3 text-center">
                             <span
-                              className={`block w-fit px-3 py-1 rounded-full capitalize 
+                              className={`mx-auto block w-fit px-3 py-1 rounded-full capitalize 
                           ${
                             item?.status === "SHIPPED"
                               ? "bg-[#FFFBEE] text-[#FFC107]"
@@ -843,7 +829,7 @@ const CoordinatorDashboard = () => {
                               {formatStatus(item?.status)}
                             </span>
                           </td>
-                          <td className="px-3 py-3">
+                          {/* <td className="px-3 py-3">
                             {item?.status === "REJECT" ? (
                               <span
                                 className={`block w-fit px-3 py-1 rounded-full capitalize bg-[#FFECEE] text-[#DC3545] 
@@ -934,7 +920,7 @@ const CoordinatorDashboard = () => {
                                 )}
                               </>
                             )}
-                          </td>
+                          </td> */}
                         </tr>
                       ))
                     ) : (
@@ -967,7 +953,7 @@ const CoordinatorDashboard = () => {
         />
       )}
 
-      {showConfirmReject && (
+      {/* {showConfirmReject && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-[90%] max-w-sm text-center">
             <h3 className="text-lg font-semibold mb-3">
@@ -989,7 +975,7 @@ const CoordinatorDashboard = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 };

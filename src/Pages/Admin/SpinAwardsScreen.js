@@ -10,6 +10,7 @@ import { authAxios } from "../../Config/config";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { MdOutlineInventory2 } from "react-icons/md";
 
 const validationSchema = Yup.object().shape({
   image: Yup.mixed()
@@ -125,6 +126,19 @@ const SpinAwardsScreen = () => {
   return (
     <>
       <div className="">
+        <div className="mb-3 flex">
+          <button
+            className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
+            onClick={() => {
+              setEditingOption(null);
+              formik.resetForm();
+              setShowModal(true);
+            }}
+          >
+            <MdOutlineInventory2 className="text-xl" />
+            <span>Add Award</span>
+          </button>
+        </div>
         <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
           <div className="rounded-[10px] overflow-hidden">
             <div className="relative overflow-x-auto ">

@@ -16,31 +16,32 @@ import reportsIcon from "../../Assests/Images/sidebar/reports.svg";
 import userIcon from "../../Assests/Images/sidebar/usermanagement.svg";
 import ticketIcon from "../../Assests/Images/sidebar/ticket.svg";
 import inventoryIcon from "../../Assests/Images/sidebar/inventory.svg";
+import guideIcon from "../../Assests/Images/icons/guide.svg";
 import { useSelector } from "react-redux";
 import { FaAngleDown, FaCircle } from "react-icons/fa";
 
-const Sidebar = ({ toggleMenuBar, setToggleMenuBar }) => {
+const Sidebar = ({ toggleMenuBar, setToggleMenuBar, handleGuideClick }) => {
   const location = useLocation();
   const { userType } = useSelector((state) => state.auth);
 
   const [dropdownToggles, setDropdownToggles] = useState({});
 
-const toggleMenu = (menuKey) => {
-  setDropdownToggles((prev) => {
-    const newState = {};
+  const toggleMenu = (menuKey) => {
+    setDropdownToggles((prev) => {
+      const newState = {};
 
-    // If the same menu is clicked, toggle it; otherwise, open the new one only
-    if (!prev[menuKey]) {
-      newState[menuKey] = true;
+      // If the same menu is clicked, toggle it; otherwise, open the new one only
+      if (!prev[menuKey]) {
+        newState[menuKey] = true;
+      }
+
+      return newState;
+    });
+
+    if (window.innerWidth > 1200) {
+      setToggleMenuBar(false);
     }
-
-    return newState;
-  });
-
-  if (window.innerWidth > 1200) {
-    setToggleMenuBar(false);
-  }
-};
+  };
   useEffect(() => {
     if (toggleMenuBar) {
       setDropdownToggles({});
@@ -52,7 +53,13 @@ const toggleMenu = (menuKey) => {
     <div className={`sidebar ${toggleMenuBar ? "activetoggle" : ""}`}>
       <div className="sidebar-logo d-flex align-items-center">
         <Link to="/" className="text-center">
-          <img src={Logo} alt="logo" width="122" height="120" className="mx-auto" />
+          <img
+            src={Logo}
+            alt="logo"
+            width="122"
+            height="120"
+            className="mx-auto"
+          />
         </Link>
       </div>
 
@@ -82,11 +89,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/school-management" ? "active" : ""
               }`}
             >
-              <img
-                src={schoolIcon}
-                alt="schoolIcon"
-                className="menu--icon"
-              />
+              <img src={schoolIcon} alt="schoolIcon" className="menu--icon" />
               <span className="nav-text">School Management</span>
             </Link>
             <Link
@@ -95,11 +98,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/student-management" ? "active" : ""
               }`}
             >
-              <img
-                src={studentIcon}
-                alt="studentIcon"
-                className="menu--icon"
-              />
+              <img src={studentIcon} alt="studentIcon" className="menu--icon" />
               <span className="nav-text">Student Management</span>
             </Link>
             <Link
@@ -134,11 +133,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/tasks" ? "active" : ""
               }`}
             >
-              <img
-                src={tasksIcon}
-                alt="tasksIcon"
-                className="menu--icon"
-              />
+              <img src={tasksIcon} alt="tasksIcon" className="menu--icon" />
               <span className="nav-text">Tasks</span>
             </Link>
             <Link
@@ -160,11 +155,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/spin-rewards" ? "active" : ""
               }`}
             >
-              <img
-                src={spinIcon}
-                alt="spinIcon"
-                className="menu--icon"
-              />
+              <img src={spinIcon} alt="spinIcon" className="menu--icon" />
               <span className="nav-text">Spin Rewards</span>
             </Link>
             <Link
@@ -173,11 +164,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/learn-module" ? "active" : ""
               }`}
             >
-              <img
-                src={learnIcon}
-                alt="learnIcon"
-                className="menu--icon"
-              />
+              <img src={learnIcon} alt="learnIcon" className="menu--icon" />
               <span className="nav-text">Learn Module</span>
             </Link>
             <Link
@@ -319,11 +306,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/user-management" ? "active" : ""
               }`}
             >
-              <img
-                src={userIcon}
-                alt="userIcon"
-                className="menu--icon"
-              />
+              <img src={userIcon} alt="userIcon" className="menu--icon" />
               <span className="nav-text">User Management</span>
             </Link>
             <Link
@@ -332,11 +315,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/tickets" ? "active" : ""
               }`}
             >
-              <img
-                src={ticketIcon}
-                alt="userIcon"
-                className="menu--icon"
-              />
+              <img src={ticketIcon} alt="userIcon" className="menu--icon" />
               <span className="nav-text">Tickets</span>
             </Link>
           </>
@@ -502,13 +481,16 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/tickets-list" ? "active" : ""
               }`}
             >
-              <img
-                src={ticketIcon}
-                alt="userIcon"
-                className="menu--icon"
-              />
+              <img src={ticketIcon} alt="userIcon" className="menu--icon" />
               <span className="nav-text">Tickets</span>
             </Link>
+
+            <div
+              className={`nav-link mb-2 cursor-pointer`} onClick={handleGuideClick}
+            >
+              <img src={guideIcon} alt="guideIcon" className="menu--icon" />
+              <span className="nav-text">Instruction Manual</span>
+            </div>
           </>
         )}
 
@@ -520,11 +502,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/school-management" ? "active" : ""
               }`}
             >
-              <img
-                src={schoolIcon}
-                alt="schoolIcon"
-                className="menu--icon"
-              />
+              <img src={schoolIcon} alt="schoolIcon" className="menu--icon" />
               <span className="nav-text">School Management</span>
             </Link>
             <Link
@@ -533,11 +511,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/student-management" ? "active" : ""
               }`}
             >
-              <img
-                src={studentIcon}
-                alt="studentIcon"
-                className="menu--icon"
-              />
+              <img src={studentIcon} alt="studentIcon" className="menu--icon" />
               <span className="nav-text">Student Management</span>
             </Link>
             <Link
@@ -559,11 +533,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/tasks" ? "active" : ""
               }`}
             >
-              <img
-                src={tasksIcon}
-                alt="tasksIcon"
-                className="menu--icon"
-              />
+              <img src={tasksIcon} alt="tasksIcon" className="menu--icon" />
               <span className="nav-text">Tasks</span>
             </Link>
             <Link
@@ -585,11 +555,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/spin-rewards" ? "active" : ""
               }`}
             >
-              <img
-                src={spinIcon}
-                alt="spinIcon"
-                className="menu--icon"
-              />
+              <img src={spinIcon} alt="spinIcon" className="menu--icon" />
               <span className="nav-text">Spin Rewards</span>
             </Link>
             <Link
@@ -598,11 +564,7 @@ const toggleMenu = (menuKey) => {
                 location.pathname === "/learn-module" ? "active" : ""
               }`}
             >
-              <img
-                src={learnIcon}
-                alt="learnIcon"
-                className="menu--icon"
-              />
+              <img src={learnIcon} alt="learnIcon" className="menu--icon" />
               <span className="nav-text">Learn Module</span>
             </Link>
             <Link
@@ -714,6 +676,7 @@ const toggleMenu = (menuKey) => {
             )}
           </>
         )}
+        
       </div>
     </div>
   );
