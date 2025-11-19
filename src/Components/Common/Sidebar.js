@@ -17,6 +17,8 @@ import userIcon from "../../Assests/Images/sidebar/usermanagement.svg";
 import ticketIcon from "../../Assests/Images/sidebar/ticket.svg";
 import inventoryIcon from "../../Assests/Images/sidebar/inventory.svg";
 import guideIcon from "../../Assests/Images/icons/guide.svg";
+import faqIcon from "../../Assests/Images/icons/faq.svg";
+import faqcatIcon from "../../Assests/Images/icons/faq-category.svg";
 import { useSelector } from "react-redux";
 import { FaAngleDown, FaCircle } from "react-icons/fa";
 
@@ -48,10 +50,10 @@ const Sidebar = ({ toggleMenuBar, setToggleMenuBar, handleGuideClick }) => {
     }
   }, [toggleMenuBar]);
 
-  const handlePdfControl = () =>{
+  const handlePdfControl = () => {
     handleGuideClick();
     setToggleMenuBar(false);
-  }
+  };
 
   return (
     <div className={`sidebar ${toggleMenuBar ? "activetoggle" : ""}`}>
@@ -105,6 +107,7 @@ const Sidebar = ({ toggleMenuBar, setToggleMenuBar, handleGuideClick }) => {
               <img src={studentIcon} alt="studentIcon" className="menu--icon" />
               <span className="nav-text">Student Management</span>
             </Link>
+
             <Link
               to="/milestones-completion"
               className={`nav-link mb-2 ${
@@ -117,6 +120,24 @@ const Sidebar = ({ toggleMenuBar, setToggleMenuBar, handleGuideClick }) => {
                 className="menu--icon"
               />
               <span className="nav-text">Milestones Completion</span>
+            </Link>
+            <Link
+              to="/faq-category"
+              className={`nav-link mb-2 ${
+                location.pathname === "/faq-category" ? "active" : ""
+              }`}
+            >
+              <img src={faqcatIcon} alt="faqcatIcon" className="menu--icon" />
+              <span className="nav-text">FAQ Category</span>
+            </Link>
+            <Link
+              to="/faq-management"
+              className={`nav-link mb-2 ${
+                location.pathname === "/faq-management" ? "active" : ""
+              }`}
+            >
+              <img src={faqIcon} alt="faqIcon" className="menu--icon" />
+              <span className="nav-text">FAQ Management</span>
             </Link>
             <Link
               to="/task-category"
@@ -490,7 +511,8 @@ const Sidebar = ({ toggleMenuBar, setToggleMenuBar, handleGuideClick }) => {
             </Link>
 
             <div
-              className={`nav-link mb-2 cursor-pointer`} onClick={handlePdfControl}
+              className={`nav-link mb-2 cursor-pointer`}
+              onClick={handlePdfControl}
             >
               <img src={guideIcon} alt="guideIcon" className="menu--icon" />
               <span className="nav-text">Instruction Manual</span>
@@ -680,7 +702,6 @@ const Sidebar = ({ toggleMenuBar, setToggleMenuBar, handleGuideClick }) => {
             )}
           </>
         )}
-        
       </div>
     </div>
   );

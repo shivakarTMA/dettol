@@ -1,11 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { authAxios } from "../Config/config";
 import { toast } from "react-toastify";
-import { MdImage } from "react-icons/md";
+import { MdImage, MdOutlineInventory2 } from "react-icons/md";
 import { useSelector } from "react-redux";
+import { IoCloseOutline } from "react-icons/io5";
+import Select from "react-select";
+import { customStyles } from "../Helper/helper";
 
 const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
+  const [inventoryOptions, setInventoryOptions] = useState([]);
   const { userType } = useSelector((state) => state.auth);
   useEffect(() => {
     if (!editingOption) return;
@@ -19,14 +23,19 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
         if (data) {
           formik.setValues({
             image_url: data?.image_url || "",
-            milestone_name: data?.milestone_name || "",
+            milestone_name_en: data?.milestone_name_en || "",
+            milestone_name_hi: data?.milestone_name_hi || "",
             name_en: data?.name_en || "",
             name_hi: data?.name_hi || "",
             description_en: data?.description_en || "",
             description_hi: data?.description_hi || "",
-            content: data?.content || "",
+            // content: data?.content || "",
             points_required: data?.points_required || "",
             position: data?.position || "",
+            inventory:
+              data?.inventory?.length > 0
+                ? data.inventory
+                : [{ id: "", quantity: "" }],
           });
         }
       } catch (err) {
@@ -37,6 +46,30 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
 
     fetchStaffById(editingOption);
   }, [editingOption]);
+
+  useEffect(() => {
+    const fetchInventory = async () => {
+      try {
+        const res = await authAxios().get("/inventory/list");
+        const list = res.data?.data || [];
+
+        // only ACTIVE items
+        const activeItems = list
+          .filter((i) => i.status === "ACTIVE")
+          .map((i) => ({
+            value: i.id,
+            label: i.product_name_en,
+          }));
+
+        setInventoryOptions(activeItems);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch inventory list");
+      }
+    };
+
+    fetchInventory();
+  }, []);
 
   return (
     <>
@@ -111,25 +144,46 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                     )}
                   </div>
                 </div>
-                
-                <div>
-                  <label className="mb-2 block font-[500]">
-                    Milestone Name<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="milestone_name"
-                    value={formik.values.milestone_name || ""}
-                    onChange={formik.handleChange}
-                    placeholder="Milestone Name"
-                    className="custom--input w-full"
-                  />
-                  {formik.touched.milestone_name &&
-                    formik.errors.milestone_name && (
-                      <div className="text-red-500 text-sm">
-                        {formik.errors.milestone_name}
-                      </div>
-                    )}
+
+                <div className="grid lg:grid-cols-2 grid-cols-1 gap-x-3">
+                  <div>
+                    <label className="mb-2 block font-[500]">
+                      Milestone (English)<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="milestone_name_en"
+                      value={formik.values.milestone_name_en || ""}
+                      onChange={formik.handleChange}
+                      placeholder="Milestone (English)"
+                      className="custom--input w-full"
+                    />
+                    {formik.touched.milestone_name_en &&
+                      formik.errors.milestone_name_en && (
+                        <div className="text-red-500 text-sm">
+                          {formik.errors.milestone_name_en}
+                        </div>
+                      )}
+                  </div>
+                  <div>
+                    <label className="mb-2 block font-[500]">
+                      Milestone (Hindi)<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="milestone_name_hi"
+                      value={formik.values.milestone_name_hi || ""}
+                      onChange={formik.handleChange}
+                      placeholder="Milestone (Hindi)"
+                      className="custom--input w-full"
+                    />
+                    {formik.touched.milestone_name_hi &&
+                      formik.errors.milestone_name_hi && (
+                        <div className="text-red-500 text-sm">
+                          {formik.errors.milestone_name_hi}
+                        </div>
+                      )}
+                  </div>
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
@@ -205,7 +259,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                       </div>
                     )}
                 </div>
-                <div>
+                {/* <div>
                   <label className="mb-2 block font-[500]">
                     Reward Contents<span className="text-red-500">*</span>
                   </label>
@@ -222,7 +276,8 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                       {formik.errors.content}
                     </div>
                   )}
-                </div>
+                </div> */}
+
                 <div>
                   <label className="mb-2 block font-[500]">
                     Points<span className="text-red-500">*</span>
@@ -242,6 +297,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                       </div>
                     )}
                 </div>
+
                 <div>
                   <label className="mb-2 block font-[500]">
                     Position<span className="text-red-500">*</span>
@@ -260,26 +316,127 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                     </div>
                   )}
                 </div>
+
+                <div className="lg:col-span-2 lg:space-y-3 space-y-5">
+                  {formik.values.inventory.map((item, index) => (
+                    <div
+                      key={index}
+                      className="grid lg:grid-cols-2 grid-cols-1 gap-x-3 relative bg-[#F1F1F1] lg:p-4 p-2 rounded-lg gap-y-3"
+                    >
+                      <div>
+                        <label className="mb-2 block font-[500]">
+                          Inventory Item<span className="text-red-500">*</span>
+                        </label>
+                        <Select
+                          options={inventoryOptions.filter(
+                            (option) =>
+                              !formik.values.inventory.some(
+                                (invItem, i) =>
+                                  invItem.id === option.value && i !== index
+                              )
+                          )}
+                          placeholder="Select Item"
+                          value={
+                            inventoryOptions.find(
+                              (opt) => opt.value === item.id
+                            ) || null
+                          }
+                          onChange={(selected) => {
+                            formik.setFieldValue(
+                              `inventory[${index}].id`,
+                              selected.value
+                            );
+                          }}
+                          onBlur={() =>
+                            formik.setFieldTouched(
+                              `inventory[${index}].id`,
+                              true
+                            )
+                          }
+                          styles={customStyles}
+                        />
+                        {formik.errors.inventory?.[index]?.id && (
+                          <div className="text-red-500 text-sm">
+                            {formik.errors.inventory[index].id}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="mb-2 block font-[500]">
+                          Inventory Quantity
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          placeholder="Quantity"
+                          name={`inventory[${index}].quantity`}
+                          className="custom--input w-full"
+                          value={item.quantity}
+                          onChange={(e) =>
+                            formik.setFieldValue(
+                              `inventory[${index}].quantity`,
+                              e.target.value
+                            )
+                          }
+                          onBlur={formik.handleBlur}
+                        />
+                        {formik.errors.inventory?.[index]?.quantity && (
+                          <div className="text-red-500 text-sm">
+                            {formik.errors.inventory[index].quantity}
+                          </div>
+                        )}
+                      </div>
+                      {index > 0 && (
+                        <button
+                          type="button"
+                          className="bg-red-500 text-white h-6 w-6 rounded-full absolute top-[-10px] right-[-10px] flex items-center justify-center"
+                          onClick={() => {
+                            const updated = [...formik.values.inventory];
+                            updated.splice(index, 1);
+                            formik.setFieldValue("inventory", updated);
+                          }}
+                        >
+                          <IoCloseOutline />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Add new item button */}
+                  <button
+                    type="button"
+                    className="bg-[#008421] gap-2 h-[38px] px-5 flex items-center justify-center cursor-pointer rounded-lg w-full text-white max-w-fit"
+                    onClick={() => {
+                      formik.setFieldValue("inventory", [
+                        ...formik.values.inventory,
+                        { id: "", quantity: "" },
+                      ]);
+                    }}
+                  >
+                    <MdOutlineInventory2 className="text-xl" />{" "}
+                    <span>Add Item</span>
+                  </button>
+                </div>
               </div>
               {userType === "ADMIN" && (
-              <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    formik.resetForm();
-                    setShowModal(false);
-                  }}
-                  className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
-                >
-                  Save
-                </button>
-              </div>
+                <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      formik.resetForm();
+                      setShowModal(false);
+                    }}
+                    className="bg-[#EFEFEF] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-black"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-[#008421] gap-2 h-[38px] flex items-center justify-center cursor-pointer rounded-lg w-full max-w-[120px] text-white"
+                  >
+                    Save
+                  </button>
+                </div>
               )}
             </form>
           </div>

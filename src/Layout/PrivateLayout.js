@@ -36,6 +36,8 @@ export default function PrivateLayout({ children }) {
     "/tickets-list": "My Tickets",
     "/inventory": "Inventory Management",
     "/school-mapping": "School Mapping",
+    "/faq-management": "FAQ Management",
+    "/faq-category": "FAQ Category",
   };
 
   const pageTitle = pageTitles[location.pathname] || "Page";

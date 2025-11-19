@@ -7,17 +7,10 @@ import { MdImage } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { authAxios } from "../Config/config";
 
-const StopOption = [
-  {
-    value: "YES",
-    label: "Yes",
-  },
-  {
-    value: "No",
-    label: "No",
-  },
+const stopOption = [
+  { value: true, label: "Yes" },
+  { value: false, label: "No" },
 ];
-
 const statusOption = [
   { value: "ACTIVE", label: "Active" },
   { value: "INACTIVE", label: "Inactive" },
@@ -33,7 +26,7 @@ const EditSpinAwardsModal = ({ setShowModal, editingOption, formik }) => {
       try {
         const res = await authAxios().get(`/spinaward/${id}`);
         const data = res.data?.data || res.data || null;
-        console.log(data, "data");
+        console.log(data, "SHIVAKAR");
 
         if (data) {
           formik.setValues({
@@ -45,10 +38,12 @@ const EditSpinAwardsModal = ({ setShowModal, editingOption, formik }) => {
             description_hi: Array.isArray(data.description_hi)
               ? data.description_hi
               : [],
-            image: data.image || "",
-            won: data.won || "",
+            icon_image: data.icon_image || "",
+            badge_image: data.badge_image || "",
+            is_stop: data?.is_stop || null,
             position: data.position || null,
             status: data.status || "ACTIVE",
+            type: data.type || "",
           });
         }
       } catch (err) {
@@ -108,11 +103,15 @@ const EditSpinAwardsModal = ({ setShowModal, editingOption, formik }) => {
 
             <form onSubmit={formik.handleSubmit}>
               <div className="grid lg:grid-cols-2 grid-cols-1 gap-x-3 lg:gap-y-5 gap-y-4 lg:pb-5 pb-2 lg:pt-5 pt-2 lg:px-5 px-3">
-                <div className="lg:col-span-2 flex lg:flex-row flex-col lg:gap-5 gap-2">
+                <div
+                  className={`${
+                    formik.values?.type !== "BADGE" ? "lg:col-span-2" : ""
+                  } flex lg:flex-row flex-col lg:gap-5 gap-2`}
+                >
                   <div className="border rounded-lg w-[110px] h-[110px] flex items-center justify-center">
-                    {formik.values.image ? (
+                    {formik.values.icon_image ? (
                       <img
-                        src={formik.values.image}
+                        src={formik.values.icon_image}
                         alt="Award Preview"
                         className="w-full h-full object-cover rounded-md"
                       />
@@ -123,29 +122,74 @@ const EditSpinAwardsModal = ({ setShowModal, editingOption, formik }) => {
                       </div>
                     )}
                   </div>
-                  <div>
+                  <div
+                    className={`${
+                      formik.values?.type === "BADGE" ? "flex-1" : ""
+                    }`}
+                  >
                     <label className="mb-2 block font-[500]">
-                      Award Image<span className="text-red-500">*</span>
+                      Icon Image<span className="text-red-500">*</span>
                     </label>
                     <input
                       type="file"
-                      name="image"
+                      name="icon_image"
                       accept="image/*"
                       onChange={(event) => {
                         formik.setFieldValue(
-                          "image",
+                          "icon_image",
                           event.currentTarget.files[0]
                         );
                       }}
                       className="custom--input w-full"
                     />
-                    {formik.touched.image && formik.errors.image && (
+                    {formik.touched.icon_image && formik.errors.icon_image && (
                       <div className="text-red-500 text-sm">
-                        {formik.errors.image}
+                        {formik.errors.icon_image}
                       </div>
                     )}
                   </div>
                 </div>
+                {formik.values?.type === "BADGE" && (
+                  <div className="flex lg:flex-row flex-col lg:gap-5 gap-2">
+                    <div className="border rounded-lg w-[110px] h-[110px] flex items-center justify-center">
+                      {formik.values.badge_image ? (
+                        <img
+                          src={formik.values.badge_image}
+                          alt="Award Preview"
+                          className="w-full h-full object-contain rounded-md"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center text-gray-400 p-2 w-full">
+                          <MdImage size={48} />
+                          <p className="text-sm mt-1">Upload Image</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <label className="mb-2 block font-[500]">
+                        Badge Image<span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="file"
+                        name="badge_image"
+                        accept="image/*"
+                        onChange={(event) => {
+                          formik.setFieldValue(
+                            "badge_image",
+                            event.currentTarget.files[0]
+                          );
+                        }}
+                        className="custom--input w-full"
+                      />
+                      {formik.touched.badge_image &&
+                        formik.errors.badge_image && (
+                          <div className="text-red-500 text-sm">
+                            {formik.errors.badge_image}
+                          </div>
+                        )}
+                    </div>
+                  </div>
+                )}
                 <div>
                   <label className="mb-2 block font-[500]">
                     Award Name (English)<span className="text-red-500">*</span>
@@ -293,6 +337,8 @@ const EditSpinAwardsModal = ({ setShowModal, editingOption, formik }) => {
                       ) : null
                     )}
                 </div>
+
+                <div className="lg:col-span-2 grid lg:grid-cols-3 grid-cols-1 gap-x-3 lg:gap-y-4 gap-y-3">
                 <div>
                   <label className="mb-2 block font-[500]">
                     Position<span className="text-red-500">*</span>
@@ -313,23 +359,21 @@ const EditSpinAwardsModal = ({ setShowModal, editingOption, formik }) => {
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
-                    Won<span className="text-red-500">*</span>
+                    Stop<span className="text-red-500">*</span>
                   </label>
                   <Select
-                    value={StopOption.find(
-                      (option) => option.value === formik.values.won
-                    )} // ✅ React Select expects the full object, not just the value
-                    onChange={(option) =>
-                      formik.setFieldValue("won", option ? option.value : "")
-                    } // ✅ Handles both select & clear
-                    options={StopOption}
+                    options={stopOption}
                     placeholder="Select Option"
+                    value={stopOption.find(
+                      (option) => option.value === formik.values.is_stop
+                    )}
+                    onChange={(selectedOption) => {
+                      formik.setFieldValue("is_stop", selectedOption.value);
+                    }}
                     styles={customStyles}
                   />
-                  {formik.touched.won && formik.errors.won && (
-                    <div className="text-red-500 text-sm">
-                      {formik.errors.won}
-                    </div>
+                  {formik.errors.is_stop && formik.touched.is_stop && (
+                    <div style={{ color: "red" }}>{formik.errors.is_stop}</div>
                   )}
                 </div>
                 {editingOption && (
@@ -351,6 +395,7 @@ const EditSpinAwardsModal = ({ setShowModal, editingOption, formik }) => {
                     />
                   </div>
                 )}
+                </div>
               </div>
               {userType === "ADMIN" && (
                 <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">

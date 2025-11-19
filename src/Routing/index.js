@@ -31,6 +31,8 @@ import TicketsScreen from "../Pages/Admin/TicketsScreen";
 import TicketsCodinatorScreen from "../Pages/Coordinator/TicketsCodinatorScreen";
 import InventoryListScreen from "../Pages/Admin/InventoryListScreen";
 import SchoolMappingListScreen from "../Pages/Admin/SchoolMappingListScreen";
+import FaqListScreen from "../Pages/Admin/FaqListScreen";
+import FaqCategoryListScreen from "../Pages/Admin/FaqCategoryListScreen";
 
 export default function Routing() {
   const { accessToken, userType } = useSelector((state) => state.auth);
@@ -189,6 +191,22 @@ export default function Routing() {
               element={
                 <PrivateRoute>
                   <SchoolMappingListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/faq-management"
+              element={
+                <PrivateRoute>
+                  <FaqListScreen />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/faq-category"
+              element={
+                <PrivateRoute>
+                  <FaqCategoryListScreen />
                 </PrivateRoute>
               }
             />

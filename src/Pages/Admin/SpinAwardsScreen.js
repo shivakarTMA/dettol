@@ -11,14 +11,26 @@ import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { MdOutlineInventory2 } from "react-icons/md";
+import { formatStatus } from "../../Helper/helper";
 
 const validationSchema = Yup.object().shape({
-  image: Yup.mixed()
-    .required("Reward image is required")
+  icon_image: Yup.mixed()
+    .required("Icon image is required")
     .test("fileType", "Only image files are allowed", (value) => {
       if (typeof value === "string") return true; // when editing existing image (URL)
       return value && value instanceof File;
     }),
+  badge_image: Yup.mixed().when("type", {
+    is: (val) => val === "BADGE",
+    then: (schema) =>
+      schema
+        .required("Badge image is required")
+        .test("fileType", "Only image files are allowed", (value) => {
+          if (typeof value === "string") return true; // URL for editing
+          return value && value instanceof File;
+        }),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   name_en: Yup.string().required("Award Name English is required"),
   name_hi: Yup.string().required("Award Name Hindi is required"),
   position: Yup.number()
@@ -30,7 +42,7 @@ const validationSchema = Yup.object().shape({
   description_hi: Yup.array()
     .of(Yup.string().required("Description (Hindi) is required"))
     .min(1, "At least one instruction is required"),
-  won: Yup.string().required("Won is required"),
+  is_stop: Yup.boolean().nullable().required("Please select an option"),
 });
 
 const SpinAwardsScreen = () => {
@@ -39,24 +51,12 @@ const SpinAwardsScreen = () => {
   const [editingOption, setEditingOption] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const [page, setPage] = useState(1);
-  const [rowsPerPage] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-
-  const fetchSpinAwardsList = async (currentPage = page) => {
+  const fetchSpinAwardsList = async () => {
     try {
-      const params = {
-        page: currentPage,
-        limit: rowsPerPage,
-      };
-      const res = await authAxios().get("/spinaward/list", { params });
+      const res = await authAxios().get("/spinaward/list");
 
       let data = res.data?.data || [];
       setSpinAwards(data);
-      setPage(res.data?.currentPage || 1);
-      setTotalPages(res.data?.totalPage || 1);
-      setTotalCount(res.data?.totalCount || data.length);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch myreward");
@@ -73,27 +73,38 @@ const SpinAwardsScreen = () => {
       name_hi: "",
       description_en: [],
       description_hi: [],
-      image: "",
+      icon_image: "",
+      badge_image: "",
       won: "",
       position: "",
       status: "ACTIVE",
+      type: "",
+      is_stop: null,
     },
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
-      console.log(values, "values");
       try {
         const formData = new FormData();
 
         formData.append("name_en", values.name_en);
         formData.append("name_hi", values.name_hi);
-        formData.append("description_en", JSON.stringify(values.description_en));
-        formData.append("description_hi", JSON.stringify(values.description_hi));
+        formData.append(
+          "description_en",
+          JSON.stringify(values.description_en)
+        );
+        formData.append(
+          "description_hi",
+          JSON.stringify(values.description_hi)
+        );
         formData.append("won", values.won);
         formData.append("position", values.position);
         formData.append("status", values.status);
 
-        if (values.image instanceof File) {
-          formData.append("file", values.image);
+        if (values.icon_image instanceof File) {
+          formData.append("file", values.icon_image);
+        }
+        if (values.badge_image instanceof File) {
+          formData.append("file", values.badge_image);
         }
 
         if (editingOption) {
@@ -126,7 +137,7 @@ const SpinAwardsScreen = () => {
   return (
     <>
       <div className="">
-        <div className="mb-3 flex">
+        {/* <div className="mb-3 flex">
           <button
             className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
             onClick={() => {
@@ -138,20 +149,25 @@ const SpinAwardsScreen = () => {
             <MdOutlineInventory2 className="text-xl" />
             <span>Add Award</span>
           </button>
-        </div>
+        </div> */}
         <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
           <div className="rounded-[10px] overflow-hidden">
             <div className="relative overflow-x-auto ">
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[100px]">Award Name</th>
-                    <th className="px-3 py-3 min-w-[150px]">
+                    <th className="px-3 py-3 min-w-[120px]">Award Image</th>
+                    <th className="px-3 py-3 min-w-[120px]">Badge Image</th>
+                    <th className="px-3 py-3 min-w-[150px]">Award Name</th>
+                    <th className="px-3 py-3 min-w-[300px]">
                       Award Description
                     </th>
-                    <th className="px-3 py-3 min-w-[150px]">Award Image</th>
-                    <th className="px-3 py-3 min-w-[150px]">Position</th>
+
+                    <th className="px-3 py-3 min-w-[100px] text-center">
+                      Position
+                    </th>
                     <th className="px-3 py-3 min-w-[150px]">Won</th>
+                    <th className="px-3 py-3 min-w-[150px]">Type</th>
                     <th className="px-3 py-3 min-w-[120px]">Action</th>
                   </tr>
                 </thead>
@@ -159,32 +175,48 @@ const SpinAwardsScreen = () => {
                   {spinAwards.length > 0 ? (
                     spinAwards.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item.name_en}</td>
                         <td className="px-3 py-3">
-                          <ul className="list-disc pl-[15px]">
-                            {item.description_en &&
-                              item.description_en.map((desc, i) => (
-                                <li key={i}>{desc}</li>
-                              ))}
-                          </ul>
-                        </td>
-                        <td className="px-3 py-3">
-                          {item.image ? (
+                          {item?.icon_image ? (
                             <img
-                              src={item.image}
+                              src={item?.icon_image}
                               className="w-12 h-12 object-cover object-center rounded-[5px]"
                             />
                           ) : (
                             "--"
                           )}
                         </td>
-                        <td className="px-3 py-3">{item.position}</td>
-                        <td className="px-3 py-3">{item.won}</td>
+                        <td className="px-3 py-3">
+                          {item?.badge_image ? (
+                            <img
+                              src={item?.badge_image}
+                              className="w-12 h-12 object-contain object-center"
+                            />
+                          ) : (
+                            "--"
+                          )}
+                        </td>
+                        <td className="px-3 py-3">{item?.name_en}</td>
+                        <td className="px-3 py-3">
+                          <ul className="list-disc pl-[15px]">
+                            {item?.description_en &&
+                              item?.description_en.map((desc, i) => (
+                                <li key={i}>{desc}</li>
+                              ))}
+                          </ul>
+                        </td>
+
+                        <td className="px-3 py-3 text-center">
+                          {item?.position}
+                        </td>
+                        <td className="px-3 py-3">{item?.won}</td>
+                        <td className="px-3 py-3">
+                          {formatStatus(item?.type)}
+                        </td>
                         {/* <td className="px-3 py-3">
                           <span
                             className={` block w-fit px-3 py-1 rounded-full capitalize ${
-                              item.Stop === true ? "bg-green-200" : ""
-                            } ${item.Stop === false ? "bg-gray-200" : ""}
+                              item?.Stop === true ? "bg-green-200" : ""
+                            } ${item?.Stop === false ? "bg-gray-200" : ""}
                             `}
                           >
                             {item.Stop === true ? "Yes" : "No"}
@@ -229,17 +261,6 @@ const SpinAwardsScreen = () => {
             </div>
           </div>
         </div>
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          rowsPerPage={rowsPerPage}
-          totalCount={totalCount}
-          currentDataLength={spinAwards.length}
-          onPageChange={(newPage) => {
-            setPage(newPage);
-            fetchSpinAwardsList(newPage);
-          }}
-        />
       </div>
 
       {/* Edit Modal */}

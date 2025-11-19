@@ -2,13 +2,6 @@ import React, { useEffect } from "react";
 import { IoMdClose } from "react-icons/io";
 import { authAxios } from "../Config/config";
 import { toast } from "react-toastify";
-import { customStyles } from "../Helper/helper";
-import Select from "react-select";
-
-const statusOption = [
-  { value: "ACTIVE", label: "Active" },
-  { value: "INACTIVE", label: "Inactive" },
-];
 
 const EditInventoryModal = ({ setShowModal, editingOption, formik }) => {
   useEffect(() => {
@@ -21,7 +14,8 @@ const EditInventoryModal = ({ setShowModal, editingOption, formik }) => {
 
         if (data) {
           formik.setValues({
-            product_name: data.product_name || "",
+            product_name_en: data.product_name_en || "",
+            product_name_hi: data.product_name_hi || "",
             total:'1'
           });
         }
@@ -67,20 +61,39 @@ const EditInventoryModal = ({ setShowModal, editingOption, formik }) => {
               <div className="grid lg:grid-cols-1 grid-cols-1 gap-x-3 lg:gap-y-5 gap-y-4 lg:pb-5 pb-2 lg:pt-5 pt-2 lg:px-5 px-3">
                 <div>
                   <label className="mb-2 block font-[500]">
-                    Product Name<span className="text-red-500">*</span>
+                    Product Name (English)<span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    name="product_name"
-                    value={formik.values.product_name || ""}
+                    name="product_name_en"
+                    value={formik.values.product_name_en || ""}
                     onChange={formik.handleChange}
-                    placeholder="Product Name"
+                    placeholder="Product Name (English)"
                     className="custom--input w-full"
                     disabled={editingOption ? true : false}
                   />
-                  {formik.touched.product_name && formik.errors.product_name && (
+                  {formik.touched.product_name_en && formik.errors.product_name_en && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.product_name}
+                      {formik.errors.product_name_en}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-2 block font-[500]">
+                    Product Name (Hindi)<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="product_name_hi"
+                    value={formik.values.product_name_hi || ""}
+                    onChange={formik.handleChange}
+                    placeholder="Product Name (Hindi)"
+                    className="custom--input w-full"
+                    disabled={editingOption ? true : false}
+                  />
+                  {formik.touched.product_name_hi && formik.errors.product_name_hi && (
+                    <div className="text-red-500 text-sm">
+                      {formik.errors.product_name_hi}
                     </div>
                   )}
                 </div>

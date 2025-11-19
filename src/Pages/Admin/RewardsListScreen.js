@@ -7,7 +7,6 @@ import { PiMedalMilitary } from "react-icons/pi";
 import { authAxios } from "../../Config/config";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import Pagination from "../../Components/Common/Pagination";
 import Tooltip from "../../Components/Common/Tooltip";
 import { useSelector } from "react-redux";
 
@@ -18,12 +17,13 @@ const validationSchema = Yup.object({
       if (typeof value === "string") return true; // when editing existing image (URL)
       return value && value instanceof File;
     }),
-  milestone_name: Yup.string().required("Milestone name is required"),
+  milestone_name_en: Yup.string().required("This is required"),
+  milestone_name_hi: Yup.string().required("This is required"),
   name_en: Yup.string().required("Reward name (English) is required"),
   name_hi: Yup.string().required("Reward name (Hindi) is required"),
   description_en: Yup.string().required("Description (English) is required"),
   description_hi: Yup.string().required("Description (Hindi) is required"),
-  content: Yup.string().required("Content is required"),
+  // content: Yup.string().required("Content is required"),
   points_required: Yup.number()
     .typeError("Points must be a number")
     .required("Points are required")
@@ -32,18 +32,27 @@ const validationSchema = Yup.object({
     .typeError("Position must be a number")
     .required("Position is required")
     .min(1, "Position must be greater than 0"),
+  inventory: Yup.array()
+    .of(
+      Yup.object().shape({
+        id: Yup.number()
+          .typeError("Item selection is required")
+          .required("Item is required"),
+
+        quantity: Yup.number()
+          .typeError("Quantity must be a number")
+          .required("Quantity is required")
+          .min(1, "Quantity must be greater than 0"),
+      })
+    )
+    .min(1, "At least one inventory item is required"),
 });
 
 const RewardsListScreen = () => {
   const { userType } = useSelector((state) => state.auth);
   const [showModal, setShowModal] = useState(false);
   const [rewardsList, setRewardsList] = useState([]);
-
   const [editingOption, setEditingOption] = useState(null);
-  // const [page, setPage] = useState(1);
-  // const [rowsPerPage] = useState(10);
-  // const [totalPages, setTotalPages] = useState(1);
-  // const [totalCount, setTotalCount] = useState(0);
 
   const fetchRewardsList = async () => {
     try {
@@ -51,9 +60,6 @@ const RewardsListScreen = () => {
 
       let data = res.data?.data || [];
       setRewardsList(data);
-      // setPage(res.data?.currentPage || 1);
-      // setTotalPages(res.data?.totalPage || 1);
-      // setTotalCount(res.data?.totalCount || data.length);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch reward");
@@ -67,7 +73,8 @@ const RewardsListScreen = () => {
   const formik = useFormik({
     initialValues: {
       image_url: "",
-      milestone_name: "",
+      milestone_name_en: "",
+      milestone_name_hi: "",
       name_en: "",
       name_hi: "",
       description_en: "",
@@ -75,46 +82,50 @@ const RewardsListScreen = () => {
       content: "",
       points_required: "",
       position: "",
+      inventory: [{ id: "", quantity: "" }],
     },
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
-      try {
-        const formData = new FormData();
+      // try {
+      //   const formData = new FormData();
 
-        formData.append("milestone_name", values.milestone_name);
-        formData.append("name_en", values.name_en);
-        formData.append("name_hi", values.name_hi);
-        formData.append("description_en", values.description_en);
-        formData.append("description_hi", values.description_hi);
-        formData.append("content", values.content);
-        formData.append("points_required", values.points_required);
-        formData.append("position", values.position);
+      //   formData.append("milestone_name_en", values.milestone_name_en);
+      //   formData.append("milestone_name_hi", values.milestone_name_hi);
+      //   formData.append("name_en", values.name_en);
+      //   formData.append("name_hi", values.name_hi);
+      //   formData.append("description_en", values.description_en);
+      //   formData.append("description_hi", values.description_hi);
+      //   // formData.append("content", values.content);
+      //   formData.append("points_required", values.points_required);
+      //   formData.append("position", values.position);
+      //   formData.append("inventory", values.inventory);
 
-        if (values.image_url instanceof File) {
-          formData.append("file", values.image_url);
-        }
+      //   if (values.image_url instanceof File) {
+      //     formData.append("file", values.image_url);
+      //   }
 
-        if (editingOption) {
-          await authAxios().put(`/reward/update/${editingOption}`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-          toast.success("Updated Successfully");
-        } else {
-          await authAxios().post(`/reward/create`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-          toast.success("Created Successfully");
-        }
+      //   if (editingOption) {
+      //     await authAxios().put(`/reward/update/${editingOption}`, formData, {
+      //       headers: { "Content-Type": "multipart/form-data" },
+      //     });
+      //     toast.success("Updated Successfully");
+      //   } else {
+      //     await authAxios().post(`/reward/create`, formData, {
+      //       headers: { "Content-Type": "multipart/form-data" },
+      //     });
+      //     toast.success("Created Successfully");
+      //   }
 
-        fetchRewardsList();
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to save reward");
-      }
+      //   fetchRewardsList();
+      // } catch (err) {
+      //   console.error(err);
+      //   toast.error("Failed to save reward");
+      // }
 
-      resetForm();
-      setEditingOption(null);
-      setShowModal(false);
+      // resetForm();
+      // setEditingOption(null);
+      // setShowModal(false);
+      console.log(values, "working");
     },
   });
 
@@ -141,7 +152,12 @@ const RewardsListScreen = () => {
                 <thead className="bg-[#F1F1F1]">
                   <tr>
                     {/* <th className="px-3 py-3 min-w-[100px]">Reward Image</th> */}
-                    <th className="px-3 py-3 min-w-[120px]">Milestone Name</th>
+                    <th className="px-3 py-3 min-w-[120px]">
+                      Milestone (English)
+                    </th>
+                    <th className="px-3 py-3 min-w-[120px]">
+                      Milestone (Hindi)
+                    </th>
                     <th className="px-3 py-3 min-w-[120px]">Reward Name</th>
                     <th className="px-3 py-3 min-w-[120px]">Reward Contents</th>
                     <th className="px-3 py-3 min-w-[120px]">Points</th>
@@ -164,14 +180,19 @@ const RewardsListScreen = () => {
                             className="w-16 h-16 rounded-lg"
                           />
                         </td> */}
-                        <td className="px-3 py-3">{item?.milestone_name}</td>
+                        <td className="px-3 py-3">{item?.milestone_name_en}</td>
+                        <td className="px-3 py-3">{item?.milestone_name_hi}</td>
                         <td className="px-3 py-3">{item?.name_en}</td>
                         <td className="px-3 py-3">{item?.content}</td>
                         <td className="px-3 py-3">{item?.points_required}</td>
                         <td className="px-3 py-3">
                           <Tooltip
                             id={`tooltip-edit-${item.id}`}
-                            content={`${userType === "ADMIN" ? "Edit Milestone" : "View Milestone"}`}
+                            content={`${
+                              userType === "ADMIN"
+                                ? "Edit Milestone"
+                                : "View Milestone"
+                            }`}
                             place="left"
                           >
                             <div
@@ -197,18 +218,6 @@ const RewardsListScreen = () => {
             </div>
           </div>
         </div>
-
-        {/* <Pagination
-          page={page}
-          totalPages={totalPages}
-          rowsPerPage={rowsPerPage}
-          totalCount={totalCount}
-          currentDataLength={rewardsList.length}
-          onPageChange={(newPage) => {
-            setPage(newPage);
-            fetchRewardsList(newPage);
-          }}
-        /> */}
 
         {/* Edit Modal */}
         {showModal && (

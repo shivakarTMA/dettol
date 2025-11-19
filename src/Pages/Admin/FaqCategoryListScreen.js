@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import editIcon from "../../Assests/Images/icons/edit.svg";
 import viewIcon from "../../Assests/Images/icons/viewbox.svg";
-import EditCategoryModal from "../../Components/EditCategoryModal";
+import EditFaqCategoryModal from "../../Components/EditFaqCategoryModal";
 import { authAxios } from "../../Config/config";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
@@ -11,16 +11,61 @@ import { formatCapitalText } from "../../Helper/helper";
 import Tooltip from "../../Components/Common/Tooltip";
 import { useSelector } from "react-redux";
 
+const faqData = [
+  {
+    id: 1,
+    category_en: "GENERAL & ELIGIBILITY",
+    category_hi: "सामान्य और पात्रता",
+    position: 1,
+    status: "ACTIVE",
+  },
+  {
+    id: 2,
+    category_en: "STARTING-UP",
+    category_hi: "शुरुआत",
+    position: 2,
+    status: "ACTIVE",
+  },
+  {
+    id: 3,
+    category_en: "POINTS & ACTIONS",
+    category_hi: "अंक और क्रियाएँ",
+    position: 3,
+    status: "ACTIVE",
+  },
+  {
+    id: 4,
+    category_en: "REWARDS & TARGETS",
+    category_hi: "पुरस्कार और लक्ष्य",
+    position: 4,
+    status: "ACTIVE",
+  },
+  {
+    id: 5,
+    category_en: "ENROLLMENT REWARDS (FREE)",
+    category_hi: "पंजीकरण पुरस्कार (निःशुल्क)",
+    position: 5,
+    status: "ACTIVE",
+  },
+  {
+    id: 6,
+    category_en: "SUPPORT & ISSUES",
+    category_hi: "सहायता और समस्याएँ",
+    position: 6,
+    status: "ACTIVE",
+  },
+];
+
 const validationSchema = Yup.object().shape({
   name_en: Yup.string().required("Name English is required"),
   name_hi: Yup.string().required("Name Hindi is required"),
   position: Yup.string().required("Position is required"),
 });
 
-const CategoryListScreen = () => {
+const FaqCategoryListScreen = () => {
   const { userType } = useSelector((state) => state.auth);
   const [showModal, setShowModal] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(faqData);
 
   const [editingOption, setEditingOption] = useState(null);
 
@@ -29,7 +74,7 @@ const CategoryListScreen = () => {
       const res = await authAxios().get("/category/fetch/all");
 
       let data = res.data?.data || [];
-      setCategories(data);
+      // setCategories(data);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch category");
@@ -50,24 +95,30 @@ const CategoryListScreen = () => {
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
       console.log(values, "values");
-      try {
-        const payload = { ...values };
+      // try {
+      //   const payload = { ...values };
 
-        if (editingOption) {
-          // Update
-          await authAxios().put(`/category/update/${editingOption}`, payload);
-          toast.success("Updated Successfully");
-        } else {
-          // Create
-          await authAxios().post("/category/create", payload);
-          toast.success("Created Successfully");
-        }
+      //   if (editingOption) {
+      //     // Update
+      //     await authAxios().put(`/category/update/${editingOption}`, payload);
+      //     toast.success("Updated Successfully");
+      //   } else {
+      //     // Create
+      //     await authAxios().post("/category/create", payload);
+      //     toast.success("Created Successfully");
+      //   }
 
-        // 🔄 Re-fetch after save
-        fetchCategoryList();
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to save user");
+      //   // 🔄 Re-fetch after save
+      //   fetchCategoryList();
+      // } catch (err) {
+      //   console.error(err);
+      //   toast.error("Failed to save user");
+      // }
+
+      if (editingOption) {
+        toast.success("Updated Successfully");
+      } else{
+        toast.success("Created Successfully");
       }
 
       resetForm();
@@ -115,8 +166,8 @@ const CategoryListScreen = () => {
                   ) : (
                     categories.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item?.name_en}</td>
-                        <td className="px-3 py-3">{item?.name_hi}</td>
+                        <td className="px-3 py-3">{item?.category_en}</td>
+                        <td className="px-3 py-3">{item?.category_hi}</td>
                         <td className="px-3 py-3 text-center">{item?.position}</td>
                         <td className="px-3 py-3">
                           <span
@@ -133,7 +184,11 @@ const CategoryListScreen = () => {
                           <div className="flex gap-2">
                             <Tooltip
                               id={`tooltip-edit-${item.id}`}
-                              content={`${userType === "ADMIN" ? "Edit Category" : "View Category"}`}
+                              content={`${
+                                userType === "ADMIN"
+                                  ? "Edit Category"
+                                  : "View Category"
+                              }`}
                               place="left"
                             >
                               <div
@@ -144,7 +199,9 @@ const CategoryListScreen = () => {
                                 }}
                               >
                                 <img
-                                  src={userType === "ADMIN" ? editIcon : viewIcon}
+                                  src={
+                                    userType === "ADMIN" ? editIcon : viewIcon
+                                  }
                                   alt="view"
                                   className="w-full"
                                 />
@@ -163,7 +220,7 @@ const CategoryListScreen = () => {
 
         {/* Edit Modal */}
         {showModal && (
-          <EditCategoryModal
+          <EditFaqCategoryModal
             setShowModal={setShowModal}
             editingOption={editingOption}
             formik={formik}
@@ -174,4 +231,4 @@ const CategoryListScreen = () => {
   );
 };
 
-export default CategoryListScreen;
+export default FaqCategoryListScreen;

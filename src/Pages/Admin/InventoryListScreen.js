@@ -9,7 +9,8 @@ import Tooltip from "../../Components/Common/Tooltip";
 import { MdOutlineInventory2 } from "react-icons/md";
 
 const validationSchema = Yup.object().shape({
-  product_name: Yup.string().required("Product Name is required"),
+  product_name_en: Yup.string().required("Product Name (English) is required"),
+  product_name_hi: Yup.string().required("Product Name (Hindi) is required"),
   total: Yup.string().required("Total Stock is required"),
 });
 
@@ -38,8 +39,8 @@ const InventoryListScreen = () => {
 
   const formik = useFormik({
     initialValues: {
-      name_en: "",
-      name_hi: "",
+      product_name_en: "",
+      product_name_hi: "",
       position: "",
       status: "ACTIVE",
     },
@@ -94,7 +95,8 @@ const InventoryListScreen = () => {
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[120px]">Product Name</th>
+                    <th className="px-3 py-3 min-w-[120px]">Product Name (English)</th>
+                    <th className="px-3 py-3 min-w-[120px]">Product Name (Hindi)</th>
                     <th className="px-3 py-3 min-w-[120px] text-center">Total Qty</th>
                     <th className="px-3 py-3 min-w-[150px] text-center">Available Qty</th>
                     <th className="px-3 py-3 min-w-[120px] text-center">Distributed Qty</th>
@@ -111,7 +113,8 @@ const InventoryListScreen = () => {
                   ) : (
                     inventoryList.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item?.product_name}</td>
+                        <td className="px-3 py-3">{item?.product_name_en}</td>
+                        <td className="px-3 py-3">{item?.product_name_hi}</td>
                         <td className="px-3 py-3 text-center">{item?.total}</td>
                         <td className="px-3 py-3 text-center">{item?.available}</td>
                         <td className="px-3 py-3 text-center">{item?.allotted}</td>
