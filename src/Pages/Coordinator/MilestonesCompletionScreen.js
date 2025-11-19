@@ -325,7 +325,7 @@ useEffect(() => {
                 <div className="bg-[#EAEAEA] rounded-[5px] p-[8px] mt-2">
                   <p className="text-black text-sm">
                     <span className="font-[500]">Reward</span> :{" "}
-                    {item?.milestone_name}
+                    {item?.milestone_name_en}
                   </p>
                 </div>
               </div>
@@ -356,7 +356,7 @@ useEffect(() => {
                       <td className="px-3 py-3">{item?.student_name}</td>
                       <td className="px-3 py-3">{item?.school_name}</td>
                       <td className="px-3 py-3">{item?.student_address}</td>
-                      <td className="px-3 py-3">{item?.milestone_name}</td>
+                      <td className="px-3 py-3">{item?.milestone_name_en}</td>
                       <td className="px-3 py-3">
                         <span
                           className={`block w-fit px-3 py-1 rounded-full capitalize 
