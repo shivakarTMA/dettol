@@ -359,7 +359,7 @@ const EditSpinAwardsModal = ({ setShowModal, editingOption, formik }) => {
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
-                    Stop<span className="text-red-500">*</span>
+                    Is Stop<span className="text-red-500">*</span>
                   </label>
                   <Select
                     options={stopOption}

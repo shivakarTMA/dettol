@@ -96,9 +96,9 @@ const SpinAwardsScreen = () => {
           "description_hi",
           JSON.stringify(values.description_hi)
         );
-        formData.append("won", values.won);
         formData.append("position", values.position);
         formData.append("status", values.status);
+        formData.append("is_stop", values.is_stop);
 
         if (values.icon_image instanceof File) {
           formData.append("file", values.icon_image);
@@ -156,25 +156,34 @@ const SpinAwardsScreen = () => {
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[120px]">Award Image</th>
-                    <th className="px-3 py-3 min-w-[120px]">Badge Image</th>
                     <th className="px-3 py-3 min-w-[150px]">Award Name</th>
                     <th className="px-3 py-3 min-w-[300px]">
                       Award Description
                     </th>
-
-                    <th className="px-3 py-3 min-w-[100px] text-center">
-                      Position
+                    <th className="px-3 py-3 min-w-[120px]">Icon</th>
+                    <th className="px-3 py-3 min-w-[80px]">Badge</th>
+                    <th className="px-3 py-3 min-w-[80px] text-center">
+                      Pos.
                     </th>
-                    <th className="px-3 py-3 min-w-[150px]">Won</th>
-                    <th className="px-3 py-3 min-w-[150px]">Type</th>
-                    <th className="px-3 py-3 min-w-[120px]">Action</th>
+                    <th className="px-3 py-3 min-w-[120px]">Won</th>
+                    <th className="px-3 py-3 min-w-[130px]">Type</th>
+                    <th className="px-3 py-3 min-w-[100px]">Is Stop</th>
+                    <th className="px-3 py-3">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {spinAwards.length > 0 ? (
                     spinAwards.map((item, index) => (
                       <tr key={index} className="border-t">
+                        <td className="px-3 py-3">{item?.name_en}</td>
+                        <td className="px-3 py-3">
+                          <ul className="list-disc pl-[15px]">
+                            {item?.description_en &&
+                              item?.description_en.map((desc, i) => (
+                                <li key={i}>{desc}</li>
+                              ))}
+                          </ul>
+                        </td>
                         <td className="px-3 py-3">
                           {item?.icon_image ? (
                             <img
@@ -195,16 +204,6 @@ const SpinAwardsScreen = () => {
                             "--"
                           )}
                         </td>
-                        <td className="px-3 py-3">{item?.name_en}</td>
-                        <td className="px-3 py-3">
-                          <ul className="list-disc pl-[15px]">
-                            {item?.description_en &&
-                              item?.description_en.map((desc, i) => (
-                                <li key={i}>{desc}</li>
-                              ))}
-                          </ul>
-                        </td>
-
                         <td className="px-3 py-3 text-center">
                           {item?.position}
                         </td>
@@ -212,16 +211,16 @@ const SpinAwardsScreen = () => {
                         <td className="px-3 py-3">
                           {formatStatus(item?.type)}
                         </td>
-                        {/* <td className="px-3 py-3">
+                        <td className="px-3 py-3">
                           <span
                             className={` block w-fit px-3 py-1 rounded-full capitalize ${
-                              item?.Stop === true ? "bg-green-200" : ""
-                            } ${item?.Stop === false ? "bg-gray-200" : ""}
+                              item?.is_stop === true ? "bg-green-200" : ""
+                            } ${item?.is_stop === false ? "bg-gray-200" : ""}
                             `}
                           >
-                            {item.Stop === true ? "Yes" : "No"}
+                            {item.is_stop === true ? "Yes" : "No"}
                           </span>
-                        </td> */}
+                        </td>
                         <td className="px-3 py-3">
                           <Tooltip
                             id={`tooltip-edit-${item.id}`}
