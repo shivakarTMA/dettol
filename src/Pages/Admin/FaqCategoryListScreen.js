@@ -11,70 +11,25 @@ import { formatCapitalText } from "../../Helper/helper";
 import Tooltip from "../../Components/Common/Tooltip";
 import { useSelector } from "react-redux";
 
-const faqData = [
-  {
-    id: 1,
-    category_en: "GENERAL & ELIGIBILITY",
-    category_hi: "सामान्य और पात्रता",
-    position: 1,
-    status: "ACTIVE",
-  },
-  {
-    id: 2,
-    category_en: "STARTING-UP",
-    category_hi: "शुरुआत",
-    position: 2,
-    status: "ACTIVE",
-  },
-  {
-    id: 3,
-    category_en: "POINTS & ACTIONS",
-    category_hi: "अंक और क्रियाएँ",
-    position: 3,
-    status: "ACTIVE",
-  },
-  {
-    id: 4,
-    category_en: "REWARDS & TARGETS",
-    category_hi: "पुरस्कार और लक्ष्य",
-    position: 4,
-    status: "ACTIVE",
-  },
-  {
-    id: 5,
-    category_en: "ENROLLMENT REWARDS (FREE)",
-    category_hi: "पंजीकरण पुरस्कार (निःशुल्क)",
-    position: 5,
-    status: "ACTIVE",
-  },
-  {
-    id: 6,
-    category_en: "SUPPORT & ISSUES",
-    category_hi: "सहायता और समस्याएँ",
-    position: 6,
-    status: "ACTIVE",
-  },
-];
-
 const validationSchema = Yup.object().shape({
-  name_en: Yup.string().required("Name English is required"),
-  name_hi: Yup.string().required("Name Hindi is required"),
+  title_en: Yup.string().required("Title English is required"),
+  title_hi: Yup.string().required("Title Hindi is required"),
   position: Yup.string().required("Position is required"),
 });
 
 const FaqCategoryListScreen = () => {
   const { userType } = useSelector((state) => state.auth);
   const [showModal, setShowModal] = useState(false);
-  const [categories, setCategories] = useState(faqData);
+  const [categories, setCategories] = useState([]);
 
   const [editingOption, setEditingOption] = useState(null);
 
   const fetchCategoryList = async () => {
     try {
-      const res = await authAxios().get("/category/fetch/all");
+      const res = await authAxios().get("/faqcategory/list");
 
       let data = res.data?.data || [];
-      // setCategories(data);
+      setCategories(data);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch category");
@@ -87,33 +42,32 @@ const FaqCategoryListScreen = () => {
 
   const formik = useFormik({
     initialValues: {
-      name_en: "",
-      name_hi: "",
+      title_en: "",
+      title_hi: "",
       position: "",
       status: "ACTIVE",
     },
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
-      console.log(values, "values");
-      // try {
-      //   const payload = { ...values };
+      try {
+        const payload = { ...values };
 
-      //   if (editingOption) {
-      //     // Update
-      //     await authAxios().put(`/category/update/${editingOption}`, payload);
-      //     toast.success("Updated Successfully");
-      //   } else {
-      //     // Create
-      //     await authAxios().post("/category/create", payload);
-      //     toast.success("Created Successfully");
-      //   }
+        if (editingOption) {
+          // Update
+          await authAxios().put(`/faqcategory/${editingOption}`, payload);
+          toast.success("Updated Successfully");
+        } else {
+          // Create
+          await authAxios().post("/faqcategory/create", payload);
+          toast.success("Created Successfully");
+        }
 
-      //   // 🔄 Re-fetch after save
-      //   fetchCategoryList();
-      // } catch (err) {
-      //   console.error(err);
-      //   toast.error("Failed to save user");
-      // }
+        // 🔄 Re-fetch after save
+        fetchCategoryList();
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to save user");
+      }
 
       if (editingOption) {
         toast.success("Updated Successfully");
@@ -130,7 +84,7 @@ const FaqCategoryListScreen = () => {
   return (
     <div>
       <div className="">
-        {/* <div className="mb-3 flex">
+        <div className="mb-3 flex">
           <button
             className="px-4 py-2 rounded-lg bg-[#008421] text-white flex gap-1 items-center"
             onClick={() => {
@@ -142,15 +96,15 @@ const FaqCategoryListScreen = () => {
             <PiClipboardText className="text-xl" />
             <span>Create Category</span>
           </button>
-        </div> */}
+        </div>
         <div className="bg-white custom--shodow rounded-[10px] lg:p-3 p-2">
           <div className="rounded-[10px] overflow-hidden">
             <div className="relative overflow-x-auto ">
               <table className="min-w-full text-sm text-left">
                 <thead className="bg-[#F1F1F1]">
                   <tr>
-                    <th className="px-3 py-3 min-w-[200px]">Name (English)</th>
-                    <th className="px-3 py-3 min-w-[200px]">Name (Hindi)</th>
+                    <th className="px-3 py-3 min-w-[200px]">Title (English)</th>
+                    <th className="px-3 py-3 min-w-[200px]">Title (Hindi)</th>
                     <th className="px-3 py-3 min-w-[120px] text-center">Position</th>
                     <th className="px-3 py-3 min-w-[120px]">Status</th>
                     <th className="px-3 py-3">Action</th>
@@ -166,8 +120,8 @@ const FaqCategoryListScreen = () => {
                   ) : (
                     categories.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item?.category_en}</td>
-                        <td className="px-3 py-3">{item?.category_hi}</td>
+                        <td className="px-3 py-3">{item?.title_en}</td>
+                        <td className="px-3 py-3">{item?.title_hi}</td>
                         <td className="px-3 py-3 text-center">{item?.position}</td>
                         <td className="px-3 py-3">
                           <span

@@ -75,6 +75,7 @@ const TelemedicineListScreen = () => {
       fetchTelemedicineList(1, "");
       setModalOpen(false);
       setSelectedStudentId(null);
+      setCardSearch("");
     } catch (error) {
       console.error(error);
       toast.error("Failed to confirm call");

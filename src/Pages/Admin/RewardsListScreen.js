@@ -35,7 +35,7 @@ const validationSchema = Yup.object({
   inventory: Yup.array()
     .of(
       Yup.object().shape({
-        id: Yup.number()
+        inventory_id: Yup.number()
           .typeError("Item selection is required")
           .required("Item is required"),
 
@@ -82,50 +82,49 @@ const RewardsListScreen = () => {
       content: "",
       points_required: "",
       position: "",
-      inventory: [{ id: "", quantity: "" }],
+      inventory: [{ inventory_id: "", quantity: "" }],
     },
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
-      // try {
-      //   const formData = new FormData();
+      try {
+        const formData = new FormData();
 
-      //   formData.append("milestone_name_en", values.milestone_name_en);
-      //   formData.append("milestone_name_hi", values.milestone_name_hi);
-      //   formData.append("name_en", values.name_en);
-      //   formData.append("name_hi", values.name_hi);
-      //   formData.append("description_en", values.description_en);
-      //   formData.append("description_hi", values.description_hi);
-      //   // formData.append("content", values.content);
-      //   formData.append("points_required", values.points_required);
-      //   formData.append("position", values.position);
-      //   formData.append("inventory", values.inventory);
+        formData.append("milestone_name_en", values.milestone_name_en);
+        formData.append("milestone_name_hi", values.milestone_name_hi);
+        formData.append("name_en", values.name_en);
+        formData.append("name_hi", values.name_hi);
+        formData.append("description_en", values.description_en);
+        formData.append("description_hi", values.description_hi);
+        // formData.append("content", values.content);
+        formData.append("points_required", values.points_required);
+        formData.append("position", values.position);
+        formData.append("inventory", JSON.stringify(values.inventory));
 
-      //   if (values.image_url instanceof File) {
-      //     formData.append("file", values.image_url);
-      //   }
+        if (values.image_url instanceof File) {
+          formData.append("file", values.image_url);
+        }
 
-      //   if (editingOption) {
-      //     await authAxios().put(`/reward/update/${editingOption}`, formData, {
-      //       headers: { "Content-Type": "multipart/form-data" },
-      //     });
-      //     toast.success("Updated Successfully");
-      //   } else {
-      //     await authAxios().post(`/reward/create`, formData, {
-      //       headers: { "Content-Type": "multipart/form-data" },
-      //     });
-      //     toast.success("Created Successfully");
-      //   }
+        if (editingOption) {
+          await authAxios().put(`/reward/update/${editingOption}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          toast.success("Updated Successfully");
+        } else {
+          await authAxios().post(`/reward/create`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          toast.success("Created Successfully");
+        }
 
-      //   fetchRewardsList();
-      // } catch (err) {
-      //   console.error(err);
-      //   toast.error("Failed to save reward");
-      // }
+        fetchRewardsList();
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to save reward");
+      }
 
-      // resetForm();
-      // setEditingOption(null);
-      // setShowModal(false);
-      console.log(values, "working");
+      resetForm();
+      setEditingOption(null);
+      setShowModal(false);
     },
   });
 
@@ -153,15 +152,15 @@ const RewardsListScreen = () => {
                   <tr>
                     {/* <th className="px-3 py-3 min-w-[100px]">Reward Image</th> */}
                     <th className="px-3 py-3 min-w-[120px]">
-                      Milestone (English)
+                      Milestone (En)
                     </th>
                     <th className="px-3 py-3 min-w-[120px]">
-                      Milestone (Hindi)
+                      Milestone (Hi)
                     </th>
                     <th className="px-3 py-3 min-w-[120px]">Reward Name</th>
-                    <th className="px-3 py-3 min-w-[120px]">Reward Contents</th>
-                    <th className="px-3 py-3 min-w-[120px]">Points</th>
-                    <th className="px-3 py-3 min-w-[120px]">Action</th>
+                    <th className="px-3 py-3 min-w-[170px]">Reward Contents</th>
+                    <th className="px-3 py-3 min-w-[80px]">Points</th>
+                    <th className="px-3 py-3">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -183,7 +182,11 @@ const RewardsListScreen = () => {
                         <td className="px-3 py-3">{item?.milestone_name_en}</td>
                         <td className="px-3 py-3">{item?.milestone_name_hi}</td>
                         <td className="px-3 py-3">{item?.name_en}</td>
-                        <td className="px-3 py-3">{item?.content}</td>
+                        <td className="px-3 py-3">
+                          <div className=" max-w-[300px]">
+                            {item?.content_en}
+                          </div>
+                        </td>
                         <td className="px-3 py-3">{item?.points_required}</td>
                         <td className="px-3 py-3">
                           <Tooltip

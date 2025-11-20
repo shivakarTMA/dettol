@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { authAxios } from "../Config/config";
 import { toast } from "react-toastify";
@@ -22,20 +22,53 @@ const categoriesOption = [
 
 const EditFaqModal = ({ setShowModal, editingOption, formik }) => {
   const { userType } = useSelector((state) => state.auth);
+
+  const [categoryList, setCategoryList] = useState([]);
+
+  const fetchCategoryList = async () => {
+    try {
+      const res = await authAxios().get("/faqcategory/list");
+
+      let data = res.data?.data || [];
+      console.log(data, "data");
+      setCategoryList(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch all staff");
+    }
+  };
+
+  useEffect(() => {
+    fetchCategoryList();
+  }, []);
+
   useEffect(() => {
     if (!editingOption) return;
 
-    formik.setValues({
-      category_en: "SUPPORT & ISSUES",
-      qa_en: "How do I get help with the program?",
-      qa_hi: "मैं इस कार्यक्रम में मदद कैसे प्राप्त कर सकता हूँ?",
-      answer_en:
-        "If you’re stuck or have a question, ask your school’s Dettol Banega Swasth India (DBSI) coordinator.",
-      answer_hi:
-        "अगर आप अटक गए हैं या कोई सवाल है, तो अपने स्कूल के Dettol Banega Swasth India (DBSI) समन्वयक से पूछें।",
-      position: 7,
-      status: "ACTIVE",
-    });
+    const fetchStaffById = async (id) => {
+      try {
+        const res = await authAxios().get(`/faq/${id}`);
+        const data = res.data?.data || res.data || null;
+        console.log(data, "data");
+
+        if (data) {
+          formik.setValues({
+            faqcategory_id: data?.faqcategory_id || "",
+            question_en: data?.question_en || "",
+            question_hi: data?.question_hi || "",
+            answer_en: data?.answer_en || "",
+            answer_hi: data?.answer_hi || "",
+            position: data?.position || 7,
+            status: data?.status || "ACTIVE",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch module details");
+      }
+    };
+
+    fetchStaffById(editingOption);
   }, [editingOption]);
 
   return (
@@ -70,23 +103,49 @@ const EditFaqModal = ({ setShowModal, editingOption, formik }) => {
             <form onSubmit={formik.handleSubmit}>
               <div className="grid lg:grid-cols-2 grid-cols-1 gap-x-3 lg:gap-y-5 gap-y-4 lg:pb-5 pb-2 lg:pt-5 pt-2 lg:px-5 px-3">
                 <div className="lg:col-span-2">
-                  <label className="mb-2 block font-[500]">Category<span className="text-red-500">*</span></label>
-                  <Select
+                  <label className="mb-2 block font-[500]">
+                    Category<span className="text-red-500">*</span>
+                  </label>
+                  {/* <Select
                     value={categoriesOption.find(
-                      (option) => option.value === formik.values.category_en
+                      (option) => option.value === formik.values.faqcategory_id
                     )}
                     onChange={(option) =>
-                      formik.setFieldValue("category_en", option ? option.value : "")
+                      formik.setFieldValue("faqcategory_id", option ? option.value : "")
                     }
                     options={categoriesOption}
                     placeholder="Select Category"
                     styles={customStyles}
+                  /> */}
+
+                  <Select
+                    value={
+                      categoryList
+                        .map((cat) => ({ value: cat.id, label: cat.title_en }))
+                        .find(
+                          (option) =>
+                            option.value === formik.values?.faqcategory_id
+                        ) || null
+                    }
+                    onChange={(selectedOption) => {
+                      formik.setFieldValue(
+                        "faqcategory_id",
+                        selectedOption ? selectedOption.value : ""
+                      );
+                    }}
+                    options={categoryList.map((cat) => ({
+                      value: cat.id,
+                      label: cat.title_en,
+                    }))}
+                    placeholder="Select Category"
+                    styles={customStyles}
                   />
-                  {formik.touched.category_en && formik.errors.category_en && (
-                    <div className="text-red-500 text-sm">
-                      {formik.errors.category_en}
-                    </div>
-                  )}
+                  {formik.touched.faqcategory_id &&
+                    formik.errors.faqcategory_id && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors.faqcategory_id}
+                      </div>
+                    )}
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
@@ -94,15 +153,15 @@ const EditFaqModal = ({ setShowModal, editingOption, formik }) => {
                   </label>
                   <input
                     type="text"
-                    name="qa_en"
-                    value={formik.values.qa_en || ""}
+                    name="question_en"
+                    value={formik.values.question_en || ""}
                     onChange={formik.handleChange}
                     placeholder="Question (English)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.qa_en && formik.errors.qa_en && (
+                  {formik.touched.question_en && formik.errors.question_en && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.qa_en}
+                      {formik.errors.question_en}
                     </div>
                   )}
                 </div>
@@ -112,15 +171,15 @@ const EditFaqModal = ({ setShowModal, editingOption, formik }) => {
                   </label>
                   <input
                     type="text"
-                    name="qa_hi"
-                    value={formik.values.qa_hi || ""}
+                    name="question_hi"
+                    value={formik.values.question_hi || ""}
                     onChange={formik.handleChange}
                     placeholder="Question (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.qa_hi && formik.errors.qa_hi && (
+                  {formik.touched.question_hi && formik.errors.question_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.qa_hi}
+                      {formik.errors.question_hi}
                     </div>
                   )}
                 </div>

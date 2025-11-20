@@ -16,33 +16,26 @@ const EditFaqCategoryModal = ({ setShowModal, editingOption, formik }) => {
   useEffect(() => {
     if (!editingOption) return;
 
-    formik.setValues({
-      name_en: "GENERAL & ELIGIBILITY",
-      name_hi: "सामान्य और पात्रता",
-      position: "1",
-      status: "ACTIVE",
-    });
+    const fetchStaffById = async (id) => {
+      try {
+        const res = await authAxios().get(`/faqcategory/${id}`);
+        const data = res.data?.data || res.data || null;
 
-    // const fetchStaffById = async (id) => {
-    //   try {
-    //     const res = await authAxios().get(`/category/${id}`);
-    //     const data = res.data?.data || res.data || null;
+        if (data) {
+          formik.setValues({
+            title_en: data.title_en || "",
+            title_hi: data.title_hi || "",
+            position: data.position || "",
+            status: data.status || "ACTIVE",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to fetch module details");
+      }
+    };
 
-    //     if (data) {
-    //       formik.setValues({
-    //         name_en: data.name_en || "",
-    //         name_hi: data.name_hi || "",
-    //         position: data.position || "",
-    //         status: data.status || "ACTIVE",
-    //       });
-    //     }
-    //   } catch (err) {
-    //     console.error(err);
-    //     toast.error("Failed to fetch module details");
-    //   }
-    // };
-
-    // fetchStaffById(editingOption);
+    fetchStaffById(editingOption);
   }, [editingOption]);
 
   return (
@@ -78,37 +71,37 @@ const EditFaqCategoryModal = ({ setShowModal, editingOption, formik }) => {
               <div className="grid lg:grid-cols-1 grid-cols-1 gap-x-3 lg:gap-y-5 gap-y-4 lg:pb-5 pb-2 lg:pt-5 pt-2 lg:px-5 px-3">
                 <div>
                   <label className="mb-2 block font-[500]">
-                    Name (English)<span className="text-red-500">*</span>
+                    Title (English)<span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    name="name_en"
-                    value={formik.values.name_en || ""}
+                    name="title_en"
+                    value={formik.values.title_en || ""}
                     onChange={formik.handleChange}
-                    placeholder="Category Name (English)"
+                    placeholder="Title (English)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.name_en && formik.errors.name_en && (
+                  {formik.touched.title_en && formik.errors.title_en && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.name_en}
+                      {formik.errors.title_en}
                     </div>
                   )}
                 </div>
                 <div>
                   <label className="mb-2 block font-[500]">
-                    Name (Hindi)<span className="text-red-500">*</span>
+                    Title (Hindi)<span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    name="name_hi"
-                    value={formik.values.name_hi || ""}
+                    name="title_hi"
+                    value={formik.values.title_hi || ""}
                     onChange={formik.handleChange}
-                    placeholder="Category Name (Hindi)"
+                    placeholder="Title (Hindi)"
                     className="custom--input w-full"
                   />
-                  {formik.touched.name_hi && formik.errors.name_hi && (
+                  {formik.touched.title_hi && formik.errors.title_hi && (
                     <div className="text-red-500 text-sm">
-                      {formik.errors.name_hi}
+                      {formik.errors.title_hi}
                     </div>
                   )}
                 </div>

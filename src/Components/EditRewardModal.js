@@ -18,7 +18,6 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
       try {
         const res = await authAxios().get(`/reward/${id}`);
         const data = res.data?.data || res.data || null;
-        console.log(data, "data");
 
         if (data) {
           formik.setValues({
@@ -32,10 +31,9 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
             // content: data?.content || "",
             points_required: data?.points_required || "",
             position: data?.position || "",
-            inventory:
-              data?.inventory?.length > 0
-                ? data.inventory
-                : [{ id: "", quantity: "" }],
+            inventory: data.inventory.length
+            ? data.inventory
+            : [{ inventory_id: "", quantity: "" }],
           });
         }
       } catch (err) {
@@ -45,7 +43,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
     };
 
     fetchStaffById(editingOption);
-  }, [editingOption]);
+  }, [editingOption, inventoryOptions]);
 
   useEffect(() => {
     const fetchInventory = async () => {
@@ -332,32 +330,33 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                             (option) =>
                               !formik.values.inventory.some(
                                 (invItem, i) =>
-                                  invItem.id === option.value && i !== index
+                                  invItem.inventory_id === option.value &&
+                                  i !== index
                               )
                           )}
                           placeholder="Select Item"
                           value={
                             inventoryOptions.find(
-                              (opt) => opt.value === item.id
+                              (opt) => opt.value === item.inventory_id
                             ) || null
                           }
                           onChange={(selected) => {
                             formik.setFieldValue(
-                              `inventory[${index}].id`,
+                              `inventory[${index}].inventory_id`,
                               selected.value
                             );
                           }}
                           onBlur={() =>
                             formik.setFieldTouched(
-                              `inventory[${index}].id`,
+                              `inventory[${index}].inventory_id`,
                               true
                             )
                           }
                           styles={customStyles}
                         />
-                        {formik.errors.inventory?.[index]?.id && (
+                        {formik.errors.inventory?.[index]?.inventory_id && (
                           <div className="text-red-500 text-sm">
-                            {formik.errors.inventory[index].id}
+                            {formik.errors.inventory[index].inventory_id}
                           </div>
                         )}
                       </div>
@@ -409,7 +408,7 @@ const EditRewardModal = ({ setShowModal, editingOption, formik }) => {
                     onClick={() => {
                       formik.setFieldValue("inventory", [
                         ...formik.values.inventory,
-                        { id: "", quantity: "" },
+                        { inventory_id: "", quantity: "" },
                       ]);
                     }}
                   >
