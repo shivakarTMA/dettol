@@ -123,7 +123,7 @@ const FaqListScreen = () => {
                   ) : (
                     categories.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="px-3 py-3">{item?.category_name}</td>
+                        <td className="px-3 py-3">{item?.category_name_en}</td>
                         <td className="px-3 py-3">{item?.question_en}</td>
                         <td className="px-3 py-3">
                           {item?.answer_en?.length > 50

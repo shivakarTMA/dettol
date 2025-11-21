@@ -16,11 +16,11 @@ const validationSchema = Yup.object().shape({
     .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
     .required("Mobile number is required"),
   role: Yup.string().required("Role is required"),
-  report_to: Yup.string().when("role", {
-    is: (role) => role !== "ADMIN",
-    then: (schema) => schema.required("Report to is required"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
+  // report_to: Yup.string().when("role", {
+  //   is: (role) => role !== "ADMIN",
+  //   then: (schema) => schema.required("Report to is required"),
+  //   otherwise: (schema) => schema.notRequired(),
+  // }),
 });
 
 const UserManagementScreen = () => {
@@ -118,7 +118,7 @@ const UserManagementScreen = () => {
                     <th className="px-3 py-3 min-w-[130px]">User Name</th>
                     <th className="px-3 py-3 min-w-[150px]">Mobile Number</th>
                     <th className="px-3 py-3 min-w-[120px]">Role</th>
-                    <th className="px-3 py-3 min-w-[120px]">Reports To</th>
+                    {/* <th className="px-3 py-3 min-w-[120px]">Reports To</th> */}
                     <th className="px-3 py-3">Action</th>
                   </tr>
                 </thead>
@@ -135,9 +135,9 @@ const UserManagementScreen = () => {
                         <td className="px-3 py-3">{item.name}</td>
                         <td className="px-3 py-3">{item.mobile}</td>
                         <td className="px-3 py-3">{formatStatus(item.role)}</td>
-                        <td className="px-3 py-3">
+                        {/* <td className="px-3 py-3">
                           {item.report_to ? formatStatus(item.report_to) : "--"}
-                        </td>
+                        </td> */}
                         <td className="px-3 py-3">
                           <div className="flex gap-0">
                             <Tooltip

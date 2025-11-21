@@ -77,7 +77,7 @@ const EditUserManagementModal = ({ setShowModal, editingOption, formik }) => {
             name: data.name || "",
             mobile: data.mobile || "",
             role: data.role || "",
-            report_to: data.report_to || "",
+            // report_to: data.report_to || "",
           });
         }
       } catch (err) {
@@ -98,7 +98,7 @@ const EditUserManagementModal = ({ setShowModal, editingOption, formik }) => {
           setShowModal(false);
         }}
       ></div>
-      <div className="fixed inset-0 flex justify-center items-start pt-10 pb-5 z-50 overflow-auto w-full max-w-[600px] mx-auto custom--overflow">
+      <div className="fixed inset-0 flex justify-center items-start pt-10 pb-5 z-50 overflow-auto w-full max-w-[400px] mx-auto custom--overflow">
         <div className="flex flex-col relative w-[95%] mx-auto">
           <div className="w-full bg-white rounded-[20px]">
             <div className="flex gap-2 items-center justify-between lg:py-3 py-2 lg:px-5 px-3 border-b border-b-[#D4D4D4]">
@@ -119,7 +119,7 @@ const EditUserManagementModal = ({ setShowModal, editingOption, formik }) => {
             </div>
 
             <form onSubmit={formik.handleSubmit}>
-              <div className="grid lg:grid-cols-2 grid-cols-1 gap-x-3 lg:gap-y-5 gap-y-4 lg:pb-5 pb-2 lg:pt-5 pt-2 lg:px-5 px-3">
+              <div className="grid lg:grid-cols-1 grid-cols-1 gap-x-3 lg:gap-y-5 gap-y-4 lg:pb-5 pb-2 lg:pt-5 pt-2 lg:px-5 px-3">
                 <div>
                   <label className="mb-2 block font-[500]">
                     User Name<span className="text-red-500">*</span>
@@ -178,7 +178,7 @@ const EditUserManagementModal = ({ setShowModal, editingOption, formik }) => {
                     </div>
                   )}
                 </div>
-                {formik?.values?.role === "ADMIN" ? null : (
+                {/* {formik?.values?.role === "ADMIN" ? null : (
                   <div>
                     <label className="mb-2 block font-[500]">
                       Reports To<span className="text-red-500">*</span>
@@ -203,7 +203,7 @@ const EditUserManagementModal = ({ setShowModal, editingOption, formik }) => {
                       </div>
                     )}
                   </div>
-                )}
+                )} */}
               </div>
               <div className="flex justify-end gap-3 lg:pb-5 pb-2 lg:px-5 px-3">
                 <button

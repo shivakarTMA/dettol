@@ -140,6 +140,7 @@ const SchoolsScreen = () => {
                 <thead className="bg-[#F1F1F1]">
                   <tr>
                     <th className="px-3 py-3 min-w-[170px]">School Name</th>
+                    <th className="px-3 py-3 min-w-[120px]">District</th>
                     <th className="px-3 py-3 min-w-[120px]">City</th>
                     <th className="px-3 py-3 min-w-[120px] text-center">
                       Students Registered
@@ -170,6 +171,7 @@ const SchoolsScreen = () => {
                         schools.map((item, index) => (
                           <tr key={index} className="border-t">
                             <td className="px-3 py-3">{item.name_en}</td>
+                            <td className="px-3 py-3">{item.district_en}</td>
                             <td className="px-3 py-3">{item.city_en}</td>
                             <td className="px-3 py-3 text-center">
                               {item.student_registered}
