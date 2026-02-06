@@ -302,6 +302,7 @@ const StudentsScreen = () => {
               onClick={() => {
                 setEditingOption(null);
                 setShowModal(true);
+                
               }}
             >
               <PiStudentLight className="text-xl" />
