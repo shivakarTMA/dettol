@@ -11,6 +11,7 @@ import SchoolDashboardTables from "../../Components/SchoolDashboardTables";
 import RatingBar from "../../Components/Common/RatingBar";
 import { toast } from "react-toastify";
 import { authAxios } from "../../Config/config";
+import CordinatorPerformanceDashboard from "./CordinatorPerformanceDashboard";
 
 const filterOptions = [
   { value: "today", label: "Today" },
@@ -545,7 +546,7 @@ const AdminDashboard = () => {
                 <small>View All</small>
               </Link>
             </div>
-
+{/* 
             <div className="flex gap-2 md:flex-row flex-col items-start mb-4">
               <Select
                 value={selectedPeriod}
@@ -555,7 +556,6 @@ const AdminDashboard = () => {
                 className="lg:min-w-[150px] min-w-[100px]"
               />
 
-              {/* Custom date picker fields shown conditionally */}
               {showCustomDate && (
                 <div className="flex items-center gap-2 lg:w-[60%] w-full">
                   <div className="custom--date relative">
@@ -566,7 +566,6 @@ const AdminDashboard = () => {
                       selected={fromDate}
                       onChange={(date) => {
                         setFromDate(date);
-                        // If end date is before new start date, clear or adjust it
                         if (toDate && date && toDate < date) {
                           setToDate(null);
                         }
@@ -603,16 +602,16 @@ const AdminDashboard = () => {
                     <tr>
                       <th className="px-3 py-3 min-w-[150px]">Name</th>
                       <th className="px-3 py-3 min-w-[120px] text-center">
-                        In Preparation
+                        Shipped
                       </th>
                       <th className="px-3 py-3 min-w-[120px] text-center">
-                        In Transit
+                        In Route
                       </th>
                       <th className="px-3 py-3 min-w-[120px] text-center">
                         Delivered
                       </th>
                       <th className="px-3 py-3 min-w-[120px] text-center">
-                        Delayed
+                        Rejected
                       </th>
                     </tr>
                   </thead>
@@ -637,7 +636,9 @@ const AdminDashboard = () => {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </div> */}
+
+            <CordinatorPerformanceDashboard />
           </div>
         </div>
       </div>

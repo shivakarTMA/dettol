@@ -30,7 +30,7 @@ const Pagination = ({
   }
 
   return (
-    <div className="flex justify-between items-center mt-4 gap-2">
+    <div className="flex justify-between items-center mt-4 gap-2 flex-wrap">
       {/* Showing Info */}
       <p className="text-gray-700 text-sm">
         Showing {start} to {end} of {totalCount} entries

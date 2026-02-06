@@ -104,8 +104,14 @@ const Login = (props) => {
 
   return (
     <div className="min-h-screen bg-white flex lg:flex-row flex-col relative overflow-hidden justify-center">
-      <div className="lg:block hidden w-full" style={{backgroundImage:`url(${bgLogin})`,backgroundSize:'cover',backgroundPosition:'center'}}>
-      </div>
+      <div
+        className="lg:block hidden w-full"
+        style={{
+          backgroundImage: `url(${bgLogin})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      ></div>
 
       <div className="w-full flex items-center justify-center">
         <div className="lg:p-2 p-5 transform transition-all duration-300 max-w-[450px] w-full">
@@ -119,105 +125,79 @@ const Login = (props) => {
             <p className="text-gray-600">Sign in to continue to your account</p>
           </div>
 
-          <div className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {step === 1 && (
               <div className="space-y-2 animate-fadeIn">
-                <label
-                  htmlFor="identifier"
-                  className="block text-sm font-semibold text-gray-700"
-                >
+                <label className="block text-sm font-semibold text-gray-700">
                   Phone Number
                 </label>
-                <div className="relative group">
-                  <div className="relative flex items-center bg-white rounded-xl border-2 border-gray-200 transition-all duration-300 overflow-hidden">
-                    <span className="flex items-center justify-center w-12 h-14 text-gray-500 pl-2">
-                      <FaPhoneAlt className="w-5 h-5" />
-                    </span>
-                    <input
-                      id="identifier"
-                      name="identifier"
-                      type="text"
-                      value={data.identifier}
-                      onChange={handleChange}
-                      required
-                      minLength={10}
-                      maxLength={10}
-                      pattern="\d{10}"
-                      className="flex-1 h-14 px-2 text-gray-900 focus:outline-none bg-transparent"
-                      placeholder="Enter 10-digit phone number"
-                    />
-                  </div>
+
+                <div className="relative flex items-center bg-white rounded-xl border-2 border-gray-200">
+                  <span className="flex items-center justify-center w-12 h-14 text-gray-500 pl-2">
+                    <FaPhoneAlt className="w-5 h-5" />
+                  </span>
+                  <input
+                    name="identifier"
+                    type="text"
+                    value={data.identifier}
+                    onChange={handleChange}
+                    required
+                    minLength={10}
+                    maxLength={10}
+                    pattern="\d{10}"
+                    className="flex-1 h-14 px-2 focus:outline-none"
+                    placeholder="Enter 10-digit phone number"
+                  />
                 </div>
               </div>
             )}
 
             {step === 2 && (
               <div className="space-y-2 animate-fadeIn">
-                <label
-                  htmlFor="otp"
-                  className="block text-sm font-semibold text-gray-700"
-                >
+                <label className="block text-sm font-semibold text-gray-700">
                   Enter OTP
                 </label>
-                <div className="relative group">
-                  {/* <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div> */}
-                  <div className="relative flex items-center bg-white rounded-xl border-2 border-gray-200 transition-all duration-300 overflow-hidden">
-                    <span className="flex items-center justify-center w-12 h-14 text-gray-500 pl-2">
-                      <RiLockPasswordFill className="w-5 h-5" />
-                    </span>
-                    <input
-                      id="otp"
-                      name="otp"
-                      type="text"
-                      value={data.otp}
-                      onChange={handleChange}
-                      required
-                      minLength={6}
-                      maxLength={6}
-                      className="flex-1 h-14 px-2 text-gray-900 focus:outline-none bg-transparent tracking-widest text-lg"
-                      placeholder="000000"
-                    />
-                  </div>
+
+                <div className="relative flex items-center bg-white rounded-xl border-2 border-gray-200">
+                  <span className="flex items-center justify-center w-12 h-14 text-gray-500 pl-2">
+                    <RiLockPasswordFill className="w-5 h-5" />
+                  </span>
+                  <input
+                    name="otp"
+                    type="text"
+                    value={data.otp}
+                    onChange={handleChange}
+                    required
+                    minLength={6}
+                    maxLength={6}
+                    className="flex-1 h-14 px-2 focus:outline-none tracking-widest text-lg"
+                    placeholder="000000"
+                  />
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  OTP has been sent to your phone number
-                </p>
               </div>
             )}
 
             <button
-              onClick={handleSubmit}
-              className="w-full h-14 bg-[var(--primarycolor)] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-2 group"
+              type="submit"
+              className="w-full h-14 bg-[var(--primarycolor)] text-white font-semibold rounded-xl"
             >
-              <span>{step === 1 ? "Send OTP" : "Verify & Login"}</span>
-              <svg
-                className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
+              {step === 1 ? "Send OTP" : "Verify & Login"}
             </button>
 
             {step === 2 && (
               <button
+                type="button"
                 onClick={() => {
                   setStep(1);
                   setData({ identifier: "", otp: "" });
                   setCurrentUser(null);
                 }}
-                className="w-full text-sm text-gray-600  font-medium transition-colors"
+                className="w-full text-sm text-gray-600 font-medium"
               >
                 ← Change phone number
               </button>
             )}
-          </div>
+          </form>
         </div>
       </div>
     </div>

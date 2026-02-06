@@ -18,6 +18,16 @@ const statusOption = [
   },
 ];
 
+const genderEnOption = [
+  { value: "Male", label: "Male" },
+  { value: "Female", label: "Female" },
+];
+
+const genderHiOption = [
+  { value: "पुरुष", label: "पुरुष" },
+  { value: "महिला", label: "महिला" },
+];
+
 const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
   const { userType } = useSelector((state) => state.auth);
 
@@ -61,7 +71,7 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
             gender_hi: data.gender_hi || "",
             age: data.age || null,
             class_name: data.class_name || null,
-            section: data.section || "",
+            // section: data.section || "",
             address_en: data.address_en || "",
             address_hi: data.address_hi || "",
             district_en: data.district_en || "",
@@ -198,13 +208,20 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <label className="mb-2 block font-[500]">
                     Gender (English)<span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    name="gender_en"
-                    value={formik.values?.gender_en || ""}
-                    onChange={formik.handleChange}
+
+                  <Select
+                    value={genderEnOption.find(
+                      (option) => option.value === formik.values?.gender_en
+                    )} // ✅ React Select expects the full object, not just the value
+                    onChange={(option) =>
+                      formik.setFieldValue(
+                        "gender_en",
+                        option ? option.value : ""
+                      )
+                    } // ✅ Handles both select & clear
+                    options={genderEnOption}
                     placeholder="Gender (English)"
-                    className="custom--input w-full"
+                    styles={customStyles}
                   />
                   {formik.touched?.gender_en && formik.errors?.gender_en && (
                     <div className="text-red-500 text-sm">
@@ -216,13 +233,19 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   <label className="mb-2 block font-[500]">
                     Gender (Hindi)<span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    name="gender_hi"
-                    value={formik.values?.gender_hi || ""}
-                    onChange={formik.handleChange}
+                  <Select
+                    value={genderHiOption.find(
+                      (option) => option.value === formik.values?.gender_hi
+                    )} // ✅ React Select expects the full object, not just the value
+                    onChange={(option) =>
+                      formik.setFieldValue(
+                        "gender_hi",
+                        option ? option.value : ""
+                      )
+                    } // ✅ Handles both select & clear
+                    options={genderHiOption}
                     placeholder="Gender (Hindi)"
-                    className="custom--input w-full"
+                    styles={customStyles}
                   />
                   {formik.touched?.gender_hi && formik.errors?.gender_hi && (
                     <div className="text-red-500 text-sm">
@@ -268,7 +291,7 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                     </div>
                   )}
                 </div>
-                <div>
+                {/* <div>
                   <label className="mb-2 block font-[500]">
                     Section<span className="text-red-500">*</span>
                   </label>
@@ -285,7 +308,7 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                       {formik.errors?.section}
                     </div>
                   )}
-                </div>
+                </div> */}
                 <div>
                   <label className="mb-2 block font-[500]">
                     Parent Name (English)<span className="text-red-500">*</span>
@@ -321,6 +344,45 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                     formik.errors?.parent_name_hi && (
                       <div className="text-red-500 text-sm">
                         {formik.errors?.parent_name_hi}
+                      </div>
+                    )}
+                </div>
+                <div>
+                  <label className="mb-2 block font-[500]">
+                    District (English)<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="district_en"
+                    value={formik.values?.district_en || ""}
+                    onChange={formik.handleChange}
+                    placeholder="District (English)"
+                    className="custom--input w-full"
+                  />
+                  {formik.touched?.district_en &&
+                    formik.errors?.district_en && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors?.district_en}
+                      </div>
+                    )}
+                </div>
+
+                <div>
+                  <label className="mb-2 block font-[500]">
+                    District (Hindi)<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="district_hi"
+                    value={formik.values?.district_hi || ""}
+                    onChange={formik.handleChange}
+                    placeholder="District (Hindi)"
+                    className="custom--input w-full"
+                  />
+                  {formik.touched?.district_hi &&
+                    formik.errors?.district_hi && (
+                      <div className="text-red-500 text-sm">
+                        {formik.errors?.district_hi}
                       </div>
                     )}
                 </div>
@@ -363,45 +425,7 @@ const EditStudentModal = ({ setShowModal, editingOption, formik }) => {
                   )}
                 </div>
 
-                <div>
-                  <label className="mb-2 block font-[500]">
-                    District (English)<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="district_en"
-                    value={formik.values?.district_en || ""}
-                    onChange={formik.handleChange}
-                    placeholder="District (English)"
-                    className="custom--input w-full"
-                  />
-                  {formik.touched?.district_en &&
-                    formik.errors?.district_en && (
-                      <div className="text-red-500 text-sm">
-                        {formik.errors?.district_en}
-                      </div>
-                    )}
-                </div>
-
-                <div>
-                  <label className="mb-2 block font-[500]">
-                    District (Hindi)<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="district_hi"
-                    value={formik.values?.district_hi || ""}
-                    onChange={formik.handleChange}
-                    placeholder="District (Hindi)"
-                    className="custom--input w-full"
-                  />
-                  {formik.touched?.district_hi &&
-                    formik.errors?.district_hi && (
-                      <div className="text-red-500 text-sm">
-                        {formik.errors?.district_hi}
-                      </div>
-                    )}
-                </div>
+                
 
                 <div>
                   <label className="mb-2 block font-[500]">

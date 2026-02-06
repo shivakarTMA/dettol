@@ -7,6 +7,7 @@ import rejectIcon from "../Assests/Images/icons/reject.svg";
 import { toast } from "react-toastify";
 import { authAxios } from "../Config/config";
 import { useSelector } from "react-redux";
+import otpIcon from "../Assests/Images/icons/password.svg";
 
 export default function MilestonePopup({
   setIsModalOpen,
@@ -21,6 +22,9 @@ export default function MilestonePopup({
   const [showConfirmReject, setShowConfirmReject] = useState(false);
   const [rejectTaskId, setRejectTaskId] = useState(null);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
+
+  const [otpValue, setOtpValue] = useState("");
+  const [otpError, setOtpError] = useState("");
 
   // This array will be sent in Submit API
   const [approvedIds, setApprovedIds] = useState([]);
@@ -52,7 +56,7 @@ export default function MilestonePopup({
           studentName: student.name,
           phone: student.mobile,
           address: student.address,
-          milestoneTitle: ms.title,
+          title_en: ms.title_en,
           baseCoins: student.reward_points,
           tasks: formattedTasks,
         });
@@ -159,6 +163,26 @@ export default function MilestonePopup({
     setRejectTaskId(null);
   };
 
+  const handleOtpChange = (e) => {
+    let value = e.target.value;
+
+    // Prevent entering more than 4 digits
+    if (value.length > 4) {
+      value = value.slice(0, 4);
+    }
+
+    setOtpValue(value);
+
+    // Dynamic error handling
+    if (value.length === 0) {
+      setOtpError("Delivery OTP is required.");
+    } else if (value.length < 4) {
+      setOtpError("Delivery OTP must be 4 digits long.");
+    } else {
+      setOtpError("");
+    }
+  };
+
   // ============================================================
   // ✅ Submit (Approve all tasks)
   // ============================================================
@@ -167,23 +191,39 @@ export default function MilestonePopup({
       toast.error("Please approve at least one task");
       return;
     }
+
+    if (!otpValue) {
+      setOtpError("Delivery OTP is required.");
+      return;
+    }
+
+    if (otpValue.length !== 4) {
+      setOtpError("Delivery OTP must be 4 digits long.");
+      return;
+    }
+
     try {
       await authAxios().put("/myreward/mytask/approved", {
         my_reward_id: editingOption,
         id: approvedIds,
+        delivery_otp: otpValue,
       });
+
       toast.success("Tasks submitted successfully!");
+      setOtpError("");
+      setOtpValue("");
       fetchMilestonesList();
       setIsModalOpen(false);
-      if (ratingSubmitted === false) {
-        setIsSuccessModalOpen(true);
-      } else {
-        setIsSuccessModalOpen(false);
-      }
+
+      setIsSuccessModalOpen(!ratingSubmitted);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to submit tasks");
-      return;
+      const apiMessage = error?.response?.data?.message;
+      if (apiMessage) {
+        setOtpError(apiMessage);
+      } else {
+        setOtpError("");
+      }
     }
   };
 
@@ -219,16 +259,40 @@ export default function MilestonePopup({
           </div>
 
           <div className="lg:p-5 p-3 pt-3">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-lg">{milestone.milestoneTitle}</h3>
-
+            <div className="flex lg:flex-row flex-col lg:items-center lg:justify-between mb-3 gap-2">
+              <h3 className="font-bold text-lg">{milestone?.title_en}</h3>
               {earnedCoins >= 100 && (
-                <button
-                  onClick={handleSubmit}
-                  className="bg-[#008421] text-white px-4 py-1 rounded"
-                >
-                  Submit
-                </button>
+                <div className="flex lg:flex-row flex-col-reverse lg:items-center gap-1">
+                  {otpError && (
+                    <span className="text-red-500 text-sm block">
+                      {otpError}
+                    </span>
+                  )}
+                  <div className="flex items-center gap-1">
+                    <div className="relative w-full lg:max-w-[190px] max-w-[130px]">
+                      <img
+                        src={otpIcon}
+                        className="absolute top-[9px] left-[10px] w-6 h-6"
+                      />
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        className="pr-2 pl-[35px] py-2 rounded-full w-full border"
+                        placeholder="Enter Delivery OTP"
+                        value={otpValue}
+                        onChange={handleOtpChange}
+                        maxLength={4}
+                      />
+                    </div>
+
+                    <button
+                      onClick={handleSubmit}
+                      className="bg-[#008421] text-white md:px-4 py-2 px-6 rounded-full"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
 

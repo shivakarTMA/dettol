@@ -5,7 +5,6 @@ import shippingIcon from "../../Assests/Images/icons/shipping.svg";
 import MilestonePopup from "../../Components/MilestonePopup";
 import SubmitRatingPopup from "../../Components/SubmitRatingPopup";
 import Tooltip from "../../Components/Common/Tooltip";
-import SubmitRemarksPopup from "../../Components/SubmitRemarksPopup";
 import { authAxios } from "../../Config/config";
 import { toast } from "react-toastify";
 import { formatStatus } from "../../Helper/helper";
@@ -54,48 +53,48 @@ const MilestonesCompletionScreen = () => {
   const [totalCount, setTotalCount] = useState(0);
 
   const fetchMilestonesList = async (currentPage = page) => {
-  try {
-    const params = {
-      page: currentPage,
-      limit: rowsPerPage,
-    };
+    try {
+      const params = {
+        page: currentPage,
+        limit: rowsPerPage,
+      };
 
-    // Add milestone filter
-    if (selectedMilestone?.value) {
-      params.milestone_name = selectedMilestone.value;
+      // Add milestone filter
+      if (selectedMilestone?.value) {
+        params.milestone_name = selectedMilestone.value;
+      }
+
+      // Add status filter
+      if (selectedStatus?.value) {
+        params.status = selectedStatus.value;
+      }
+
+      // Add card search filter (numeric only)
+      const cleanSearch = cardSearch.replace(/-/g, "");
+      if (cleanSearch.length === 16) {
+        params.search = cleanSearch;
+      }
+
+      const res = await authAxios().get("/myreward/list", { params });
+
+      let data = res.data?.data || [];
+
+      setMilestonesList(data);
+      setPage(res.data?.currentPage || 1);
+      setTotalPages(res.data?.totalPage || 1);
+      setTotalCount(res.data?.totalCount || data.length);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch myreward");
     }
+  };
 
-    // Add status filter
-    if (selectedStatus?.value) {
-      params.status = selectedStatus.value;
-    }
+  console.log(cardSearch, "cardSearch");
 
-    // Add card search filter (numeric only)
-    const cleanSearch = cardSearch.replace(/-/g, ""); 
-    if (cleanSearch.length === 16) {
-      params.search = cleanSearch;
-    }
-
-    const res = await authAxios().get("/myreward/list", { params });
-
-    let data = res.data?.data || [];
-
-    setMilestonesList(data);
-    setPage(res.data?.currentPage || 1);
-    setTotalPages(res.data?.totalPage || 1);
-    setTotalCount(res.data?.totalCount || data.length);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to fetch myreward");
-  }
-};
-
-  console.log(cardSearch,'cardSearch')
-
-useEffect(() => {
-  setPage(1);
-  fetchMilestonesList(1);
-}, [selectedMilestone, selectedStatus, cardSearch]);
+  useEffect(() => {
+    setPage(1);
+    fetchMilestonesList(1);
+  }, [selectedMilestone, selectedStatus, cardSearch]);
 
   const handleShippingClick = async (itemId, status) => {
     try {
@@ -130,32 +129,32 @@ useEffect(() => {
   };
 
   const handleCardSearchChange = (e) => {
-  let value = e.target.value.replace(/[^0-9-]/g, ""); 
-  let numericValue = value.replace(/-/g, "");
+    let value = e.target.value.replace(/[^0-9-]/g, "");
+    let numericValue = value.replace(/-/g, "");
 
-  // Auto-format display (xxxx-xxxx-xxxx-xxxx)
-  if (numericValue.length > 0) {
-    value = numericValue
-      .substring(0, 16)
-      .replace(/(\d{4})(?=\d)/g, "$1-")
-      .slice(0, 19);
-  }
+    // Auto-format display (xxxx-xxxx-xxxx-xxxx)
+    if (numericValue.length > 0) {
+      value = numericValue
+        .substring(0, 16)
+        .replace(/(\d{4})(?=\d)/g, "$1-")
+        .slice(0, 19);
+    }
 
-  setCardSearch(value);
+    setCardSearch(value);
 
-  if (!numericValue) {
-    setCardError("");
-    return;
-  }
+    if (!numericValue) {
+      setCardError("");
+      return;
+    }
 
-  if (numericValue.length !== 16) {
-    setCardError("Please enter 16 digits");
-  } else {
-    setCardError("");
-  }
+    if (numericValue.length !== 16) {
+      setCardError("Please enter 16 digits");
+    } else {
+      setCardError("");
+    }
 
-  setPage(1);
-};
+    setPage(1);
+  };
 
   return (
     <>
@@ -251,11 +250,18 @@ useEffect(() => {
                         {item?.status === "DELIVERED" ? null : (
                           <>
                             <div
-                              className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[6px] ${
-                                ["REJECT"].includes(item?.status)
-                                  ? "opacity-50 cursor-not-allowed pointer-events-none"
-                                  : "cursor-pointer"
-                              }`}
+                              className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[6px] 
+                                ${
+                                  [
+                                    "REJECT",
+                                    "SHIPPED",
+                                    "DELIVERED",
+                                    "DELAYED",
+                                  ].includes(item?.status)
+                                    ? "opacity-50 cursor-not-allowed pointer-events-none"
+                                    : "cursor-pointer"
+                                }
+                              `}
                               onClick={() => {
                                 setEditingOption(item?.id);
                                 setIsModalOpen(true);
@@ -291,7 +297,17 @@ useEffect(() => {
                               />
                             </div>
                             <div
-                              className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px] cursor-pointer
+                              className={`bg-[#008421] border border-[#D4D4D4] rounded-[5px] w-8 h-8 flex items-center justify-center p-[8px]
+                                ${
+                                  [
+                                    "SHIPPED",
+                                    "DELIVERED",
+                                    "DELAYED",
+                                    "REJECT",
+                                  ].includes(item?.status)
+                                    ? "opacity-50 cursor-not-allowed pointer-events-none"
+                                    : "cursor-pointer"
+                                }
                         `}
                               onClick={() => {
                                 setSelectedItemId(item?.id);
@@ -346,7 +362,7 @@ useEffect(() => {
                     Milestones Achieved
                   </th>
                   <th className="px-3 py-3 min-w-[120px]">Status</th>
-                  <th className="px-3 py-3 min-w-[120px]">View Details</th>
+                  <th className="px-3 py-3 min-w-[120px]">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -400,7 +416,9 @@ useEffect(() => {
                           </span>
                         ) : (
                           <>
-                            {item?.status === "DELIVERED" ? ("--") : (
+                            {item?.status === "DELIVERED" ? (
+                              "--"
+                            ) : (
                               <div className="flex flex-nowrap w-full items-center">
                                 <Tooltip
                                   id={`tooltip-edit-${item.id}`}
@@ -408,11 +426,18 @@ useEffect(() => {
                                   place="left"
                                 >
                                   <div
-                                    className={`bg-[#F1F1F1] border border-[#D4D4D4] rounded-l-[5px] w-9 h-8 flex items-center justify-center p-[6px] ${
-                                      ["REJECT"].includes(item?.status)
-                                        ? "opacity-50 cursor-not-allowed pointer-events-none"
-                                        : "cursor-pointer"
-                                    }`}
+                                    className={`bg-[#F1F1F1] border border-[#D4D4D4] rounded-l-[5px] w-9 h-8 flex items-center justify-center p-[6px] 
+                                      ${
+                                        [
+                                          "REJECT",
+                                          "SHIPPED",
+                                          "DELIVERED",
+                                          "DELAYED",
+                                        ].includes(item?.status)
+                                          ? "opacity-50 cursor-not-allowed pointer-events-none"
+                                          : "cursor-pointer"
+                                      }
+                                    `}
                                     // onClick={() => handleViewClick(item)}
                                     onClick={() => {
                                       setEditingOption(item?.id);
@@ -460,7 +485,18 @@ useEffect(() => {
                                   place="left"
                                 >
                                   <div
-                                    className={`bg-[#F1F1F1] border border-[#D4D4D4] rounded-r-[5px] w-9 h-8 flex items-center justify-center p-[10px] cursor-pointer`}
+                                    className={`bg-[#F1F1F1] border border-[#D4D4D4] rounded-r-[5px] w-9 h-8 flex items-center justify-center p-[10px] 
+                                      ${
+                                        [
+                                          "SHIPPED",
+                                          "DELIVERED",
+                                          "DELAYED",
+                                          "REJECT",
+                                        ].includes(item?.status)
+                                          ? "opacity-50 cursor-not-allowed pointer-events-none"
+                                          : "cursor-pointer"
+                                      }
+                                    `}
                                     onClick={() => {
                                       setSelectedItemId(item?.id);
                                       setShowConfirmReject(true);
@@ -515,9 +551,7 @@ useEffect(() => {
 
       {/* ✅ Success / Rating Popup */}
       {isSuccessModalOpen && (
-        <SubmitRatingPopup
-          setIsSuccessModalOpen={setIsSuccessModalOpen}
-        />
+        <SubmitRatingPopup setIsSuccessModalOpen={setIsSuccessModalOpen} />
       )}
 
       {showConfirmReject && (

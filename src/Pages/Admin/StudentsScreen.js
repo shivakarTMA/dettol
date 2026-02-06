@@ -36,7 +36,7 @@ const validationSchema = Yup.object().shape({
     .min(3, "Age must be at least 3")
     .required("Age is required"),
   class_name: Yup.string().required("Class is required"),
-  section: Yup.string().required("Section is required"),
+  // section: Yup.string().required("Section is required"),
   address_en: Yup.string().required("Address English is required"),
   address_hi: Yup.string().required("Address Hindi is required"),
   district_en: Yup.string().required("District English is required"),

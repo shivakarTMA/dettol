@@ -3,6 +3,7 @@ import Sidebar from "../Components/Common/Sidebar";
 import Topbar from "../Components/Common/Topbar";
 import { useLocation } from "react-router-dom";
 import InstractionGuide from "../Components/InstractionGuide";
+import pdfFile from "../Assests/Images/CRM-User-Flow-for-Coordinator.pdf"
 
 export default function PrivateLayout({ children }) {
   const [toggleMenuBar, setToggleMenuBar] = useState(false);
@@ -78,7 +79,7 @@ export default function PrivateLayout({ children }) {
         <InstractionGuide
           show={showPdf}
           onClose={() => setShowPdf(false)}
-          pdfUrl="/sample.pdf"
+          pdfUrl={pdfFile}
         />
       )}
     </>

@@ -631,7 +631,7 @@ const CoordinatorDashboard = () => {
                           <td className="px-3 py-3">{item?.student_name}</td>
                           <td className="px-3 py-3">{item?.school_name}</td>
                           <td className="px-3 py-3">{item?.student_address}</td>
-                          <td className="px-3 py-3">{item?.milestone_name}</td>
+                          <td className="px-3 py-3">{item?.milestone_name_en}</td>
                           <td className="px-3 py-3 text-center">
                             <span
                               className={`mx-auto block w-fit px-3 py-1 rounded-full capitalize 

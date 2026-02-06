@@ -161,6 +161,9 @@ const TaskListScreen = () => {
                     <th className="px-3 py-3 min-w-[150px] text-center">
                       Loyalty Points
                     </th>
+                    <th className="px-3 py-3 min-w-[150px] text-center">
+                      Claim by Students
+                    </th>
                     <th className="px-3 py-3 min-w-[110px]">Status</th>
                     <th className="px-3 py-3 min-w-[100px] text-center">
                       Position
@@ -175,6 +178,9 @@ const TaskListScreen = () => {
                       <td className="px-3 py-3">{item?.title_en}</td>
                       <td className="px-3 py-3 text-center">
                         {item?.loyalty_points}
+                      </td>
+                      <td className="px-3 py-3 text-center">
+                        {item?.student_claimed}
                       </td>
                       <td className="px-3 py-3">
                         <span

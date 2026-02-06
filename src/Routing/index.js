@@ -25,7 +25,6 @@ import SchoolWiseMilestonesListScreen from "../Pages/Admin/SchoolWiseMilestonesL
 import SchoolWiseActiveStudentScreen from "../Pages/Admin/SchoolWiseActiveStudentScreen";
 import SchoolwiseFeedbackListScreen from "../Pages/Admin/SchoolwiseFeedbackListScreen";
 import MilestonesCompletionScreen from "../Pages/Coordinator/MilestonesCompletionScreen";
-import CordinatorPerformanceListScreen from "../Pages/Admin/CordinatorPerformanceListScreen";
 import UserManagementScreen from "../Pages/Admin/UserManagementScreen";
 import TicketsScreen from "../Pages/Admin/TicketsScreen";
 import TicketsCodinatorScreen from "../Pages/Coordinator/TicketsCodinatorScreen";
@@ -33,6 +32,7 @@ import InventoryListScreen from "../Pages/Admin/InventoryListScreen";
 import SchoolMappingListScreen from "../Pages/Admin/SchoolMappingListScreen";
 import FaqListScreen from "../Pages/Admin/FaqListScreen";
 import FaqCategoryListScreen from "../Pages/Admin/FaqCategoryListScreen";
+import CordinatorPerformanceListPage from "../Pages/Admin/CordinatorPerformanceListPage";
 
 export default function Routing() {
   const { accessToken, userType } = useSelector((state) => state.auth);
@@ -174,7 +174,7 @@ export default function Routing() {
               path="/cordinator-performance"
               element={
                 <PrivateRoute>
-                  <CordinatorPerformanceListScreen />
+                  <CordinatorPerformanceListPage />
                 </PrivateRoute>
               }
             />
@@ -292,7 +292,7 @@ export default function Routing() {
               path="/cordinator-performance"
               element={
                 <PrivateRoute>
-                  <CordinatorPerformanceListScreen />
+                  <CordinatorPerformanceListPage />
                 </PrivateRoute>
               }
             />
@@ -404,7 +404,7 @@ export default function Routing() {
               path="/cordinator-performance"
               element={
                 <PrivateRoute>
-                  <CordinatorPerformanceListScreen />
+                  <CordinatorPerformanceListPage />
                 </PrivateRoute>
               }
             />

@@ -22,6 +22,10 @@ const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
   };
   return (
     <>
+    <div className="lg:hidden block bg-black p-2 text-center text-white text-sm">
+      <p><strong>Support</strong> : 📞 7840003274 | 10:30 am–6:30 pm</p>
+    </div>
+
       <section className="top--bar p-3 border-b border-b-[#D4D4D4]">
         <div className="inner--container flex justify-between gap-3">
           {/* Left Section */}
@@ -35,6 +39,7 @@ const Topbar = ({ setToggleMenuBar, toggleMenuBar, pageTitle }) => {
           {/* Right Section */}
           <div className="top--bar--menu flex items-center gap-3">
             <div className="flex gap-2 items-center">
+              <p className="lg:block hidden"><strong>Support</strong> : 📞 7840003274 | 10:30 am–6:30 pm</p>
               <div className=" bg-[#EAEAEA] rounded-full items-center justify-center w-10 h-10 md:flex hidden">
                 <img src={userIcon} className="w-4" />
               </div>
